@@ -1,0 +1,92 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build watching files",
+            "type": "shell",
+            "command": "stack build --file-watch",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "group": "build",
+            "command": "stack exec -- idris -p ocaml --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.out",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            }
+        },
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "${fileDirname}/${fileBasenameNoExtension}.out",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            }
+        },
+        {
+            "label": "Build and run",
+            "type": "shell",
+            "options": {"cwd": "${fileDirname}"},
+            "command": "stack exec -- idris --cg-opt '-op graphics -op idrisobj -op lwt -op duration' -p ocaml --codegen malfunction ${fileBasename} -o ${fileBasenameNoExtension}.out && ./${fileBasenameNoExtension}.out",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            }
+        },
+        {
+            "label": "Malfunction and run",
+            "type": "shell",
+            "command": "malfunction compile ${file} -o ${fileDirname}/${fileBasenameNoExtension}o.out && ${fileDirname}/${fileBasenameNoExtension}o.out",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}}/test-idris/"
+            },
+            "command": "rm *.ibc *.out *.lang *.mlf",
+            "presentation": {
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "OCaml Lib",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/lib/"
+            },
+            "command": "stack exec -- idris --install ocaml.ipkg",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        }
+    ]
+}

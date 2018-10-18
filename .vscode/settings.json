@@ -1,0 +1,77 @@
+{
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 80,
+    // adding latex and haskell comment in regex and ocaml
+    "todo-tree.regex": "((//|\\(\\*|--|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
+    "files.associations": {
+        "*.mlf": "clojure",
+        "*.mlfa": "clojure"
+    },
+    "files.exclude": {
+        ".stack-work": true,
+        "**/*.ibc": true,
+        "**/*.o": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/.stack-work/**": true,
+        "**/_build/**": true,
+    },
+    "search.useIgnoreFiles": false,
+    "markdown.preview.fontSize": 17,
+    "explorer.autoReveal": false,
+    "terminal.integrated.fontSize": 16,
+    "editor.lineNumbers": "on",
+    "latex-workshop.latex.outDir": "%DIR%/_build",
+    "latex-workshop.chktex.enabled": true,
+    "latex-workshop.synctex.afterBuild.enabled": true,
+    "todo-tree.includeGlobs": [
+        "**/*.tex",
+        "**/*.md"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "plaintext",
+        "latex"
+    ],
+    "spellright.language": [
+        "en_GB"
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "--shell-escape",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": [
+                "%DOCFILE%"
+            ],
+            "env": {}
+        }
+    ],
+}

@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "ghc",
+            "request": "launch",
+            "name": "haskell-debug-adapter",
+            "internalConsoleOptions": "openOnSessionStart",
+            "workspace": "${workspaceRoot}",
+            "startup": "/home/ioanluca/real-world-idris/app/Main.hs",
+            "startupFunc": "main",
+            "startupArgs": "",
+            "stopOnEntry": false,
+            "mainArgs": "${file} -o ${fileDirname}/${fileBasenameNoExtension}.out",
+            "ghciPrompt": "H>>= ",
+            "ghciInitialPrompt": "Prelude>",
+            "ghciCmd": "stack ghci --test --no-load --no-build --main-is TARGET --ghci-options -fprint-evld-with-show",
+            "ghciEnv": {},
+            "logFile": "${workspaceRoot}/.vscode/phoityne.log",
+            "logLevel": "WARNING"
+        }
+    ]
+}

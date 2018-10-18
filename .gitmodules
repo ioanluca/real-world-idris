@@ -1,0 +1,3 @@
+[submodule "malfunction"]
+	path = malfunction
+	url = git@github.com:ioanluca/malfunction.git
