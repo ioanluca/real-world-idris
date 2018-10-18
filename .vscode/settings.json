@@ -1,0 +1,13 @@
+{
+    "spellright.language": [
+        "English (British)"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "plaintext",
+        "latex"
+    ],
+    "editor.mouseWheelZoom": true,
+    "window.zoomLevel": -1,
+    "editor.renderWhitespace": "none",
+}
