@@ -13,4 +13,5 @@
     "todo-tree.ripgrepMaxBuffer": 1000,
     "todo-tree.regex": "((//|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
     "todo-tree.regexCaseSensitive": false,
+    "editor.wordWrap": "wordWrapColumn",
 }

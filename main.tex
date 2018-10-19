@@ -1,8 +1,10 @@
 \documentclass[a4paper]{report}
 
-\usepackage{indentfirst} % FIXME matter of taste
-
+	\usepackage[utf8]{inputenc} % TODO
+	\usepackage{indentfirst} % FIXME matter of taste
+	
 \begin{document}
+
 
 \title{Real World Idris \\ Project Scope and Outline}
 \author{Ioan Luca}
@@ -11,7 +13,7 @@
 
 \pagenumbering{roman}
 
-\tableofcontents
+% \tableofcontents
 % \listoffigures
 % \listoftables
 
@@ -23,39 +25,167 @@
 \pagenumbering{arabic}
 
 \chapter{Introduction}
-	Submission of this, along with feedback from your supervisor, must be done
-	via Myplace.
-	This deliverable is timed to ensure that you get together with your
-	supervisor without undue delay and scope out the project.
-	The submission should contain the following.
-	You should write a short report (no more than 4 pages) that includes:
-	\begin{itemize}
-		\item An overview of what the project is to achieve. This should be reasonably substantial
-		      – either two or three paragraphs in length.
-		\item A preliminary list of achievable objectives for the project.
-		\item A preliminary survey of related work.
-		\item A brief overview of the methodology to be followed
-		      (i.e., how the specification, design, implementation and verification
-		      of the project will be approached).
-		\item A brief overview of how the end product will be evaluated.
-		\item An initial project plan scheduling the development of the project from now until the
-		      project submission deadline.
-		\item A choice of marking scheme (see the section Marking Schemes ) to be used to assess the
-		      project, together with the reasons for choosing that particular scheme
-	\end{itemize}
+Submission of this, along with feedback from your supervisor, must be done
+via Myplace.
+This deliverable is timed to ensure that you get together with your
+supervisor without undue delay and scope out the project.
+The submission should contain the following.
+You should write a short report (no more than 4 pages) that includes:
+\begin{itemize}
+	\item An overview of what the project is to achieve. This should be
+	      reasonably
+	      substantial
+	      – either two or three paragraphs in length.
+	\item A preliminary list of achievable objectives for the project.
+	\item A preliminary survey of related work.
+	\item A brief overview of the methodology to be followed
+	      (i.e., how the specification, design, implementation and
+	      verification
+	      of the project will be approached).
+	\item A brief overview of how the end product will be evaluated.
+	\item An initial project plan scheduling the development of the project
+	      from now until the
+	      project submission deadline.
+	\item A choice of marking scheme (see the section Marking Schemes ) to
+	      be used to assess the
+	      project, together with the reasons for choosing that particular
+	      scheme
+\end{itemize}
+At the end of the report you should include comments made by your supervisor
+about your report (no more than two paragraphs) - these paragraphs should
+comment on the extent to which you appear to understand the nature and scope of the project, and to appreciate where the challenges in it lie.
+It is expected that the objectives of the project will be refined as the project
+progresses and that the related work will be expanded and appropriately described
+for the final report. It is also expected that the project plan will change as the
+project progresses.
 
-	At the end of the report you should include comments made by your supervisor about your
-	report (no more than two paragraphs) - these paragraphs should comment on the extent
-	to which you appear to understand the nature and scope of the project, and to
-	appreciate where the challenges in it lie.
-	It is expected that the objectives of the project will be refined as the project
-	progresses and that the related work will be expanded and appropriately described
-	for the final report. It is also expected that the project plan will change as the
-	project progresses.
+
 \section{Overview}
-\section{Background}
+
+\subsection{Background}
+''Real World Idris'' aims to extend the Idris ecosystem with a Foreign
+Function Interface (FFI) to OCaml, to be used as a mechanism for calling
+functions and services written in OCaml from Idris.
+
+The idea of this upgrade is to enable Idris programs to build on top of
+''battle-tested'' software which would ultimately make Idris more suitable
+for practical programming. For instance, one could write a secure,
+high-performance network application in Idris running as a unikernel
+constructed by MirageOS, an OCaml built library operating system.
+
+\subsection{Idris}
+% intro
+Idris is a general purpose, dependently typed programming language that has an
+advanced type system which encodes complex properties about programs into
+types, which means that programs are checked for correctness before they run.
+(TyDe)
+% TODO talk about TyDe
+Idris is at the forefront of a new generation of programming languages
+that support “lightweight verification”, reducing the costs of reliable
+software by integrating verification into development, instead of considering
+it a separate concern.
+
+% Idris is new and slow, maybe hard?
+Despite being novel and popular in the Programming Language research community
+Idris did not catch the attention of the industrial developer communities.
+This resulted in a lack of reliable, secure and optimized tools and libraries
+in the Idris ecosystem and I am going to highlight some of the reasons for
+why that happened:
+%TODO Peformance
+Firstly, despite having an extensible compiler that targets more than one
+platform, the Idris main/native runtime is currently not performant enough
+compared to its industry counterparts.
+Some work has been put into that bla bla
+%TODO talk about idris-malfunction
+
+% Talk more about the industry adopting a new language? maybe research
+% TODO how intuitive and easy to learn is it
+Secondly, Idris has a steep learning curve partly because it requires
+a somewhat strong background in functional programming on which it relies
+heavily.
+In addition, the ''Type Driven'' paradigm is almost entirely based on the
+Dependent Types theory which is widely inaccessible outside the academic world.
+
+
+
+\subsection{OCaml}
+% intro
+OCaml is a mature language which benefits from advanced and
+reliable industry software being written
+in it.
+
+% OCaml on the other hand is mature and popular which allowed for battle-tested 
+% libraries like Mirage to be developed. 
+
+
+
+\subsection{idris-malfunction}
+% TODO about the work this summer why lambdas what made it faster etc.
+There are currently multiple code generation backends for Idris and amongst
+them, there is one which compiles Idris to OCaml bytecode, which is then
+turned into native executable code by the optimized OCaml compiler.
+This backend was developed by myself, being supervised by Dr. Robert Atkey
+as part of a research internship within the Mathematically Structured
+Programming (MSP) group at the University of Strathclyde.
+%The internship was funded by  EPSRC as part of their Vacation Bursary scheme.
+
+% The project would be beneficial for expanding my knowledge of programming
+% language design and implementation. It will also require me to improve my skills
+% in 3 different languages. There will
+% also be opportunities to potentially learn about specialized kernels, some low-level
+% networking and deployment when tackling the advanced deliverable.
+
+\subsection{Mirage}
+% Unikernels
+% Secure
+% Fast
+
+\subsection{Worked involved}
+The work will involve mapping the OCaml types to Idris equivalents,
+implementing the FFI and there will also be opportunities to fix some of the
+ergonomic issues within the current Idris-OCaml backend.
+The upgrade will be carried out using the Haskell programming language which is
+what the compiler backend is currently written in. The project will involve
+coding in OCaml and Idris as well.
+
+
+
+
 \section{Objectives}
+Basic –  Foreign Function Interface (FFI) from Idris to Ocaml; Specifically,
+being able to call
+OCaml functions from Idris
+
+Intermediate – Being able to safely exchange data between Idris and OCaml;
+Specifically,
+functionality that maps between the OCaml type system and the Idris type system
+or vice versa when
+one of the following happens:
+- Idris typed arguments are passed into OCaml functions
+- OCaml typed values are turned from OCaml functions
+
+Advanced – Implement a useful piece of software in Idris and validate
+it in a ''real-world'' scenario;
+For example, write an HTTP server in Idris and deploy it as a MirageOS
+unikernel on
+Amazon Web Services.
+
 \section{Preliminary survey of related work}
+
+\subsection{Requirements Gathering}
+look at other “complete” Idris backends (ex: JavaScript) to see how the
+interfacing between Idris
+and the target language is implemented
+
+review ''Idris, a General Purpose Dependently Typed Programming Language:
+Design and Implementation''
+and ''Cross-platform Compilers for Functional Languages'' research papers to
+understand the Idris
+support for FFIs
+
+review other related literature
+study the OCaml and the Idris type systems
+
 \section{Methodology}
 \section{Evaluation}
 \section{Marking Scheme}
