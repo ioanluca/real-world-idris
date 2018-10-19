@@ -10,4 +10,7 @@
     "editor.mouseWheelZoom": true,
     "window.zoomLevel": -1,
     "editor.renderWhitespace": "none",
+    "todo-tree.ripgrepMaxBuffer": 1000,
+    "todo-tree.regex": "((//|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
+    "todo-tree.regexCaseSensitive": false,
 }
