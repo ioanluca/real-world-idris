@@ -8,7 +8,7 @@
 
 
 \title{Real World Idris \\ Project Scope and Outline}
-\author{Ioan Luca \\ \small supervised by Dr. Robert Atkey} % fixme
+\author{Ioan Luca \\ 201638554 \\ \small supervised by Dr. Robert Atkey} % fixme
 \date{\today}
 \maketitle
 
@@ -224,25 +224,25 @@ deploy it to a chip (ESP32) or cloud (Amazon Web Services):
 
 
 \section{Preliminary survey of related work}
-I have read the ''Cross-platform Compilers for Functional Languages'' draft
-research paper by Edwin Brady, the creator of Idris.
-This gave me useful insights about the generic FFI in Idris.
+The ''Cross-platform Compilers for Functional Languages'' draft
+research paper by Edwin Brady, the creator of Idris,
+provided useful insights about the generic FFI in Idris.
 
-I explored the C and JavaScript code generation back-ends that are distributed
-with the official Idris platform and I started studying the steps they take to
+The C and JavaScript code generation back-ends that are distributed
+with the official Idris platform show the steps they take to
 support interfacing with the target languages.
 
-I wrote basic programs in OCaml and Idris to gain an initial understanding of
-their type systems.
+A study of basic programs written in OCaml and Idris was performed to gain an
+initial understanding of their type systems.
 
-I have read some information present on Wikipedia and the Mirage homepage
-regarding unikernels and gained a basic understanding of how they
-work in the context of Mirage.
+An initial reading on unikernels and how they
+work in the context of Mirage was done.
 
-I met Lucas Pluvinage at ICFP'18 and discussed about about his recent
-successful work in compiling Mirage to an ESP32 chip.
-I also attended his talk, as part of the OCaml workshop, and read
-his blog posts that track his research progress.
+A meeting with Lucas Pluvinage took place at ICFP'18 where a discussion 
+about his recent successful work in compiling Mirage to an ESP32 chip turned
+out to be an inspiring opportunity for this project.
+His talk where he described his work in more detail was attended as part of the
+OCaml workshop.
 
 
 \section{Methodology}
@@ -252,7 +252,7 @@ The idea is to start writing the report and the source code early and keep
 them synchronized throughout the stages of the project.
 
 \subsection{Specification}
-The specification will start off as a more detailed description of the
+The specification will start as a more detailed description of the
 deliverables and it will be added on to as the project evolves and more
 features can be identified.
 Finally, it needs to accurately resemble the accompanying artefact at all times.
@@ -265,14 +265,15 @@ iterations.
 The report will be written using *Tex technologies while the software part will
 involve coding in Haskell, Idris and OCaml on a Unix system.
 The VSCode text editor with specific plug-ins installed will serve as
-development environment.
+development environment, while Trello is going to aid 
+project management.
 Version control will be carried out using Git.
-I am planning to leverage Stack as a build tool.
+Stack will be leveraged as a build tool.
 More software that automates the Software Development Life Cycle
-should need to be used --- Travis for continuous integration for instance.
+will need to be used --- Travis for continuous integration for instance.
 
 \subsection{Verification}
-I am considering to test the Haskell code base with the following:
+To test the Haskell code base, some of the following will be used:
 \begin{itemize}
 	\item QuickCheck or SmallCheck --- generative testing
 	\item HUnit for --- testing
@@ -285,9 +286,15 @@ Evaluation will mainly consist of writing Idris code that uses OCaml bindings
 and testing that it has the correct behaviour.
 Moreover, Idris and OCaml semantically equivalent programs should behave
 the same.
+This will also be an incremental process.
+Even from the very beginning stages of development, small Idris programs should
+should be built to test small bits of functionality.
+This will provide confidence when attempting to extend pieces of functionality
+and then more complex Idris programs can be built on top of the small ones.
+Nevertheless, some things will have to be tested in isolation as well.
 
 Upon completion of the advanced deliverable, the running Idris networking
-application will be tested for correctness.
+application will be validated for correctness.
 
 
 
@@ -296,22 +303,21 @@ application will be tested for correctness.
 software development.
 First of all, it requires understanding of compilers and programming language
 design.
-Secondly, a big part of this project involves programming in 3 languages. 
+Secondly, a big part of this project involves programming in 3 languages.
 In addition, there will be little to no scientific experimentation of any kind
 going on.
-Moreover, the verification of the system against to the specification is
+Additionally, the verification of the system against the specification is
 essential for this project to be successful.
 
-Overall, we believe that the ''Software Development Based'' marking scheme
+Overall, the ''Software Development Based'' marking scheme
 emphasises the main points and characteristics of this project and therefore,
-we identified it as being the most suitable.
+it was identified as being the most suitable.
 
 
 
 
 \section{Project Plan}
 % fix ergonomic
-
 
 
 \section{Supervisor comments}
