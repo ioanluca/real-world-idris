@@ -1,7 +1,8 @@
 \documentclass[a4paper]{report}
 
-	\usepackage[utf8]{inputenc} % TODO
-	\usepackage{indentfirst} % FIXME matter of taste
+\usepackage[utf8]{inputenc} % TODO
+% \usepackage{indentfirst} % FIXME matter of taste
+\usepackage[margin=0.7in]{geometry}
 	
 \begin{document}
 
@@ -24,151 +25,205 @@
 
 \pagenumbering{arabic}
 
-\chapter{Introduction}
-Submission of this, along with feedback from your supervisor, must be done
-via Myplace.
-This deliverable is timed to ensure that you get together with your
-supervisor without undue delay and scope out the project.
-The submission should contain the following.
-You should write a short report (no more than 4 pages) that includes:
-\begin{itemize}
-	\item An overview of what the project is to achieve. This should be
-	      reasonably
-	      substantial
-	      – either two or three paragraphs in length.
-	\item A preliminary list of achievable objectives for the project.
-	\item A preliminary survey of related work.
-	\item A brief overview of the methodology to be followed
-	      (i.e., how the specification, design, implementation and
-	      verification
-	      of the project will be approached).
-	\item A brief overview of how the end product will be evaluated.
-	\item An initial project plan scheduling the development of the project
-	      from now until the
-	      project submission deadline.
-	\item A choice of marking scheme (see the section Marking Schemes ) to
-	      be used to assess the
-	      project, together with the reasons for choosing that particular
-	      scheme
-\end{itemize}
-At the end of the report you should include comments made by your supervisor
-about your report (no more than two paragraphs) - these paragraphs should
-comment on the extent to which you appear to understand the nature and scope of the project, and to appreciate where the challenges in it lie.
-It is expected that the objectives of the project will be refined as the project
-progresses and that the related work will be expanded and appropriately described
-for the final report. It is also expected that the project plan will change as the
-project progresses.
+% \chapter{Introduction}
+% Submission of this, along with feedback from your supervisor, must be done
+% via Myplace.
+% This deliverable is timed to ensure that you get together with your
+% supervisor without undue delay and scope out the project.
+% The submission should contain the following.
+% You should write a short report (no more than 4 pages) that includes:
+% \begin{itemize}
+% 	\item An overview of what the project is to achieve. This should be
+% 	      reasonably
+% 	      substantial
+% 	      – either two or three paragraphs in length.
+% 	\item A preliminary list of achievable objectives for the project.
+% 	\item A preliminary survey of related work.
+% 	\item A brief overview of the methodology to be followed
+% 	      (i.e., how the specification, design, implementation and
+% 	      verification
+% 	      of the project will be approached).
+% 	\item A brief overview of how the end product will be evaluated.
+% 	\item An initial project plan scheduling the development of the project
+% 	      from now until the
+% 	      project submission deadline.
+% 	\item A choice of marking scheme (see the section Marking Schemes ) to
+% 	      be used to assess the
+% 	      project, together with the reasons for choosing that particular
+% 	      scheme
+% \end{itemize}
+% At the end of the report you should include comments made by your supervisor
+% about your report (no more than two paragraphs) - these paragraphs should
+% comment on the extent to which you appear to understand the nature and scope
+% of the project, and to appreciate where the challenges in it lie.
+% It is expected that the objectives of the project will be refined as the project
+% progresses and that the related work will be expanded and appropriately
+% described
+% for the final report. It is also expected that the project plan will change as
+% the project progresses.
 
 
 \section{Overview}
 
-\subsection{Background}
-''Real World Idris'' aims to extend the Idris ecosystem with a Foreign
+''Real World Idris'' aims to enhance the Idris ecosystem by building a Foreign
 Function Interface (FFI) to OCaml, to be used as a mechanism for calling
 functions and services written in OCaml from Idris.
 
 The idea of this upgrade is to enable Idris programs to build on top of
 ''battle-tested'' software which would ultimately make Idris more suitable
-for practical programming. For instance, one could write a secure,
-high-performance network application in Idris running as a unikernel
-constructed by MirageOS, an OCaml built library operating system.
+for practical programming.
+For instance, one could write a secure, high-performance network application in Idris running as a unikernel constructed by MirageOS, an OCaml built library
+operating system.
+This functionality will be added on top of the Idris-Malfunction compiler
+back-end.
+
+\section{Background}
 
 \subsection{Idris}
-% intro
+% Idris intro
 Idris is a general purpose, dependently typed programming language that has an
 advanced type system which encodes complex properties about programs into
-types, which means that programs are checked for correctness before they run.
-(TyDe)
-% TODO talk about TyDe
+types, which means that the compiler checks the programs for correctness
+before they run.
+This technique is described as ''Type-Driven development'' and Idris leverages
+types as the foundation of the code, allowing relationships and assumptions to
+be expressed using language constructs directly.
+
 Idris is at the forefront of a new generation of programming languages
-that support “lightweight verification”, reducing the costs of reliable
-software by integrating verification into development, instead of considering
-it a separate concern.
+that support “lightweight verification” --- specifications are defined
+early during development, enabling writing maintainable code that is
+guaranteed to work.
+This has the potential to drastically reduce the costs of reliable software by
+integrating verification into development, instead of considering it a separate
+concern.
 
 % Idris is new and slow, maybe hard?
 Despite being novel and popular in the Programming Language research community
 Idris did not catch the attention of the industrial developer communities.
 This resulted in a lack of reliable, secure and optimized tools and libraries
-in the Idris ecosystem and I am going to highlight some of the reasons for
-why that happened:
-%TODO Peformance
+in the Idris ecosystem.
 Firstly, despite having an extensible compiler that targets more than one
-platform, the Idris main/native runtime is currently not performant enough
-compared to its industry counterparts.
-Some work has been put into that bla bla
-%TODO talk about idris-malfunction
-
+platform, the Idris main/native runtime currently lags wise behind
+its industry competitors in terms of performance.
 % Talk more about the industry adopting a new language? maybe research
 % TODO how intuitive and easy to learn is it
 Secondly, Idris has a steep learning curve partly because it requires
 a somewhat strong background in functional programming on which it relies
 heavily.
-In addition, the ''Type Driven'' paradigm is almost entirely based on the
-Dependent Types theory which is widely inaccessible outside the academic world.
-
-
+In addition, the ''Type Driven'' paradigm is based on the Dependent Types
+theory which is widely inaccessible outside the academic world.
 
 \subsection{OCaml}
-% intro
-OCaml is a mature language which benefits from advanced and
-reliable industry software being written
-in it.
+% intro (as described in the OCaml homepage) TODO ML language family
+OCaml is a general purpose industrial-strength functional programming language
+with a high-performance runtime system that focuses on safety and
+expressiveness.
 
-% OCaml on the other hand is mature and popular which allowed for battle-tested 
-% libraries like Mirage to be developed. 
-
-
-
-\subsection{idris-malfunction}
-% TODO about the work this summer why lambdas what made it faster etc.
-There are currently multiple code generation backends for Idris and amongst
-them, there is one which compiles Idris to OCaml bytecode, which is then
-turned into native executable code by the optimized OCaml compiler.
-This backend was developed by myself, being supervised by Dr. Robert Atkey
-as part of a research internship within the Mathematically Structured
-Programming (MSP) group at the University of Strathclyde.
-%The internship was funded by  EPSRC as part of their Vacation Bursary scheme.
-
-% The project would be beneficial for expanding my knowledge of programming
-% language design and implementation. It will also require me to improve my skills
-% in 3 different languages. There will
-% also be opportunities to potentially learn about specialized kernels, some low-level
-% networking and deployment when tackling the advanced deliverable.
+Since its development has started in 1996, an active community of
+academics and their industry counterparts have contributed to a rich set of
+libraries and tools for building advanced, secure and reliable software. Mirage
+is an example of such a system.
 
 \subsection{Mirage}
-% Unikernels
-% Secure
-% Fast
+Mirage is a library operating system written in OCaml, used to build network
+applications with an emphasis on safety and speed.
+Such an application is designed to run as a unikernel that can be deployed
+across a variety of platforms.
 
-\subsection{Worked involved}
-The work will involve mapping the OCaml types to Idris equivalents,
-implementing the FFI and there will also be opportunities to fix some of the
-ergonomic issues within the current Idris-OCaml backend.
-The upgrade will be carried out using the Haskell programming language which is
-what the compiler backend is currently written in. The project will involve
-coding in OCaml and Idris as well.
+% Library OS
+A library OS offers typical functionality, such as networking,
+in the form of a collection of software libraries that can be mixed with
+configuration code to encapsulate an application in a unikernel.
 
+% Unikernel
+Unikernels are specialized machine images.
+They are said to be ''single address space'' because they provide only one
+address space that is shared globally between all processes.
+Unikernels can run directly on a so called hypervisor --- a piece of hardware,
+firmware or software that creates and runs virtual machines.
+
+% wrap up
+In essence, Mirage enables programmers to select a minimal set of OS specific
+low-level functionality required for their applications which are then deployed
+as fixed-purpose programs that don't need an underlying OS to be executed.
+
+\subsection{The Idris-Malfunction compiler back-end}
+Recently work has been put into solving the Idris performance gap by creating a
+new code generation back-end that compiles Idris to Malfunction --- a thin
+wrapper around the OCaml Lambda intermediate representation.
+Malfunction is then compiled to native code by the OCaml compiler using
+''flambda'' optimizations for common high level abstractions found in functional languages --- higher-order functions, parametric polymorphism,
+higher-kinded types, lambdas --- anonymous functions, pattern matching and
+lazy evaluation.
+
+% TODO cite myself and Bob? 
+% This back-end was developed by myself, being supervised by Dr. Robert Atkey
+% as part of a research internship within the Mathematically Structured
+% Programming (MSP) group at the University of Strathclyde.
 
 
 
 \section{Objectives}
-Basic –  Foreign Function Interface (FFI) from Idris to Ocaml; Specifically,
-being able to call
-OCaml functions from Idris
 
-Intermediate – Being able to safely exchange data between Idris and OCaml;
-Specifically,
-functionality that maps between the OCaml type system and the Idris type system
-or vice versa when
-one of the following happens:
-- Idris typed arguments are passed into OCaml functions
-- OCaml typed values are turned from OCaml functions
+The work will involve mapping the OCaml types to Idris equivalents,
+implementing the Foreign Function Interface and there will also be
+opportunities to fix some of the ergonomic issues within the current
+Idris-Malfunction project.
 
-Advanced – Implement a useful piece of software in Idris and validate
-it in a ''real-world'' scenario;
-For example, write an HTTP server in Idris and deploy it as a MirageOS
-unikernel on
-Amazon Web Services.
+The upgrade will be carried out using the Haskell programming language which is
+what the compiler back-end is currently written in.
+It will, however, involve coding in OCaml and Idris as well.
+
+Upon completion of a working FFI, an HTTP server will be written in Idris as
+proof of concept.
+The server will be deployed to either a chip or to AWS.
+
+\subsection{Deliverables}
+
+\subsubsection{Basic}
+Use the provided high level data types for describing foreign function
+function calls in order to implement a simple Foreign Function Interface (FFI).
+Specifically, it should be possible to call simple
+functions --- that return
+and accept primitive types, from OCaml.
+For example, calling functions like
+$val \ floor : float \rightarrow float$ from Idris.
+
+This should be achieved by using the foreign function call construct in Idris
+and defining parts of the fields defined in the FFI record, namely:
+\begin{itemize}
+	\item the predicate $ffi\_types$ that describes which types can be
+	      passed to and from foreign functions
+	\item the type of function descriptors $ffi\_fn$
+	\item the type of exported data descriptors $ffi\_data$
+\end{itemize}
+
+\subsubsection{Intermediate}
+Export Idris monomorphic functions like
+$not \ : \ Bool \rightarrow Bool$ to ''header'' files, so that they can be
+called from OCaml, via the Idris-Malfunction back-end.
+Describing the foreign exports can be achieved by implementing the
+$FFI\_Export$ type in Idris.
+
+Support conversion between Idris high level types and OCaml types,
+being able to safely exchange complex data.
+More specifically, come up with ways of mapping data types like records and
+functions to OCaml equivalents.
+The challenging parts will involve finding a general strategy for converting
+dependent types to regular types that exist in OCaml. However, not all the types are required --- indeed, some may be inappropriate or impossible in this
+case.
+
+\subsubsection{Advanced}
+Prove the underlying concept of the project --- create and deploy a Mirage
+unikernel that runs a networking application (HTTP) written in Idris and
+deploy it to a chip (ESP32) or cloud (Amazon Web Services):
+\begin{itemize}
+	\item create Idris bindings for the required Mirage modules
+	\item write a configuration file for Mirage
+	\item deploy to the target platform
+\end{itemize}
+
+
 
 \section{Preliminary survey of related work}
 
@@ -186,10 +241,24 @@ support for FFIs
 review other related literature
 study the OCaml and the Idris type systems
 
+
+
 \section{Methodology}
+
+
+
 \section{Evaluation}
+
+
+
 \section{Marking Scheme}
+
+
+
 \section{Bob's comments}
+
+
+
 
 % \chapter{Introduction}
 % \label{ch:intro}
