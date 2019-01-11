@@ -4,16 +4,17 @@
 % \usepackage{indentfirst} % FIXME matter of taste
 \usepackage[margin=0.8in]{geometry} % fixme
 
-\begin{document}
-
-
 \title{Real World Idris \\ Project Scope and Outline}
 \author{Ioan Luca \\ 201638554 \\ \small supervised by Dr. Robert Atkey \\
 	\small University of Strathclyde} % fixme
 \date{\today}
+
+
+\begin{document}
+
 \maketitle
 
-\pagenumbering{arabic}
+\pagenumbering{roman}
 
 \tableofcontents
 % \listoffigures
@@ -24,18 +25,18 @@
 % \begin{abstract}
 % \end{abstract}
 
-\pagenumbering{roman}
+\pagenumbering{arabic}
 
 \chapter{Introduction}
 
 \section{Overview}
 
-''Real World Idris'' aims to enhance the Idris ecosystem by building a Foreign
+``Real World Idris'' aims to enhance the Idris ecosystem by building a Foreign
 Function Interface (FFI) to OCaml, to be used as a mechanism for calling
 functions and services written in OCaml from Idris.
 
 The idea of this upgrade is to enable Idris programs to build on top of
-''battle-tested'' software which would ultimately make Idris more suitable
+``battle-tested'' software which would ultimately make Idris more suitable
 for practical programming.
 For instance, one could write a secure, high-performance network application in Idris running as a unikernel constructed by MirageOS, an OCaml built library
 operating system.
@@ -50,7 +51,7 @@ Idris is a general purpose, dependently typed programming language that has an
 advanced type system which encodes complex properties about programs into
 types, which means that the compiler checks the programs for correctness
 before they run.
-This technique is described as ''Type-Driven development'' and Idris leverages
+This technique is described as ``Type-Driven development'' and Idris leverages
 types as the foundation of the code, allowing relationships and assumptions to
 be expressed using language constructs directly.
 
@@ -75,7 +76,7 @@ its industry competitors in terms of performance.
 Secondly, Idris has a steep learning curve partly because it requires
 a somewhat strong background in functional programming on which it relies
 heavily.
-In addition, the ''Type Driven'' paradigm is based on the Dependent Types
+In addition, the ``Type Driven'' paradigm is based on the Dependent Types
 theory which is widely inaccessible outside the academic world.
 
 \subsection{OCaml}
@@ -102,7 +103,7 @@ configuration code to encapsulate an application in a unikernel.
 
 % Unikernel
 Unikernels are specialized machine images.
-They are said to be ''single address space'' because they provide only one
+They are said to be ``single address space'' because they provide only one
 address space that is shared globally between all processes.
 Unikernels can run directly on a so called hypervisor --- a piece of hardware,
 firmware or software that creates and runs virtual machines.
@@ -117,7 +118,7 @@ Recently work has been put into solving the Idris performance gap by creating a
 new code generation back-end that compiles Idris to Malfunction --- a thin
 wrapper around the OCaml Lambda intermediate representation.
 Malfunction is then compiled to native code by the OCaml compiler using
-''flambda'' optimizations for common high level abstractions found in functional languages --- higher-order functions, parametric polymorphism,
+``flambda'' optimizations for common high level abstractions found in functional languages --- higher-order functions, parametric polymorphism,
 higher-kinded types, lambdas --- anonymous functions, pattern matching and
 lazy evaluation.
 
@@ -163,7 +164,7 @@ and defining parts of the fields defined in the FFI record, namely:
 
 \subsection{Intermediate}
 Export Idris monomorphic functions like
-$not \ : \ Bool \rightarrow Bool$ to ''header'' files, so that they can be
+$not \ : \ Bool \rightarrow Bool$ to ``header'' files, so that they can be
 called from OCaml, via the Idris-Malfunction back-end.
 Describing the foreign exports can be achieved by implementing the
 $FFI\_Export$ type in Idris.
@@ -189,7 +190,7 @@ deploy it to a chip (ESP32) or cloud (Amazon Web Services):
 
 
 \section{Preliminary survey of related work}
-The ''Cross-platform Compilers for Functional Languages'' draft
+The ``Cross-platform Compilers for Functional Languages'' draft
 research paper by Edwin Brady, the creator of Idris,
 provided useful insights about the generic FFI in Idris.
 
@@ -281,7 +282,7 @@ application will be validated for correctness.
 
 
 \section{Marking Scheme}
-''Real World Idris'' requires practical knowledge of many aspects related to
+``Real World Idris'' requires practical knowledge of many aspects related to
 software development.
 First of all, it requires understanding of compilers and programming language
 design.
@@ -291,7 +292,7 @@ going on.
 Additionally, the verification of the system against the specification is
 essential for this project to be successful.
 
-Overall, the ''Software Development Based'' marking scheme
+Overall, the ``Software Development Based'' marking scheme
 emphasises the main points and characteristics of this project and therefore,
 it was identified as being the most suitable.
 
@@ -369,6 +370,28 @@ The Submission deadline is at 12:00pm on Monday, 25 March, week 22.
 
 
 \section{Supervisor comments}
+
+\begin{quote}
+``This is really quite a bit more than a scope and outline plan. Ioan
+has a very solid grasp of what is involved in this project, which is
+as expected given his previous experience with a research internship
+working on an Ocaml backend for Idris.
+
+This project is very ambitious, but Ioan has been able to do a good
+amount of background research and write about it well, showing that he
+has understood what the project entails. The ``Agile'' methodology
+adopted for the project is appropriate given the experimental nature
+of the project and the strong possibility of unforeseen problems
+arising with mismatches between Idris and OCaml. Automated testing is
+covered.
+
+The timeplan is sufficiently detailed and breaks down Semester 2 into
+sensible sized chunks to make sure that there is enough time to cover
+development as well as testing and report writing.''
+\end{quote}
+
+
+
 
 
 % \chapter{Introduction}
