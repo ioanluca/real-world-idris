@@ -1,10 +1,11 @@
 \documentclass{beamer}
  
 \usepackage[utf8]{inputenc}
-\title{Real World Idris \\ Project Progress Presentation}
+\title{Real World Idris}
+\subtitle{Project Progress Presentation}
 \author{Ioan Luca \\ 201638554 \\ \small supervisor: Dr Robert Atkey \\
-	\small second marker: Dr Dmitri Roussinov \\
-	\small University of Strathclyde} % fixme
+	\small second marker: Dr Dmitri Roussinov \\}
+\institute{University of Strathclyde}
 \date{\today}
 
  
@@ -27,7 +28,7 @@
 		\item programming becomes a very interactive experience
 		      --- devs think about interesting functionality of their programs
 		      and the compiler figures out where it is/could be useful
-		\item so it's quite new and innovative --- mostly innovative innovative
+		\item so it's quite new and innovative --- mostly 
 		      in the academic world at the moment
 		\item Idris-Malfunction, recent work to solve the performance gap
 	\end{itemize}
@@ -47,7 +48,7 @@
 		      compiler backend I wrote
 		\item Why? --- OCaml is a very popular ``battle-tested''
 		      functional language
-		\item Lots of modular, secure and fast software has been written in item
+		\item Lots of modular, secure and fast software has been written in it
 		\item MirageOS is on such example and it works as a library, so we'd
 		      like to use Mirage in Idris for instance
 		\item to build an HTTP server...
@@ -61,7 +62,7 @@
 		\item written in OCaml
 		\item library OS --- amazing for building safe and
 		      blazing fast network apps
-		\item basically provides the only the minimal set of low-level
+		\item basically provides only the minimal set of low-level
 		      functionality that your app needs and strips down all the
 		      heavy bits of a fully-fledged OS
 		\item constructs unikernels that can be deployed on
@@ -78,7 +79,7 @@
 	The work will involve mapping the OCaml types to Idris equivalents,
 	implementing the Foreign Function Interface and there will also be
 	opportunities to fix some of the ergonomic issues within the
-	current IdrisMalfunction project.
+	current Idris-Malfunction code generation project.
 
 	\begin{itemize}
 		\item Basic	(Currently working on)
@@ -101,7 +102,7 @@
 	\begin{itemize}
 		\item export Idris monomorphic (types are concrete) functions
 		      to OCaml
-		\item essentially the other way round
+		\item essentially the other way around
 		\item at this point support 2-way conversion between
 		      the Idris and OCaml type systems
 		\item safely exchanging complex data between the 2 ecosystems
@@ -138,7 +139,7 @@
 		\item working on the 1st deliverable
 		\item looking at how the C and JavaScript backends implement
 		      their FFIs https://github.com/idris-lang/Idris-dev/tree/master/codegen
-		\item set-up the Development Environment
+		\item set up the Development Environment
 		\item prototyping with implementing the FFI records from the
 		      ``Cross-platform Compilers for Functional Languages'' paper
 		      by Edwin Brady
