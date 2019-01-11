@@ -20,16 +20,21 @@
 	\frametitle{A little bit about Idris}
 	\begin{itemize}
 		\item pure functional language inspired by Haskell
+		      \pause
 		\item has dependent types, so can encode complex properties
+		      \pause
 		      about programs into types enabling ``Type-Driven Development''
 		\item i.e. allows formal lightweight verification --- proving
 		      correctness of programs inside the source code itself,
 		      much like mathematical theorem proving
+		      \pause
 		\item programming becomes a very interactive experience
 		      --- devs think about interesting functionality of their programs
 		      and the compiler figures out where it is/could be useful
-		\item so it's quite new and innovative --- mostly 
+		      \pause
+		\item so it's quite new and innovative --- mostly
 		      in the academic world at the moment
+		      \pause
 		\item Idris-Malfunction, recent work to solve the performance gap
 	\end{itemize}
 \end{frame}
@@ -42,15 +47,20 @@
 		\item essentially an enhancement of the Idris ecosystem
 		      that aims to make it more suitable for practical
 		      programming (for the ``Real World'')
+		      \pause
 		\item a (two-way) Foreign Function Interface (FFI) that
 		      allows calling OCaml
 		      from Idris and vice-versa --- to be built on top of the
 		      compiler backend I wrote
+		      \pause
 		\item Why? --- OCaml is a very popular ``battle-tested''
 		      functional language
+		      \pause
 		\item Lots of modular, secure and fast software has been written in it
+		      \pause
 		\item MirageOS is on such example and it works as a library, so we'd
 		      like to use Mirage in Idris for instance
+		      \pause
 		\item to build an HTTP server...
 	\end{itemize}
 \end{frame}
@@ -60,14 +70,18 @@
 
 	\begin{itemize}
 		\item written in OCaml
+		      \pause
 		\item library OS --- amazing for building safe and
 		      blazing fast network apps
+		      \pause
 		\item basically provides only the minimal set of low-level
 		      functionality that your app needs and strips down all the
 		      heavy bits of a fully-fledged OS
+		      \pause
 		\item constructs unikernels that can be deployed on
 		      a variety of platforms --- hardware (\$5 ESP32 chip)
 		      or hypervisor (AWS)
+		      \pause
 		\item secure and incredibly fast
 	\end{itemize}
 \end{frame}
@@ -81,14 +95,19 @@
 	opportunities to fix some of the ergonomic issues within the
 	current Idris-Malfunction code generation project.
 
+	\pause
 	\begin{itemize}
 		\item Basic	(Currently working on)
+		      \pause
 		      \begin{itemize}
 			      \item basic Idris to OCaml FFI
+			            \pause
 			      \item described using Idris support for describing
 			            foreign function calls
+			            \pause
 			      \item i.e. fill in fields of the FFI record:
 			            $ffi\_types$, $ffi\_fn$, $ffi\_data$
+			            \pause
 			      \item successfully call simple functions like
 			            $val \ floor : float \rightarrow float$
 		      \end{itemize}
@@ -102,15 +121,22 @@
 	\begin{itemize}
 		\item export Idris monomorphic (types are concrete) functions
 		      to OCaml
+		      \pause
 		\item essentially the other way around
+		      \pause
 		\item at this point support 2-way conversion between
 		      the Idris and OCaml type systems
+		      \pause
 		\item safely exchanging complex data between the 2 ecosystems
+		      \pause
 		\item challenging because some of the Idris types don't make
 		      sense in OCaml and hence, don't have equivalents
+		      \pause
 		\item anyway, for now it's only interesting to call OCaml
 		      from Idris, but for the sake of completeness
+		      \pause
 		\item so we need to implement the $FFI\_Export$ type in Idris
+		      \pause
 		\item successfully export functions like
 		      $not \ : \ Bool \rightarrow Bool$ to OCaml header (.mli)
 		      files that can then be called
@@ -123,10 +149,13 @@
 
 	Prove the underlying concept of the project --- create and deploy a Mirage unikernel that runs a networking
 	application (HTTP) written in Idris and deploy it to a chip (ESP32) or cloud (Amazon Web Services):
+	\pause
 
 	\begin{itemize}
 		\item create Idris bindings for the required Mirage modules
+		      \pause
 		\item write a configuration file for Mirage
+		      \pause
 		\item deploy to the target platform
 	\end{itemize}
 \end{frame}
@@ -137,18 +166,24 @@
 
 	\begin{itemize}
 		\item working on the 1st deliverable
+		      \pause
 		\item looking at how the C and JavaScript backends implement
 		      their FFIs https://github.com/idris-lang/Idris-dev/tree/master/codegen
+		      \pause
 		\item set up the Development Environment
+		      \pause
 		\item prototyping with implementing the FFI records from the
 		      ``Cross-platform Compilers for Functional Languages'' paper
 		      by Edwin Brady
+		      \pause
 		\item Malfunction has recently been updated (now supports
 		      lazy evaluation natively and has floats) so I need
 		      to update the code generation back-end
+		      \pause
 		\item working on fixing some of the ergonomic problems with
 		      Idris-Malfunction (dummy parameters optimization, support for Unicode,
 		      primitives, bump to latest Idris/Opam/OCaml compilation time)
+		      \pause
 		\item Getting familiar with Mirage
 	\end{itemize}
 
