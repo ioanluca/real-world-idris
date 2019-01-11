@@ -39,17 +39,17 @@
 
 	\begin{itemize}
 		\item essentially an enhancement of the Idris ecosystem
-		that aims to make it more suitable for practical
-		programming (for the ``Real World'')
+		      that aims to make it more suitable for practical
+		      programming (for the ``Real World'')
 		\item a (two-way) Foreign Function Interface (FFI) that
 		      allows calling OCaml
 		      from Idris and vice-versa --- to be built on top of the
 		      compiler backend I wrote
-		\item Why? --- OCaml is a very popular ``battle-tested'' 
-			  functional language
-	    \item Lots of modular, secure and fast software has been written in item
-	    \item MirageOS is on such example and it works as a library, so we'd 
-			  like to use Mirage in Idris for instance
+		\item Why? --- OCaml is a very popular ``battle-tested''
+		      functional language
+		\item Lots of modular, secure and fast software has been written in item
+		\item MirageOS is on such example and it works as a library, so we'd
+		      like to use Mirage in Idris for instance
 		\item to build an HTTP server...
 	\end{itemize}
 \end{frame}
@@ -60,21 +60,77 @@
 	\begin{itemize}
 		\item written in OCaml
 		\item library OS --- amazing for building safe and
-		blazing fast network apps
+		      blazing fast network apps
 		\item basically provides the only the minimal set of low-level
-		functionality that your app needs and strips down all the
-		heavy bits of a fully-fledged OS
+		      functionality that your app needs and strips down all the
+		      heavy bits of a fully-fledged OS
 		\item constructs unikernels that can be deployed on
-		a variety of platforms --- hardware (\$5 ESP32 chip)
-		or hypervisor (AWS)
+		      a variety of platforms --- hardware (\$5 ESP32 chip)
+		      or hypervisor (AWS)
 		\item secure and incredibly fast
 	\end{itemize}
 \end{frame}
 
 
 \begin{frame}
+	\frametitle{Objectives}
 
+	The work will involve mapping the OCaml types to Idris equivalents,
+	implementing the Foreign Function Interface and there will also be
+	opportunities to fix some of the ergonomic issues within the
+	current IdrisMalfunction project.
+
+	\begin{itemize}
+		\item Basic	(Currently working on)
+		      \begin{itemize}
+			      \item basic Idris to OCaml FFI
+			      \item described using Idris support for describing
+			            foreign function calls
+			      \item i.e. fill in fields of the FFI record:
+			            $ffi\_types$, $ffi\_fn$, $ffi\_data$
+			      \item successfully call simple functions like
+			            $val \ floor : float \rightarrow float$
+		      \end{itemize}
+	\end{itemize}
 \end{frame}
+
+
+\begin{frame}
+	\frametitle{Objectives (Intermediate)}
+
+	\begin{itemize}
+		\item export Idris monomorphic (types are concrete) functions
+		      to OCaml
+		\item essentially the other way round
+		\item at this point support 2-way conversion between
+		      the Idris and OCaml type systems
+		\item safely exchanging complex data between the 2 ecosystems
+		\item challenging because some of the Idris types don't make
+		      sense in OCaml and hence, don't have equivalents
+		\item anyway, for now it's only interesting to call OCaml
+		      from Idris, but for the sake of completeness
+		\item so we need to implement the $FFI\_Export$ type in Idris
+		\item successfully export functions like
+		      $not \ : \ Bool \rightarrow Bool$ to OCaml header (.mli)
+		      files that can then be called
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Objectives (Advanced)}
+
+	Prove the underlying concept of the project — create and deploy a Mirage unikernel that runs a networking
+	application (HTTP) written in Idris and deploy it to a chip (ESP32) or cloud (Amazon Web Services):
+
+	\begin{itemize}
+		\item create Idris bindings for the required Mirage modules
+		\item write a configuration file for Mirage
+		\item deploy to the target platform
+	\end{itemize}
+\end{frame}
+
+
 
 
 
