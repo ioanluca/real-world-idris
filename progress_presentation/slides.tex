@@ -39,6 +39,8 @@
 
 	\begin{itemize}
 		\item essentially an enhancement of the Idris ecosystem
+		that aims to make it more suitable for practical
+		programming (for the ``Real World'')
 		\item a (two-way) Foreign Function Interface (FFI) that
 		      allows calling OCaml
 		      from Idris and vice-versa --- to be built on top of the
@@ -47,7 +49,25 @@
 			  functional language
 	    \item Lots of modular, secure and fast software has been written in item
 	    \item MirageOS is on such example and it works as a library, so we'd 
-		      like to use Mirage in Idris for instance
+			  like to use Mirage in Idris for instance
+		\item to build an HTTP server...
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Mirage}
+
+	\begin{itemize}
+		\item written in OCaml
+		\item library OS --- amazing for building safe and
+		blazing fast network apps
+		\item basically provides the only the minimal set of low-level
+		functionality that your app needs and strips down all the
+		heavy bits of a fully-fledged OS
+		\item constructs unikernels that can be deployed on
+		a variety of platforms --- hardware (\$5 ESP32 chip)
+		or hypervisor (AWS)
+		\item secure and incredibly fast
 	\end{itemize}
 \end{frame}
 
