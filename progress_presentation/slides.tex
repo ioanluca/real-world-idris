@@ -120,7 +120,7 @@
 \begin{frame}
 	\frametitle{Objectives (Advanced)}
 
-	Prove the underlying concept of the project — create and deploy a Mirage unikernel that runs a networking
+	Prove the underlying concept of the project --- create and deploy a Mirage unikernel that runs a networking
 	application (HTTP) written in Idris and deploy it to a chip (ESP32) or cloud (Amazon Web Services):
 
 	\begin{itemize}
@@ -131,6 +131,77 @@
 \end{frame}
 
 
+\begin{frame}
+	\frametitle{Progress to date}
+
+	\begin{itemize}
+		\item working on the 1st deliverable
+		\item looking at how the C and JavaScript backends implement
+		      their FFIs https://github.com/idris-lang/Idris-dev/tree/master/codegen
+		\item set-up the Development Environment
+		\item prototyping with implementing the FFI records from the
+		      ``Cross-platform Compilers for Functional Languages'' paper
+		      by Edwin Brady
+		\item Malfunction has recently been updated (now supports
+		      lazy evaluation natively and has floats) so I need
+		      to update the code generation back-end
+		\item working on fixing some of the ergonomic problems with
+		      Idris-Malfunction (dummy parameters optimization, support for Unicode,
+		      primitives, bump to latest Idris/Opam/OCaml compilation time)
+		\item Getting familiar with Mirage
+	\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Evaluation}
+
+	\begin{itemize}
+		\item write Idris code that calls OCaml routines and Services
+		      and test for correct behaviour (vice-versa too)
+		\item compile programs with the 2 compilers and if
+		      they are semantically equivalent then the behaviour should
+		      be the same
+		\item test early during Development
+		\item upon completion of the advanced deliverable,
+		      the Idris networking application will be validated for
+		      correctness
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Overall project plan}
+
+	\begin{itemize}
+		\item week 12 --- 14 Jan - 20 Jan,
+		      week 13 --- 21 Jan - 27 Jan \\
+		      Implement basic deliverable
+		      and start writing
+		      the report
+		\item week 14 --- 28 Jan - 03 Feb,
+		      week 15 --- 04 Feb - 10 Feb \\ Implement the intermediate
+		      deliverable and report Testing
+		\item week 16 --- 11 Feb - 17 Feb,
+		      week 17 --- 18 Feb - 24 Feb,
+		      week 18 --- 25 Feb - 03 Mar \\ Attempting the advanced
+		      deliverable, Report Testing, \textbf{Mirage}
+		\item week 19 --- 04 Mar - 10 Mar,
+		      week 20 --- 11 Mar - 17 Mar \\
+		      \textbf{week 21 --- 18 Mar - 24 Mar ---
+			      Need to be ready by now} \\
+		      Validation,
+		      Verification,
+		      Proofread \\
+		      Refactor,
+		      Finish Writing up,
+		      Prepare Demo
+		\item \textbf{week 22 --- 25 Mar - 27 Mar ---
+			      Submission Monday 25, 12:00
+			      Demo is on Wednesday 27} \\ Hooray!
+	\end{itemize}
+\end{frame}
 
 
 
