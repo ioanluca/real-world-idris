@@ -1,6 +1,6 @@
 name:                idris-codegen-malfunction
 version:             0.1.0.0
-github:              "ioanluca/idris-codegen-malfunction"
+github:              "ioanluca/real-world-idris"
 license:             BSD3 # FIXME
 author:              "Ioan Luca, Stephen Dolan"
 maintainer:          "ioan.luca7@gmail.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/ioanluca/idris-codegen-malfunction#readme>
+description:         Please see the README on GitHub at <https://github.com/ioanluca/real-world-idris#readme>
 
 dependencies:
 - base >= 4.7 && < 5
