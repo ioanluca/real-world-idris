@@ -1,0 +1,8 @@
+.stack-work/
+.git/
+.vscode/
+progress_presentation/
+report/
+.gitignore
+*.md
+LICENSE

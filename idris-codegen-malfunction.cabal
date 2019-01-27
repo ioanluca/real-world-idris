@@ -4,13 +4,13 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ec63235b39a986f52b5152430dceb4dbf6be869d93d6f9b4ea0249ca88c19515
+-- hash: 82f6531ded71b8ff734ed7d40bc447f3ad9aa2efb116bcea3f2dff52765a6b9f
 
 name:           idris-codegen-malfunction
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/ioanluca/idris-codegen-malfunction#readme>
-homepage:       https://github.com/ioanluca/idris-codegen-malfunction#readme
-bug-reports:    https://github.com/ioanluca/idris-codegen-malfunction/issues
+description:    Please see the README on GitHub at <https://github.com/ioanluca/real-world-idris#readme>
+homepage:       https://github.com/ioanluca/real-world-idris#readme
+bug-reports:    https://github.com/ioanluca/real-world-idris/issues
 author:         Ioan Luca, Stephen Dolan
 maintainer:     ioan.luca7@gmail.com
 copyright:      2019 Ioan Luca, Stephen Dolan
@@ -23,7 +23,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/ioanluca/idris-codegen-malfunction
+  location: https://github.com/ioanluca/real-world-idris
 
 library
   exposed-modules:

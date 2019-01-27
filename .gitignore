@@ -281,3 +281,7 @@ cabal.project.local~
 # Idris
 *.ibc
 *.o
+
+# idris-malfunction backend
+*.lang
+.mlf
