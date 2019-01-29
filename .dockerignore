@@ -4,5 +4,6 @@
 progress_presentation/
 report/
 .gitignore
-*.md
-LICENSE
+Dockerfile
+.dockerignore
+docker-compose.yaml

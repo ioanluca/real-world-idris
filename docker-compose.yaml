@@ -1,0 +1,10 @@
+version: '3'
+services:
+  rwi-compiler:
+    build:
+      context: .
+      args:
+        STACK_RESOLVER: ${STACK_RESOLVER}
+    image: rwi-compiler:${STACK_RESOLVER}
+    container_name: rwi-container-${STACK_RESOLVER}
+
