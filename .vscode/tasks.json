@@ -4,62 +4,53 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "stack install",
+            "label": "Build watching files",
             "type": "shell",
-            "command": "stack install",
+            "command": "stack build --file-watch",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "presentation": {
-                "echo": true,
                 "reveal": "always",
-                "focus": true,
+                "panel": "dedicated"
             }
         },
         {
-            "label": "idrmlf compile",
+            "label": "Build",
             "type": "shell",
-            "command": "idris ${relativeFile} --codegen malfunction -o test/${fileBasenameNoExtension}.o && test/${fileBasenameNoExtension}.o",
+            "group": "build",
+            "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o",
             "presentation": {
-                "echo": true,
                 "reveal": "always",
-                "focus": true,
-            }
-        },{
-            "label": "idrmlf eval",
-            "type": "shell",
-            "command": "idris ${relativeFile} --codegen malfunction --interface -o test/${fileBasenameNoExtension}",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
+                "panel": "dedicated"
             }
         },
         {
-            "label": "idrmlf run",
+            "label": "Run",
             "type": "shell",
-            "command": "test/${fileBasenameNoExtension}.o",
+            "command": "${fileDirname}/${fileBasenameNoExtension}.o",
             "presentation": {
-                "echo": true,
                 "reveal": "always",
-                "focus": true,
+                "panel": "dedicated"
             }
         },
         {
-            "label": "malfunction compile",
+            "label": "Build and run",
             "type": "shell",
-            "command": "malfunction compile ${relativeFile} -o test/${fileBasenameNoExtension}_1.o && test/${fileBasenameNoExtension}_1.o",
+            "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o && ${fileDirname}/${fileBasenameNoExtension}.o",
             "presentation": {
-                "echo": true,
                 "reveal": "always",
-                "focus": true,
+                "panel": "dedicated"
             }
         },
         {
-            "label": "clean test",
+            "label": "Clean",
             "type": "shell",
-            "command": "rm test/*.ibc test/*.o test/*.lang test/*.mlf",
+            // "options": {
+            //     "cwd": "${fileDirname}"
+            // },
+            "command": "rm -r *.ibc *.o *.lang *.mlf",
             "presentation": {
                 "reveal": "never",
             },
