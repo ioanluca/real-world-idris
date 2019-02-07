@@ -1,23 +1,29 @@
-module IRTS.CodegenMalfunction(codegenMalfunction) where
+module IRTS.CodegenMalfunction
+  ( codegenMalfunction
+  )
+where
 
-import Idris.Core.TT
-import IRTS.CodegenCommon
-import IRTS.Lang
+import           Idris.Core.TT
+import           IRTS.CodegenCommon
+import           IRTS.Lang
 
-import Data.List
-import Data.Char
-import Data.Ord
-import qualified Data.Map.Strict as Map
-import qualified Data.Set as S
-import qualified Data.Graph as Graph
-import Data.Maybe(mapMaybe)
-import Data.Function (on)
-import Control.Exception
-import Control.Monad(mapM, ap)
+import           Data.List
+import           Data.Char
+import           Data.Ord
+import qualified Data.Map.Strict               as Map
+import qualified Data.Set                      as S
+import qualified Data.Graph                    as Graph
+import           Data.Maybe                     ( mapMaybe )
+import           Data.Function                  ( on )
+import           Control.Exception
+import           Control.Monad                  ( mapM
+                                                , ap
+                                                )
 
-import System.Process
-import System.Directory
-import System.FilePath
+import           System.Process
+import           System.Directory
+import           System.FilePath
+import           System.IO.Unsafe(unsafePerformIO)
 
 
 
@@ -26,12 +32,12 @@ data Sexp = S [Sexp] | A String | KInt Int
              deriving (Eq)
 
 instance Show Sexp where
-  show sexp = render sexp "" where
+  show sexp = render sexp ""   where
     render :: Sexp -> String -> String
-    render (S s      ) k = "(" ++ foldr render (") " ++ k) s
-    render (A s      ) k = s ++ " " ++ k
-    render (KInt n   ) k = show n ++ " " ++ k
-    render (KStr s   ) k = show s ++ " " ++ k
+    render (S       s) k = "(" ++ foldr render (") " ++ k) s
+    render (A       s) k = s ++ " " ++ k
+    render (KInt    n) k = show n ++ " " ++ k
+    render (KStr    s) k = show s ++ " " ++ k
     render (KBigInt s) k = show s ++ ".ibig " ++ k
 
 
@@ -48,20 +54,18 @@ newtype Translate a =
 
 
 instance Functor Translate where
-  fmap f (MkTrn t) = MkTrn $
-                       \m -> case t m of
-                         Right a -> Right (f a)
-                         Left err -> Left err
+  fmap f (MkTrn t) = MkTrn $ \m -> case t m of
+    Right a   -> Right (f a)
+    Left  err -> Left err
 
 instance Applicative Translate where
-  pure a =  MkTrn $ \m -> Right a
+  pure a = MkTrn $ \m -> Right a
   (<*>) = ap
 
 instance Monad Translate where
-  MkTrn t >>= f = MkTrn $
-                      \m -> case t m of
-                         Right a -> let MkTrn h = f a in h m
-                         Left err -> Left err
+  MkTrn t >>= f = MkTrn $ \m -> case t m of
+    Right a   -> let MkTrn h = f a in h m
+    Left  err -> Left err
 
 
 
@@ -86,6 +90,8 @@ crashWith err = MkTrn $ \m -> Left err
 -- implement all primitives
 -- use ocaml gc optimizations through env vars
 -- replace all dummy params with KInt 0 for speed?
+-- tail calls
+-- functions with no args shouldn't be lambdas or applied
 codegenMalfunction :: CodeGenerator
 codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
@@ -240,7 +246,7 @@ cgDecl _ = pure Nothing
 
 cgExp :: LExp -> Translate Sexp
 cgExp e = do
-  -- a <- cgExp' e
+  a <- cgExp' e
   -- let isTail = case e of
   --       (LApp isTail _ _) -> "<<isTail:" ++ show isTail ++ ">>"
   --       (LLazyApp _ _   ) -> "<<lazy>>"
@@ -294,12 +300,18 @@ cgExp' (LCon maybeName tag name []) =
   if tag > 198 then crashWith "tag > 198" else pure $ KInt tag
 cgExp' (LCon maybeName tag name args) =
   if tag > 198 then crashWith "tag > 198" else mlfBlock tag <$> mapM cgExp args
-cgExp' (LCase _ e cases     ) = cgSwitch e cases
-cgExp' (LConst k            ) = cgConst k
-cgExp' (LForeign fn ret args) = error "no FFI" -- fixme
-cgExp' (LOp prim args       ) = cgOp prim args
-cgExp' LNothing               = pure $ KStr "NOTHING"
-cgExp' (LError s)             = pure $ S
+cgExp' (LCase _ e cases             ) = cgSwitch e cases
+cgExp' (LConst k                    ) = cgConst k
+cgExp' (LForeign (FCon ret) (FStr fn) args) =
+  unsafePerformIO $ do
+  print str
+  print ret
+  print args
+  pure $ pure $ S [A "global", A "$Pervasives", A $ '$' : fn]
+
+cgExp' (LOp prim args) = cgOp prim args
+cgExp' LNothing        = pure $ KStr "NOTHING"
+cgExp' (LError s)      = pure $ S
   [ A "apply"
   , S [A "global", A "$Pervasives", A "$failwith"]
   , KStr $ "error: " ++ show s
