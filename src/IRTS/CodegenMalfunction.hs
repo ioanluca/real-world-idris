@@ -23,7 +23,7 @@ import           Control.Monad                  ( mapM
 import           System.Process
 import           System.Directory
 import           System.FilePath
-import           System.IO.Unsafe(unsafePerformIO)
+import           System.IO.Unsafe               ( unsafePerformIO )
 
 
 
@@ -300,14 +300,19 @@ cgExp' (LCon maybeName tag name []) =
   if tag > 198 then crashWith "tag > 198" else pure $ KInt tag
 cgExp' (LCon maybeName tag name args) =
   if tag > 198 then crashWith "tag > 198" else mlfBlock tag <$> mapM cgExp args
-cgExp' (LCase _ e cases             ) = cgSwitch e cases
-cgExp' (LConst k                    ) = cgConst k
-cgExp' (LForeign (FCon ret) (FStr fn) args) =
-  unsafePerformIO $ do
+cgExp' (LCase _ e cases                   ) = cgSwitch e cases
+cgExp' (LConst k                          ) = cgConst k
+cgExp' (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
   print str
   print ret
   print args
-  pure $ pure $ S [A "global", A "$Pervasives", A $ '$' : fn]
+  pure $ do
+    let fname = '$' : fn
+    as <- mapM (cgExp' . snd) args
+    if as == []
+      then pure $ S [A "global", A "$Pervasives", A fname]
+      else pure $
+       S $ [A "apply", S [A "global", A "$Pervasives", A fname]] ++ as
 
 cgExp' (LOp prim args) = cgOp prim args
 cgExp' LNothing        = pure $ KStr "NOTHING"

@@ -62,6 +62,14 @@ r : Int
 r = unsafePerformIO $
          foreign FFI_OCaml "max_int" (OCaml_IO Int) 
 
+
+lineOfAfile : String
+lineOfAfile = unsafePerformIO $ do
+     ic <- foreign FFI_OCaml "open_in" (String -> OCaml_IO Ptr) "test.mlf"
+     str <- foreign FFI_OCaml "input_line" (Ptr -> OCaml_IO String) ic
+     pure str
+
 main : IO ()
 main = do
     putStrLn $ show r
+    putStrLn lineOfAfile
