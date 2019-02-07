@@ -47,13 +47,14 @@
         {
             "label": "Clean",
             "type": "shell",
-            // "options": {
-            //     "cwd": "${fileDirname}"
-            // },
-            "command": "rm -r *.ibc *.o *.lang *.mlf",
-            "presentation": {
-                "reveal": "never",
+            "options": {
+                "cwd": "${workspaceRoot}/test-idris/"
             },
+            "command": "rm *.ibc *.o *.lang *.mlf",
+            "presentation": {
+                "reveal": "never"
+            },
+            "problemMatcher": []
         }
     ]
 }
