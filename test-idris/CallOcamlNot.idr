@@ -60,16 +60,19 @@ do_fopen f m
 
 r : Int
 r = unsafePerformIO $
-         foreign FFI_OCaml "max_int" (OCaml_IO Int) 
+   foreign FFI_OCaml "min_int" (OCaml_IO Int)
 
 
-lineOfAfile : String
-lineOfAfile = unsafePerformIO $ do
+lineOfAfile : OCaml_IO Unit
+lineOfAfile = do --unsafePerformIO $ do
+     min_int <- foreign FFI_OCaml "min_int" (OCaml_IO Int)
+     prim_write (show min_int)
      ic <- foreign FFI_OCaml "open_in" (String -> OCaml_IO Ptr) "test.mlf"
      str <- foreign FFI_OCaml "input_line" (Ptr -> OCaml_IO String) ic
-     pure str
+     prim_write str
+     {-foreign FFI_OCaml "print_endline" (String -> OCaml_IO Unit) -} 
+     return ()
 
-main : IO ()
+main : OCaml_IO ()
 main = do
-    putStrLn $ show r
-    putStrLn lineOfAfile
+    lineOfAfile

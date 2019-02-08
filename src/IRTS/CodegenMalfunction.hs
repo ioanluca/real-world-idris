@@ -303,7 +303,7 @@ cgExp' (LCon maybeName tag name args) =
 cgExp' (LCase _ e cases                   ) = cgSwitch e cases
 cgExp' (LConst k                          ) = cgConst k
 cgExp' (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
-  print str
+  print fn
   print ret
   print args
   pure $ do

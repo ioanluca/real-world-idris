@@ -14,7 +14,8 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated"
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Build",
@@ -39,6 +40,15 @@
             "label": "Build and run",
             "type": "shell",
             "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o && ${fileDirname}/${fileBasenameNoExtension}.o",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Malfunction and run",
+            "type": "shell",
+            "command": "malfunction compile ${file} -o ${fileDirname}/${fileBasenameNoExtension}o.o && ${fileDirname}/${fileBasenameNoExtension}o.o",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated"
