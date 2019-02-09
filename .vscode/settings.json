@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        ".stack-work": true,
+        "**/*.ibc": true,
+        "**/*.o": true
+    }
+}
