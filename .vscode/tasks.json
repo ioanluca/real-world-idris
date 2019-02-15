@@ -13,7 +13,8 @@
             },
             "presentation": {
                 "reveal": "always",
-                "panel": "dedicated"
+                "panel": "dedicated",
+                "focus": true
             },
             "problemMatcher": []
         },
@@ -24,7 +25,8 @@
             "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o",
             "presentation": {
                 "reveal": "always",
-                "panel": "dedicated"
+                "panel": "dedicated",
+                "focus": true,
             }
         },
         {
@@ -33,7 +35,8 @@
             "command": "${fileDirname}/${fileBasenameNoExtension}.o",
             "presentation": {
                 "reveal": "always",
-                "panel": "dedicated"
+                "panel": "dedicated",
+                "focus": true,
             }
         },
         {
@@ -42,7 +45,8 @@
             "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o && ${fileDirname}/${fileBasenameNoExtension}.o",
             "presentation": {
                 "reveal": "always",
-                "panel": "dedicated"
+                "panel": "dedicated",
+                "focus": true,
             }
         },
         {
@@ -51,7 +55,8 @@
             "command": "malfunction compile ${file} -o ${fileDirname}/${fileBasenameNoExtension}o.o && ${fileDirname}/${fileBasenameNoExtension}o.o",
             "presentation": {
                 "reveal": "always",
-                "panel": "dedicated"
+                "panel": "dedicated",
+                "focus": true,
             }
         },
         {

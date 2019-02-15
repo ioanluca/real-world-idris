@@ -3,5 +3,6 @@
         ".stack-work": true,
         "**/*.ibc": true,
         "**/*.o": true
-    }
+    },
+    "search.useIgnoreFiles": false
 }
