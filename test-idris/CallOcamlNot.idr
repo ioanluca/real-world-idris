@@ -64,10 +64,10 @@ r = unsafePerformIO $
 
 
 lineOfAfile : OCaml_IO Unit
-lineOfAfile = do --unsafePerformIO $ do
+lineOfAfile = do 
      min_int <- foreign FFI_OCaml "min_int" (OCaml_IO Int)
      prim_write (show min_int)
-     ic <- foreign FFI_OCaml "open_in" (String -> OCaml_IO Ptr) "test.mlf"
+     ic <- foreign FFI_OCaml "open_in" (String -> OCaml_IO Ptr) "README.md"
      str <- foreign FFI_OCaml "input_line" (Ptr -> OCaml_IO String) ic
      prim_write str
      {-foreign FFI_OCaml "print_endline" (String -> OCaml_IO Unit) -} 

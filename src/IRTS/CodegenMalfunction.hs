@@ -92,6 +92,8 @@ crashWith err = MkTrn $ \m -> Left err
 -- replace all dummy params with KInt 0 for speed?
 -- tail calls
 -- functions with no args shouldn't be lambdas or applied
+-- squeese multiple lets together? let x = let y = 3 in 
+-- don't generate code for unused functions? ie remove dead code
 codegenMalfunction :: CodeGenerator
 codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
@@ -238,40 +240,24 @@ cgName = cgSym . showCG
 cgDecl :: (Name, LDecl) -> Translate (Maybe Sexp)
 cgDecl (name, LFun _ _ args body) = do
   b <- cgExp body
-  let worldArg = [ sUN "world" | showCG name == "Main.main" ]
-  pure $ Just $ S [cgName name, mlfLam (map cgName $ args ++ worldArg) b]
+  pure $ Just $ S [cgName name, mlfLam (map cgName args) b]
 cgDecl _ = pure Nothing
 
 
 
 cgExp :: LExp -> Translate Sexp
-cgExp e = do
-  a <- cgExp' e
-  -- let isTail = case e of
-  --       (LApp isTail _ _) -> "<<isTail:" ++ show isTail ++ ">>"
-  --       (LLazyApp _ _   ) -> "<<lazy>>"
-  --       _                 -> ""
-  -- pure $ S [A "seq", mlfApp print_endline [KStr $ isTail ++ show e ++ "\n"], a]
-  cgExp' e
- where
-  print_endline :: Sexp
-  print_endline = S [A "global", A "$Pervasives", A "$print_endline"]
-
-
-
-cgExp' :: LExp -> Translate Sexp
-cgExp' (LV name                          ) = pure $ cgName name
-cgExp' (LApp isTailCall fn           []  ) = cgExp fn
-cgExp' (LApp isTailCall fn@(LV name) args) = mlfApp <$> cgExp fn <*> mapM
-  cgExp
-  (args ++ theWorld)
-  where theWorld = [ LConst $ Str "THE_WORLD" | showCG name == "Main.main" ]
-cgExp' (LApp isTailCall fn args) = mlfApp <$> cgExp fn <*> mapM cgExp args
-cgExp' (LLazyApp name args) =
-  mlfBlock 199 . (: []) . mlfLam [] . mlfApp (cgName name) <$> mapM cgExp args
-cgExp' (LLazyExp e                   ) = crashWith "LLazyExp!" --FIXME
-cgExp' (LForce   (LLazyApp name args)) = cgExp $ LApp False (LV name) args
--- cgExp' (LForce   exp) = do
+cgExp (LV name              ) = pure $ cgName name
+-- cgExp (LApp isTailCall fn []) = cgExp fn fixme
+cgExp (LApp isTailCall fn@(LV name) args) =
+  mlfApp <$> cgExp fn <*> mapM cgExp args
+cgExp (LApp isTailCall fn args) = mlfApp <$> cgExp fn <*> mapM cgExp args
+cgExp (LLazyApp name args     ) = do
+  lapp <- cgExp (LApp False (LV name) args)
+  pure $ S [A "lazy", lapp]
+  -- mlfBlock 199 . (: []) . mlfLam [] . mlfApp (cgName name) <$> mapM cgExp args
+cgExp (LLazyExp e        ) = crashWith "LLazyExp!" --FIXME
+-- cgExp (LForce   (LLazyApp name args)) = cgExp $ LApp False (LV name) args
+-- cgExp (LForce   exp) = do
 --   e <- cgExp exp
 --   pure $ S
 --     [ A "let"
@@ -286,37 +272,38 @@ cgExp' (LForce   (LLazyApp name args)) = cgExp $ LApp False (LV name) args
 --       , S [A "_", S [A "tag", A "_"], A "$isLazy"]
 --       ]
 --     ]
-cgExp' (LForce e) = mlfApp (A "$mlfForce") . (: []) <$> cgExp e
-cgExp' (LLet name exp body           ) = do
+cgExp (LForce   e        ) = cgExp e >>= (\e -> pure $ S [A "force", e])
+-- cgExp (LForce e) = mlfApp (A "$mlfForce") . (: []) <$> cgExp e
+cgExp (LLet name exp body) = do
   e <- cgExp exp
   b <- cgExp body
   pure $ S [A "let", S [cgName name, e], b]
-cgExp' (LLam  args body) = crashWith "LLam???" -- FIXME
--- cgExp' (LLam  args body) = cgLam (map cgName args) <$> cgExp body
-cgExp' (LProj e    idx ) = do
+cgExp (LLam  args body) = crashWith "LLam???" -- FIXME
+-- cgExp (LLam  args body) = cgLam (map cgName args) <$> cgExp body
+cgExp (LProj e    idx ) = do
   a <- cgExp e
   pure $ S [A "field", KInt idx, a]
-cgExp' (LCon maybeName tag name []) =
+cgExp (LCon maybeName tag name []) =
   if tag > 198 then crashWith "tag > 198" else pure $ KInt tag
-cgExp' (LCon maybeName tag name args) =
+cgExp (LCon maybeName tag name args) =
   if tag > 198 then crashWith "tag > 198" else mlfBlock tag <$> mapM cgExp args
-cgExp' (LCase _ e cases                   ) = cgSwitch e cases
-cgExp' (LConst k                          ) = cgConst k
-cgExp' (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
+cgExp (LCase _ e cases                   ) = cgSwitch e cases
+cgExp (LConst k                          ) = cgConst k
+cgExp (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
   print fn
   print ret
   print args
   pure $ do
     let fname = '$' : fn
-    as <- mapM (cgExp' . snd) args
+    as <- mapM (cgExp . snd) args
     if as == []
       then pure $ S [A "global", A "$Pervasives", A fname]
-      else pure $
-       S $ [A "apply", S [A "global", A "$Pervasives", A fname]] ++ as
+      else
+        pure $ S $ [A "apply", S [A "global", A "$Pervasives", A fname]] ++ as
 
-cgExp' (LOp prim args) = cgOp prim args
-cgExp' LNothing        = pure $ KStr "NOTHING"
-cgExp' (LError s)      = pure $ S
+cgExp (LOp prim args) = cgOp prim args
+cgExp LNothing        = pure $ KStr "NOTHING"
+cgExp (LError s)      = pure $ S
   [ A "apply"
   , S [A "global", A "$Pervasives", A "$failwith"]
   , KStr $ "error: " ++ show s

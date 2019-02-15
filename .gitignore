@@ -284,4 +284,5 @@ cabal.project.local~
 
 # idris-malfunction backend
 *.lang
-.mlf
+*.mlf
+*.js
