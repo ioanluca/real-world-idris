@@ -36,12 +36,12 @@ data MlfSel
     | DefaultTag
     deriving (Eq, Show)
 
-data MlfCase
-    = MlfCase [MlfSel] MlfExp
-    deriving (Eq, Show)
+type MlfCase = ([MlfSel], MlfExp)
 
 defaultCase :: MlfExp -> MlfCase
-defaultCase = MlfCase [DefaultInt, DefaultTag]
+defaultCase exp = ([DefaultInt, DefaultTag], exp)
+
+
 
 data MlfExp
     = MlfVar MlfName
@@ -97,4 +97,6 @@ data MlfExp
 
     | MlfSwitch MlfExp [MlfCase]
     | MlfIf MlfExp MlfExp MlfExp
+
+    | MlfOCaml MlfExp MlfExp
     deriving (Eq, Show)
