@@ -114,8 +114,7 @@ codegenMalfunction ci = do
   evalCommand      = "cat " ++ mlfFile ++ " | malfunction eval"
   compileCommand   = "malfunction compile -o " ++ outFile ++ " " ++ mlfFile
 
-  runMain          = mlfApp (cgName (sMN 0 "runMain")) [KStr "RUNMAIN_EATME"] --, KStr "THE_WORLD"]
-    -- can cause segfault is main is not called
+  runMain          = mlfApp (cgName (sMN 0 "runMain")) [KStr "RUNMAIN_EATME"]
 
   compileExp =
     S
@@ -140,7 +139,7 @@ replaceExtensionIf file curr new = case stripExtension curr file of
 
 shuffle :: [(Name, LDecl)] -> [Sexp] -> [Sexp]
 shuffle decls rest = prelude
-  ++ toBindings (Graph.stronglyConnComp (mapMaybe toNode decls))
+  : toBindings (Graph.stronglyConnComp (mapMaybe toNode decls))
  where
   nameTagMap :: Map.Map Name (Int, Int)
   nameTagMap = Map.fromList
@@ -188,31 +187,29 @@ shuffle decls rest = prelude
   free LNothing             = S.empty
   free (LError _)           = S.empty
 
-  prelude :: [Sexp]
-  prelude =
-    [ S
-      [ A "$%strrev"
+  prelude :: Sexp
+  prelude = S
+    [ A "$%strrev"
+    , S
+      [ A "lambda"
+      , S [A "$s"]
       , S
-        [ A "lambda"
-        , S [A "$s"]
+        [ A "let"
+        , S [A "$n", S [A "-", S [A "length.byte", A "$s"], KInt 1]]
         , S
-          [ A "let"
-          , S [A "$n", S [A "-", S [A "length.byte", A "$s"], KInt 1]]
+          [ A "apply"
+          , S [A "global", A "$String", A "$mapi"]
           , S
-            [ A "apply"
-            , S [A "global", A "$String", A "$mapi"]
-            , S
-              [ A "lambda"
-              , S [A "$i", A "$c"]
-              , S [A "load.byte", A "$s", S [A "-", A "$n", A "$i"]]
-              ]
-            , A "$s"
+            [ A "lambda"
+            , S [A "$i", A "$c"]
+            , S [A "load.byte", A "$s", S [A "-", A "$n", A "$i"]]
             ]
+          , A "$s"
           ]
         ]
       ]
-    , mlfForce
     ]
+
 
 
 
@@ -240,44 +237,29 @@ cgName = cgSym . showCG
 cgDecl :: (Name, LDecl) -> Translate (Maybe Sexp)
 cgDecl (name, LFun _ _ args body) = do
   b <- cgExp body
-  pure $ Just $ S [cgName name, mlfLam (map cgName args) b]
+  if showCG name == "Main.main" && null args
+    then pure $ Just $ S [cgName name, b]
+    else pure $ Just $ S [cgName name, mlfLam (map cgName args) b]
 cgDecl _ = pure Nothing
 
 
 
 cgExp :: LExp -> Translate Sexp
-cgExp (LV name              ) = pure $ cgName name
--- cgExp (LApp isTailCall fn []) = cgExp fn -- fixme
+cgExp (LV name                ) = pure $ cgName name
+cgExp (LApp isTailCall fn []  ) = cgExp fn -- fixme
 cgExp (LApp isTailCall fn args) = mlfApp <$> cgExp fn <*> mapM cgExp args
 cgExp (LLazyApp name args     ) = do
-  lapp <- cgExp (LApp False (LV name) args)
+  args <- mapM cgExp args
+  let n    = cgName name
+  let lapp = mlfApp n args
   pure $ S [A "lazy", lapp]
-  -- mlfBlock 199 . (: []) . mlfLam [] . mlfApp (cgName name) <$> mapM cgExp args
-cgExp (LLazyExp e        ) = crashWith "LLazyExp!" --FIXME
--- cgExp (LForce   (LLazyApp name args)) = cgExp $ LApp False (LV name) args
--- cgExp (LForce   exp) = do
---   e <- cgExp exp
---   pure $ S
---     [ A "let"
---     , S [A "$isLazy", e]
---     , S
---       [ A "switch"
---       , A "$isLazy"
---       , S
---         [ S [A "tag", KInt 199]
---         , S [A "apply", S [A "field", KInt 0, A "$isLazy"], KStr "FORCE_EATME"]
---         ]
---       , S [A "_", S [A "tag", A "_"], A "$isLazy"]
---       ]
---     ]
+cgExp (LLazyExp e        ) = crashWith "LLazyExp!" --FIXME lifted
 cgExp (LForce   e        ) = cgExp e >>= (\e -> pure $ S [A "force", e])
--- cgExp (LForce e) = mlfApp (A "$mlfForce") . (: []) <$> cgExp e
 cgExp (LLet name exp body) = do
   e <- cgExp exp
   b <- cgExp body
   pure $ S [A "let", S [cgName name, e], b]
-cgExp (LLam  args body) = crashWith "LLam???" -- FIXME
--- cgExp (LLam  args body) = cgLam (map cgName args) <$> cgExp body
+cgExp (LLam  args body) = crashWith "LLam???" -- FIXME lifted
 cgExp (LProj e    idx ) = do
   a <- cgExp e
   pure $ S [A "field", KInt idx, a]
@@ -548,14 +530,6 @@ mlfIntRangeCase x y = S [KInt x, KInt y]
 
 mlfDefaultCase :: [Sexp]
 mlfDefaultCase = [A "_", S [A "tag", A "_"]]
-
-mlfForce :: Sexp
-mlfForce = mlfBind (A "$mlfForce") $ mlfLam [isLazy] $ mlfSwitch
-  isLazy
-  [ mlfSel [mlfTagCase 199] (mlfApp (mlfField 0 isLazy) [])
-  , mlfSel mlfDefaultCase   isLazy
-  ]
-  where isLazy = A "$isLazy"
 
 
 
