@@ -3,9 +3,10 @@ module Malfunction.AST
     )
 where
 
-data MlfProgram =
-    Interpreted MlfExp | Compiled [MlfBinding] MlfExp
-    deriving (Eq, Show)
+-- data MlfProgram
+--     = Interpreted [MlfBinding] MlfExp
+--     | Compiled [MlfBinding] MlfExp
+--     deriving (Eq, Show)
 
 type MlfName = String
 
@@ -44,7 +45,8 @@ defaultCase exp = ([DefaultInt, DefaultTag], exp)
 
 
 data MlfExp
-    = MlfVar MlfName
+    = MlfProg [MlfBinding] MlfExp
+    | MlfVar MlfName
 
     | MlfInt32 Int --fixme
     | MlfInt64 Int --fixme
@@ -100,3 +102,74 @@ data MlfExp
 
     | MlfOCaml MlfExp MlfExp
     deriving (Eq, Show)
+
+mlfAST2Text :: MlfExp -> String
+mlfAST2Text e = go e ""
+
+ip :: String -> String
+ip e = '(' : e ++ ") "
+
+arithType2Text :: MlfArithType -> String
+arithType2Text Int32Arith  = ".int32"
+arithType2Text Int64Arith  = ".int64"
+arithType2Text IntArith    = ""
+arithType2Text BigIntArith = ".ibig"
+arithType2Text FloatArith  = ".f64"
+
+go :: MlfExp -> String -> String
+go (MlfProg bindings e2) k = undefined
+go (MlfVar    e        ) k = '$' : e ++ k
+
+go (MlfInt32  e        ) k = show e ++ arithType2Text Int32Arith ++ k
+go (MlfInt64  e        ) k = show e ++ arithType2Text Int64Arith ++ k
+go (MlfInt    e        ) k = show e ++ k
+go (MlfBigInt e        ) k = show e ++ arithType2Text BigIntArith ++ k
+go (MlfFloat  e        ) k = show e ++ k
+go MlfPosInf             k = "infinity" ++ k
+go MlfNegInf             k = "neg_infinity" ++ k
+go MlfNaN                k = "nan"
+
+go (MlfConvert from to e) k =
+    ip $ "convert" ++ arithType2Text from ++ arithType2Text to ++ go e k ++ k
+
+go (MlfString e             ) k = undefined
+go (MlfPlus  e1 e2 e3       ) k = undefined
+go (MlfMinus e1 e2 e3       ) k = undefined
+go (MlfTimes e1 e2 e3       ) k = undefined
+go (MlfDiv   e1 e2 e3       ) k = undefined
+go (MlfMod   e1 e2 e3       ) k = undefined
+go (MlfNeg e1 e2            ) k = undefined
+go (MlfEq           e1 e2 e3) k = undefined
+go (MlfLT           e1 e2 e3) k = undefined
+go (MlfLTEq         e1 e2 e3) k = undefined
+go (MlfGT           e1 e2 e3) k = undefined
+go (MlfGTEq         e1 e2 e3) k = undefined
+go (MlfBitAnd       e1 e2 e3) k = undefined
+go (MlfBitOr        e1 e2 e3) k = undefined
+go (MlfBitXOr       e1 e2 e3) k = undefined
+go (MlfBitLShift    e1 e2 e3) k = undefined
+go (MlfBitRShift    e1 e2 e3) k = undefined
+go (MlfBitRShiftExt e1 e2 e3) k = undefined
+go (MlfLam e1 e2            ) k = undefined
+go (MlfApp e1 e2            ) k = undefined
+go (MlfLet e1 e2            ) k = undefined
+go (MlfSeq e                ) k = undefined
+go (MlfBlock      e1 e2     ) k = undefined
+go (MlfProjection e1 e2     ) k = undefined
+go (MlfVec     e1 e2 e3     ) k = undefined
+go (MlfVecLoad e1 e2 e3     ) k = undefined
+go (MlfVecStore e1 e2 e3 e4 ) k = undefined
+go (MlfVecLen e1 e2         ) k = undefined
+go (MlfLazy  e              ) k = undefined
+go (MlfForce e              ) k = undefined
+go (MlfSwitch e1 e2         ) k = undefined
+go (MlfIf e1 e2 e3          ) k = undefined
+go (MlfOCaml e1 e2          ) k = undefined
+
+    -- show sexp = render sexp ""   where
+    --     render :: Sexp -> String -> String
+    --     render (S       s) k = "(" ++ foldr render (") " ++ k) s
+    --     render (A       s) k = s ++ " " ++ k
+    --     render (KInt    n) k = show n ++ " " ++ k
+    --     render (KStr    s) k = show s ++ " " ++ k
+    --     render (KBigInt s) k = show s ++ ".ibig " ++ k
