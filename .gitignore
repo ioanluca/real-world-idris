@@ -286,3 +286,4 @@ cabal.project.local~
 *.lang
 *.mlf
 *.js
+idris-codegen-malfunction.cabal
