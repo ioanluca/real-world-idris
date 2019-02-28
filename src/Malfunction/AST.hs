@@ -101,6 +101,8 @@ data MlfExp
     | MlfIf MlfExp MlfExp MlfExp
 
     | MlfOCaml MlfExp MlfExp
+
+    | MlfComment String
     deriving (Eq, Show)
 
 mlfAST2Text :: MlfExp -> String

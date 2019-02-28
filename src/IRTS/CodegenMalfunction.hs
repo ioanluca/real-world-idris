@@ -247,9 +247,7 @@ cgDecl _ = pure Nothing
 
 cgExp :: LExp -> Translate Sexp
 cgExp (LV name              ) = pure $ cgName name
--- cgExp (LApp isTailCall fn []) = cgExp fn fixme
-cgExp (LApp isTailCall fn@(LV name) args) =
-  mlfApp <$> cgExp fn <*> mapM cgExp args
+-- cgExp (LApp isTailCall fn []) = cgExp fn -- fixme
 cgExp (LApp isTailCall fn args) = mlfApp <$> cgExp fn <*> mapM cgExp args
 cgExp (LLazyApp name args     ) = do
   lapp <- cgExp (LApp False (LV name) args)
