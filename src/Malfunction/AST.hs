@@ -47,12 +47,11 @@ defaultCase :: MlfExp -> MlfCase
 defaultCase exp = ([DefaultInt, DefaultTag], exp)
 
 
-
 data MlfExp
     = MlfProg [MlfBinding] MlfExp
     | MlfVar MlfName
 
-    | MlfInt32 Int --fixme
+    | MlfInt32 Int --fixme extract to diff data type reduce code duplication
     | MlfInt64 Int --fixme
     | MlfInt Int
     | MlfBigInt Integer
@@ -106,7 +105,7 @@ data MlfExp
 
     | MlfOCaml MlfExp MlfExp
 
-    | MlfComment String
+    | MlfComment T.Text
     deriving (Eq, Show)
 
 textShow :: Show a => a -> T.Text
@@ -122,6 +121,10 @@ arithType2Text IntArith    = T.empty
 arithType2Text BigIntArith = ".ibig"
 arithType2Text FloatArith  = ".f64"
 
+vecType2text :: MlfVecType -> T.Text
+vecType2text Normal = T.empty
+vecType2text Byte   = ".byte"
+
 name2Text :: MlfName -> T.Text
 name2Text name = '$' `T.cons` T.pack name
 
@@ -132,6 +135,17 @@ binding2Text (ExecBinding e) = ip $ T.concat ["_", " ", mlfAST2Text e]
 binding2Text (RecBinding es) =
     ip $ T.concat ["rec", " "] `T.append` T.concat (map binding2Text es)
 
+sel2Text :: MlfSel -> T.Text
+sel2Text (IntSel n       ) = textShow n
+sel2Text (IntRangeSel n m) = ip $ T.concat [textShow n, " ", textShow m]
+sel2Text DefaultInt        = "_"
+sel2Text (Tag tag)         = ip $ T.concat ["tag", " ", textShow tag]
+sel2Text DefaultTag        = ip $ T.concat ["tag", " ", "_"]
+
+case2Text :: MlfCase -> T.Text
+case2Text (sels, e) =
+    ip $ T.concat (map sel2Text sels) `T.append` mlfAST2Text e
+
 mlfAST2Text :: MlfExp -> T.Text
 mlfAST2Text (MlfProg binds e) =
     ip
@@ -139,24 +153,34 @@ mlfAST2Text (MlfProg binds e) =
         $  [ip "module", " "]
         ++ map binding2Text binds
         ++ [ip "export"]
-mlfAST2Text (MlfVar    e)              = name2Text e
-mlfAST2Text (MlfInt32  e)              = undefined
-mlfAST2Text (MlfInt64  e)              = undefined
-mlfAST2Text (MlfInt    e)              = undefined
-mlfAST2Text (MlfBigInt e)              = undefined
-mlfAST2Text (MlfFloat  e)              = undefined
-mlfAST2Text MlfPosInf                  = undefined
-mlfAST2Text MlfNegInf                  = undefined
-mlfAST2Text MlfNaN                     = undefined
-mlfAST2Text (MlfConvert e1 e2 e3     ) = undefined
-mlfAST2Text (MlfString e             ) = undefined
-mlfAST2Text (MlfPlus  e1 e2 e3       ) = undefined
-mlfAST2Text (MlfMinus e1 e2 e3       ) = undefined
-mlfAST2Text (MlfTimes e1 e2 e3       ) = undefined
-mlfAST2Text (MlfDiv   e1 e2 e3       ) = undefined
-mlfAST2Text (MlfMod   e1 e2 e3       ) = undefined
-mlfAST2Text (MlfNeg e1 e2            ) = undefined
-mlfAST2Text (MlfEq           e1 e2 e3) = undefined
+mlfAST2Text (MlfVar    e)          = name2Text e
+mlfAST2Text (MlfInt32 e) = textShow e `T.append` arithType2Text Int32Arith
+mlfAST2Text (MlfInt64 e) = textShow e `T.append` arithType2Text Int64Arith
+mlfAST2Text (MlfInt    e)          = textShow e
+mlfAST2Text (MlfBigInt e) = textShow e `T.append` arithType2Text BigIntArith
+mlfAST2Text (MlfFloat  e)          = textShow e
+mlfAST2Text MlfPosInf              = "infinity"
+mlfAST2Text MlfNegInf              = "neg_infinity"
+mlfAST2Text MlfNaN                 = "nan"
+mlfAST2Text (MlfConvert from to e) = ip $ T.concat
+    ["convert", arithType2Text from, arithType2Text to, " ", mlfAST2Text e]
+mlfAST2Text (MlfString e   ) = T.pack e
+mlfAST2Text (MlfPlus at e f) = ip $ T.concat
+    ["+", arithType2Text at, " ", mlfAST2Text e, " ", mlfAST2Text f]
+mlfAST2Text (MlfMinus at e f) = ip $ T.concat
+    ["-", arithType2Text at, " ", mlfAST2Text e, " ", mlfAST2Text f]
+mlfAST2Text (MlfTimes at e f) = ip $ T.concat
+    ["*", arithType2Text at, " ", mlfAST2Text e, " ", mlfAST2Text f]
+mlfAST2Text (MlfDiv at e f) = ip $ T.concat
+    ["/", arithType2Text at, " ", mlfAST2Text e, " ", mlfAST2Text f]
+mlfAST2Text (MlfMod at e f) = ip $ T.concat
+    ["%", arithType2Text at, " ", mlfAST2Text e, " ", mlfAST2Text f]
+mlfAST2Text (MlfNeg at e) =
+    ip $ T.concat ["neg", arithType2Text at, " ", mlfAST2Text e]
+mlfAST2Text (MlfEq at e f) = ip $ T.concat
+    ["==", arithType2Text at, " ", mlfAST2Text e, " ", mlfAST2Text f]
+
+-- todo
 mlfAST2Text (MlfLT           e1 e2 e3) = undefined
 mlfAST2Text (MlfLTEq         e1 e2 e3) = undefined
 mlfAST2Text (MlfGT           e1 e2 e3) = undefined
@@ -167,19 +191,51 @@ mlfAST2Text (MlfBitXOr       e1 e2 e3) = undefined
 mlfAST2Text (MlfBitLShift    e1 e2 e3) = undefined
 mlfAST2Text (MlfBitRShift    e1 e2 e3) = undefined
 mlfAST2Text (MlfBitRShiftExt e1 e2 e3) = undefined
-mlfAST2Text (MlfLam e1 e2            ) = undefined
-mlfAST2Text (MlfApp e1 e2            ) = undefined
-mlfAST2Text (MlfLet e1 e2            ) = undefined
-mlfAST2Text (MlfSeq e                ) = undefined
-mlfAST2Text (MlfBlock      e1 e2     ) = undefined
-mlfAST2Text (MlfProjection e1 e2     ) = undefined
-mlfAST2Text (MlfVec     e1 e2 e3     ) = undefined
-mlfAST2Text (MlfVecLoad e1 e2 e3     ) = undefined
-mlfAST2Text (MlfVecStore e1 e2 e3 e4 ) = undefined
-mlfAST2Text (MlfVecLen e1 e2         ) = undefined
-mlfAST2Text (MlfLazy  e              ) = undefined
-mlfAST2Text (MlfForce e              ) = undefined
-mlfAST2Text (MlfSwitch e1 e2         ) = undefined
-mlfAST2Text (MlfIf e1 e2 e3          ) = undefined
-mlfAST2Text (MlfOCaml e1 e2          ) = undefined
-mlfAST2Text (MlfComment e            ) = undefined
+
+mlfAST2Text (MlfLam args body        ) = ip $ T.concat
+    [ "lambda"
+    , " "
+    , ip . T.concat . map mlfAST2Text $ args
+    , " "
+    , mlfAST2Text body
+    ]
+mlfAST2Text (MlfApp fn args) = ip $ T.concat
+    ["apply", " ", mlfAST2Text fn, " ", T.concat . map mlfAST2Text $ args]
+mlfAST2Text (MlfLet binds e) = ip $ T.concat
+    ["let", " ", T.concat $ map binding2Text binds, " ", mlfAST2Text e]
+mlfAST2Text (MlfSeq es) =
+    ip $ T.concat ["seq", " ", T.concat $ map mlfAST2Text es]
+mlfAST2Text (MlfBlock tag fs) = ip $ T.concat
+    [ "block"
+    , " "
+    , ip $ "tag " `T.append` textShow tag
+    , " "
+    , T.concat $ map mlfAST2Text fs
+    ]
+mlfAST2Text (MlfProjection n e) =
+    ip $ T.concat ["field", " ", textShow n, " ", mlfAST2Text e]
+mlfAST2Text (MlfVec vt len init) = ip $ T.concat
+    ["makevec", vecType2text vt, " ", mlfAST2Text len, " ", mlfAST2Text init]
+mlfAST2Text (MlfVecLoad vt vec idx) = ip $ T.concat
+    ["load", vecType2text vt, " ", mlfAST2Text vec, " ", mlfAST2Text idx]
+mlfAST2Text (MlfVecStore vt vec idx val) = ip $ T.concat
+    [ "store"
+    , vecType2text vt
+    , " "
+    , mlfAST2Text vec
+    , " "
+    , mlfAST2Text idx
+    , " "
+    , mlfAST2Text val
+    ]
+mlfAST2Text (MlfVecLen vt vec) =
+    ip $ T.concat ["length", vecType2text vt, " ", mlfAST2Text vec]
+mlfAST2Text (MlfLazy e) = ip $ T.concat ["lazy", " ", mlfAST2Text e]
+mlfAST2Text (MlfForce e) = ip $ T.concat ["force", " ", mlfAST2Text e]
+mlfAST2Text (MlfSwitch switch cases) = ip $ T.concat
+    ["switch", " ", mlfAST2Text switch, " ", T.concat $ map case2Text cases]
+mlfAST2Text (MlfIf cond true false) = ip $ T.concat
+    ["if", " ", mlfAST2Text cond, " ", mlfAST2Text true, " ", mlfAST2Text false]
+mlfAST2Text (MlfOCaml path fn) =
+    ip $ T.concat ["global", " ", mlfAST2Text path, " ", mlfAST2Text fn]
+mlfAST2Text (MlfComment c) = T.unlines $ map ("; " `T.append`) $ T.lines c
