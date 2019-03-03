@@ -5,11 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "ghc",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "name": "haskell-debug-adapter",
+            "internalConsoleOptions": "openOnSessionStart",
+            "workspace": "${workspaceRoot}",
+            "startup": "/home/ioanluca/real-world-idris/app/Main.hs",
+            "startupFunc": "main",
+            "startupArgs": "",
+            "stopOnEntry": false,
+            "mainArgs": "${file} -o ${fileDirname}/${fileBasenameNoExtension}.o",
+            "ghciPrompt": "H>>= ",
+            "ghciInitialPrompt": "Prelude>",
+            "ghciCmd": "stack ghci --test --no-load --no-build --main-is TARGET --ghci-options -fprint-evld-with-show",
+            "ghciEnv": {},
+            "logFile": "${workspaceRoot}/.vscode/phoityne.log",
+            "logLevel": "WARNING"
         }
     ]
 }
