@@ -1,6 +1,6 @@
 module IRTS.CodegenUtils
-    ( asConnectedComponents,
-      getNameTagArityMap
+    ( asConnectedComponents
+    , getNameTagArityMap
     )
 where
 
