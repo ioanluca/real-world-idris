@@ -72,7 +72,7 @@ data MlfExp
 
     | MlfOp MlfPrim MlfArithType [MlfExp]
 
-    | MlfLam [MlfExp] MlfExp
+    | MlfLam [MlfName] MlfExp
     | MlfApp MlfExp [MlfExp]
     | MlfLet [MlfBinding] MlfExp
     | MlfSeq [MlfExp]
@@ -178,12 +178,7 @@ mlfAST2Text (MlfConvert from to e) = ip $ T.concat
 mlfAST2Text (MlfOp op at es) = ip $ T.concat
     [prim2Text op, arithType2Text at, " ", T.concat $ map mlfAST2Text es]
 mlfAST2Text (MlfLam args body) = ip $ T.concat
-    [ "lambda"
-    , " "
-    , ip . T.concat . map mlfAST2Text $ args
-    , " "
-    , mlfAST2Text body
-    ]
+    ["lambda", " ", ip . T.concat . map name2Text $ args, " ", mlfAST2Text body]
 mlfAST2Text (MlfApp fn args) = ip $ T.concat
     ["apply", " ", mlfAST2Text fn, " ", T.concat . map mlfAST2Text $ args]
 mlfAST2Text (MlfLet binds e) = ip $ T.concat
@@ -224,3 +219,9 @@ mlfAST2Text (MlfIf cond true false) = ip $ T.concat
 mlfAST2Text (MlfOCaml path fn) =
     ip $ T.concat ["global", " ", mlfAST2Text path, " ", mlfAST2Text fn]
 mlfAST2Text (MlfComment c) = T.unlines $ map ("; " `T.append`) $ T.lines c
+
+indent :: T.Text -> T.Text
+indent x =
+    let l  = T.lines x
+        il = map (\y -> T.replicate 4 " " `T.append` y) l
+    in  T.unlines il
