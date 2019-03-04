@@ -12,7 +12,7 @@ import           Data.List
 import           Data.Char
 import           Data.Ord
 import qualified Data.Map.Strict               as Map
-import qualified Data.Set                      as S
+import qualified Data.Set                      as Set
 import qualified Data.Graph                    as Graph
 import           Data.Maybe                     ( mapMaybe )
 import           Data.Function                  ( on )
@@ -27,3 +27,4 @@ import           System.IO.Unsafe               ( unsafePerformIO )
 
 generateMlfProgram :: [(Name, LDecl)] -> MlfExp
 generateMlfProgram decls = undefined
+

@@ -6,13 +6,13 @@ where
 import           Idris.Core.TT
 import           IRTS.CodegenCommon
 import           IRTS.Lang
+import           IRTS.CodegenUtils
 import           Malfunction.TranslateMonad
 
 import           Data.List
 import           Data.Char
 import           Data.Ord
 import qualified Data.Map.Strict               as Map
-import qualified Data.Set                      as S
 import qualified Data.Graph                    as Graph
 import           Data.Maybe                     ( mapMaybe )
 import           Data.Function                  ( on )
@@ -84,53 +84,24 @@ replaceExtensionIf file curr new = case stripExtension curr file of
 
 shuffle :: [(Name, LDecl)] -> [Sexp] -> [Sexp]
 shuffle decls rest = prelude
-  : toBindings (Graph.stronglyConnComp (mapMaybe toNode decls))
+  : toBindings (asConnectedComponents . map snd $ decls)
  where
-  nameTagMap :: Map.Map Name (Int, Int)
-  nameTagMap = Map.fromList
-    [ (name, (tag, arity)) | (_, LConstructor name tag arity) <- decls ]
-
-  toBindings :: [Graph.SCC (Name, LDecl)] -> [Sexp]
+  m = getNameTagArityMap $ map snd decls
+  toBindings :: [Graph.SCC LDecl] -> [Sexp]
   toBindings [] = rest
   toBindings (Graph.AcyclicSCC decl : comps) =
-    case runTranslate (cgDecl decl) nameTagMap of
+    case runTranslate (cgDecl decl) m of
       Right (Just sexp) -> sexp : toBindings comps
       Right Nothing     -> toBindings comps
       Left  err         -> error err
   toBindings (Graph.CyclicSCC dcls : comps) = S (A "rec" : mapMaybe go dcls)
     : toBindings comps
    where
-    go decl = case runTranslate (cgDecl decl) nameTagMap of
+    go decl = case runTranslate (cgDecl decl) m of
       Right maybeSexp -> maybeSexp
       Left  err       -> error err
 
-  toNode :: (Name, LDecl) -> Maybe ((Name, LDecl), Name, [Name])
-  toNode decl@(name, LFun _ _ _ body) = Just (decl, name, S.toList (free body))
-  toNode _                            = Nothing
 
-  freeCase :: LAlt -> S.Set Name
-  freeCase (LConCase _ name names exp) =
-    S.unions $ S.singleton name : free exp : map S.singleton names
-  freeCase (LConstCase _ exp) = free exp
-  freeCase (LDefaultCase exp) = free exp
-
-  free :: LExp -> S.Set Name
-  free (LV name           ) = S.singleton name
-  free (LApp _ exp exps   ) = S.unions $ free exp : map free exps
-  free (LLazyApp name exps) = S.unions $ S.singleton name : map free exps
-  free (LLazyExp exp      ) = free exp
-  free (LForce   exp      ) = free exp
-  free (LLet name exp1 exp2) =
-    S.unions [S.singleton name, free exp1, free exp2]
-  free (LLam  names exp   ) = S.unions $ free exp : map S.singleton names
-  free (LProj exp   _     ) = free exp
-  free (LCon _ _ name exps) = S.unions $ S.singleton name : map free exps
-  free (LCase _ exp alts  ) = S.unions $ free exp : map freeCase alts
-  free (LConst _          ) = S.empty
-  free (LForeign _ _ args ) = S.unions $ map (free . snd) args
-  free (LOp _ exps        ) = S.unions $ map free exps
-  free LNothing             = S.empty
-  free (LError _)           = S.empty
 
   prelude :: Sexp
   prelude = S
@@ -179,8 +150,8 @@ cgName = cgSym . showCG
 
 
 
-cgDecl :: (Name, LDecl) -> Translate (Maybe Sexp)
-cgDecl (name, LFun _ _ args body) = do
+cgDecl :: LDecl -> Translate (Maybe Sexp)
+cgDecl (LFun _ name args body) = do
   b <- cgExp body
   if showCG name == "Main.main" && null args
     then pure $ Just $ S [cgName name, b]

@@ -5,7 +5,12 @@ f n = if n `mod` 2 == 0 then True else False
 
 factx : Int -> Lazy Int
 factx 0 = 0
-factx n = n + factx (n - 1)
+factx n = n + factx (n - 1) + sx n
+        where 
+            sx 1 = 3
+            sx n = 1 + sx (n - 1)
+
+
 
 main : IO ()
 main = do
