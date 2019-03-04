@@ -6,6 +6,7 @@ where
 import           Idris.Core.TT
 import           IRTS.CodegenCommon
 import           IRTS.Lang
+import           Malfunction.TranslateMonad
 
 import           Data.List
 import           Data.Char
@@ -25,8 +26,6 @@ import           System.Directory
 import           System.FilePath
 import           System.IO.Unsafe               ( unsafePerformIO )
 
-
-
 data Sexp = S [Sexp] | A String | KInt Int
             | KBigInt Integer | KStr String
              deriving (Eq)
@@ -40,60 +39,6 @@ instance Show Sexp where
     render (KStr    s) k = show s ++ " " ++ k
     render (KBigInt s) k = show s ++ ".ibig " ++ k
 
-
-
-myShow :: Char -> String
-myShow c | ordc < 127 = [c]
-         | otherwise  = "\\u{" ++ show ordc ++ "}"
-  where ordc = ord c
-
-
-
-newtype Translate a =
-   MkTrn ( Map.Map Name (Int, Int) -> Either String a)
-
-
-instance Functor Translate where
-  fmap f (MkTrn t) = MkTrn $ \m -> case t m of
-    Right a   -> Right (f a)
-    Left  err -> Left err
-
-instance Applicative Translate where
-  pure a = MkTrn $ \m -> Right a
-  (<*>) = ap
-
-instance Monad Translate where
-  MkTrn t >>= f = MkTrn $ \m -> case t m of
-    Right a   -> let MkTrn h = f a in h m
-    Left  err -> Left err
-
-
-
-runTranslate :: Translate a -> Map.Map Name (Int, Int) -> Either String a
-runTranslate (MkTrn t) = t
-
-
-
-ask :: Translate (Map.Map Name (Int, Int))
-ask = MkTrn $ \m -> Right m
-
-
-
-crashWith :: String -> Translate a
-crashWith err = MkTrn $ \m -> Left err
-
-
-
--- floats
--- unicode, cannot just show KStrs, ocaml 8bit, overflow safety?
--- ffi with ocaml
--- implement all primitives
--- use ocaml gc optimizations through env vars
--- replace all dummy params with KInt 0 for speed?
--- tail calls
--- functions with no args shouldn't be lambdas or applied
--- squeese multiple lets together? let x = let y = 3 in 
--- don't generate code for unused functions? ie remove dead code
 codegenMalfunction :: CodeGenerator
 codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
