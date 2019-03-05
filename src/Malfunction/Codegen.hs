@@ -286,7 +286,7 @@ cgOp LStrCons [c, s] = do
     "^"
     [stdLibCall "String" "make" [MlfLiteral $ MlfInt 1, ch], str]
 cgOp LStrIndex  [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
-cgOp LStrRev    args     = undefined
+cgOp LStrRev    args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
 cgOp LStrSubstr args     = undefined
 cgOp LReadStr   args     = pervasiveCall "read_line" <$> mapM cgExp args
 cgOp LWriteStr  args     = pervasiveCall "print_string" <$> mapM cgExp args
@@ -298,8 +298,11 @@ cgOp LWriteStr  args     = pervasiveCall "print_string" <$> mapM cgExp args
 -- cgOp LNoOp              args = undefined
 cgOp p _ = pure $ failWith $ "unimplemented primitive: " ++ show p
 
+reverseName :: MlfName
+reverseName = T.pack "%STRREV"
+
 reverseStringMlf :: MlfBinding
-reverseStringMlf = RegBinding (T.pack "%STRREV") $ MlfLam [T.pack "s"] $ MlfLet
+reverseStringMlf = RegBinding reverseName $ MlfLam [T.pack "s"] $ MlfLet
   [ RegBinding
       (T.pack "n")
       (MlfOp MlfMinus
