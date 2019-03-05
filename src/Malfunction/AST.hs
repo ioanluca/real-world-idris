@@ -61,7 +61,7 @@ data MlfConst
     | MlfPosInf
     | MlfNegInf
     | MlfNaN
-    | MlfString String --they return vec of bytes
+    | MlfString Text --they return vec of bytes
     deriving (Eq, Show)
 
 data MlfExp
@@ -92,10 +92,18 @@ data MlfExp
     | MlfSwitch MlfExp [MlfCase]
     | MlfIf MlfExp MlfExp MlfExp
 
-    | MlfOCaml MlfExp MlfExp
+    | MlfOCaml MlfName MlfName
 
     | MlfComment Text
+    | MlfNothing
     deriving (Eq, Show)
+
+pervasiveCall :: MlfName -> MlfExp
+pervasiveCall = MlfOCaml "Pervasives"
+
+failWith :: String -> MlfExp
+failWith err =
+    MlfApp (pervasiveCall "failWith") [MlfLiteral $ MlfString $ "error " `T.append` T.pack err]
 
 textShow :: Show a => a -> Text
 textShow = T.pack . show
@@ -163,7 +171,7 @@ const2Text (MlfFloat  e) = textShow e
 const2Text MlfPosInf     = "infinity"
 const2Text MlfNegInf     = "neg_infinity"
 const2Text MlfNaN        = "nan"
-const2Text (MlfString e) = T.pack e
+const2Text (MlfString e) = e
 
 mlfAST2Text :: MlfExp -> Text
 mlfAST2Text (MlfProg binds e) =
@@ -218,8 +226,9 @@ mlfAST2Text (MlfSwitch switch cases) = ip $ T.concat
 mlfAST2Text (MlfIf cond true false) = ip $ T.concat
     ["if", " ", mlfAST2Text cond, " ", mlfAST2Text true, " ", mlfAST2Text false]
 mlfAST2Text (MlfOCaml path fn) =
-    ip $ T.concat ["global", " ", mlfAST2Text path, " ", mlfAST2Text fn]
+    ip $ T.concat ["global", " ", name2Text path, " ", name2Text fn]
 mlfAST2Text (MlfComment c) = T.unlines $ map ("; " `T.append`) $ T.lines c
+mlfAST2Text MlfNothing     = "__NOTHING__"
 
 indent :: Text -> Text
 indent x =
