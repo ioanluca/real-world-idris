@@ -102,8 +102,9 @@ pervasiveCall :: MlfName -> MlfExp
 pervasiveCall = MlfOCaml "Pervasives"
 
 failWith :: String -> MlfExp
-failWith err =
-    MlfApp (pervasiveCall "failWith") [MlfLiteral $ MlfString $ "error " `T.append` T.pack err]
+failWith err = MlfApp
+    (pervasiveCall "failWith")
+    [MlfLiteral $ MlfString $ "error " `T.append` T.pack err]
 
 textShow :: Show a => a -> Text
 textShow = T.pack . show
