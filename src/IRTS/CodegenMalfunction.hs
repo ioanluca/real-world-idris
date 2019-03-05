@@ -254,8 +254,8 @@ cgSwitch e cases = do
         (\cases@((tag, c, isBlock) : _) ->
           (tag, map (\(_, snd, _) -> snd) cases, isBlock)
         )
-      .   groupBy ((==) `on` (\ fst, _, _) -> fst)
-      .   sortOn (\ (fst, _, _) -> fst )
+      .   groupBy ((==) `on` (\(fst, _, _) -> fst))
+      .   sortOn (\(fst, _, _) -> fst)
       <$> tagcases
 
   cgTagGroup :: (Int, [LAlt], Bool) -> Translate Sexp

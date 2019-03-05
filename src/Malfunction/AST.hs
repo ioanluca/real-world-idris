@@ -57,7 +57,7 @@ data MlfConst
     | MlfInt64 Int  --fixme
     | MlfInt Int
     | MlfBigInt Integer
-    | MlfFloat Float
+    | MlfFloat Double
     | MlfPosInf
     | MlfNegInf
     | MlfNaN
@@ -98,12 +98,20 @@ data MlfExp
     | MlfNothing
     deriving (Eq, Show)
 
-pervasiveCall :: MlfName -> MlfExp
-pervasiveCall = MlfOCaml "Pervasives"
+stdLib :: String -> String -> MlfExp
+stdLib m = (MlfOCaml $ T.pack m) . T.pack
+
+stdLibCall :: String -> String-> [MlfExp] -> MlfExp
+stdLibCall m n = MlfApp (stdLib m n) 
+
+pervasive :: String -> MlfExp
+pervasive = stdLib "Pervasives"
+
+pervasiveCall :: String -> [MlfExp] -> MlfExp
+pervasiveCall name = MlfApp (pervasive name)
 
 failWith :: String -> MlfExp
-failWith err = MlfApp
-    (pervasiveCall "failWith")
+failWith err = pervasiveCall "failWith"
     [MlfLiteral $ MlfString $ "error " `T.append` T.pack err]
 
 textShow :: Show a => a -> Text
