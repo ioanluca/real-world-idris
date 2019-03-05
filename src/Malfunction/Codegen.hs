@@ -34,7 +34,10 @@ import           System.IO.Unsafe               ( unsafePerformIO )
 
 
 generateMlfProgram :: [(Name, LDecl)] -> MlfExp
-generateMlfProgram decls = undefined
+generateMlfProgram decls =
+  let bindings = generateBindings $ asConnectedComponents . map snd $ decls
+      runMainApplication = MlfApp (MlfVar $ T.pack "runMain_0") []
+  in  MlfProg (reverseStringMlf : bindings) runMainApplication
  where
   m = getNameTagArityMap $ map snd decls
 
@@ -285,9 +288,10 @@ cgOp LStrCons [c, s] = do
   pure $ pervasiveCall
     "^"
     [stdLibCall "String" "make" [MlfLiteral $ MlfInt 1, ch], str]
+    -- todo maybe use makevec builtin
 cgOp LStrIndex  [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
 cgOp LStrRev    args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
-cgOp LStrSubstr args     = undefined
+-- cgOp LStrSubstr args     = undefined
 cgOp LReadStr   args     = pervasiveCall "read_line" <$> mapM cgExp args
 cgOp LWriteStr  args     = pervasiveCall "print_string" <$> mapM cgExp args
 -- cgOp LSystemInfo        args = undefined

@@ -101,8 +101,8 @@ data MlfExp
 stdLib :: String -> String -> MlfExp
 stdLib m = (MlfOCaml $ T.pack m) . T.pack
 
-stdLibCall :: String -> String-> [MlfExp] -> MlfExp
-stdLibCall m n = MlfApp (stdLib m n) 
+stdLibCall :: String -> String -> [MlfExp] -> MlfExp
+stdLibCall m n = MlfApp (stdLib m n)
 
 pervasive :: String -> MlfExp
 pervasive = stdLib "Pervasives"
@@ -111,7 +111,8 @@ pervasiveCall :: String -> [MlfExp] -> MlfExp
 pervasiveCall name = MlfApp (pervasive name)
 
 failWith :: String -> MlfExp
-failWith err = pervasiveCall "failWith"
+failWith err = pervasiveCall
+    "failWith"
     [MlfLiteral $ MlfString $ "error " `T.append` T.pack err]
 
 textShow :: Show a => a -> Text
@@ -187,7 +188,7 @@ mlfAST2Text (MlfProg binds e) =
     ip
         $  T.concat
         $  [ip "module", " "]
-        ++ map binding2Text binds
+        ++ map binding2Text (binds ++ [ExecBinding e])
         ++ [ip "export"]
 mlfAST2Text (MlfVar     e        ) = name2Text e
 mlfAST2Text (MlfLiteral const    ) = const2Text const
@@ -196,9 +197,19 @@ mlfAST2Text (MlfConvert from to e) = ip $ T.concat
 mlfAST2Text (MlfOp op at es) = ip $ T.concat
     [prim2Text op, arithType2Text at, " ", T.concat $ map mlfAST2Text es]
 mlfAST2Text (MlfLam args body) = ip $ T.concat
-    ["lambda", " ", ip . T.concat . map name2Text $ args, " ", mlfAST2Text body]
+    [ "lambda"
+    , " "
+    , ip . T.concat . map name2Text $ if null args then ["%EATME"] else args
+    , " "
+    , mlfAST2Text body
+    ]
 mlfAST2Text (MlfApp fn args) = ip $ T.concat
-    ["apply", " ", mlfAST2Text fn, " ", T.concat . map mlfAST2Text $ args]
+    [ "apply"
+    , " "
+    , mlfAST2Text fn
+    , " "
+    , T.concat . map mlfAST2Text $ if null args then [MlfNothing] else args
+    ]
 mlfAST2Text (MlfLet binds e) = ip $ T.concat
     ["let", " ", T.concat $ map binding2Text binds, " ", mlfAST2Text e]
 mlfAST2Text (MlfSeq es) =
@@ -237,7 +248,7 @@ mlfAST2Text (MlfIf cond true false) = ip $ T.concat
 mlfAST2Text (MlfOCaml path fn) =
     ip $ T.concat ["global", " ", name2Text path, " ", name2Text fn]
 mlfAST2Text (MlfComment c) = T.unlines $ map ("; " `T.append`) $ T.lines c
-mlfAST2Text MlfNothing     = "__NOTHING__"
+mlfAST2Text MlfNothing     = "0"
 
 indent :: Text -> Text
 indent x =
