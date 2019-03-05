@@ -18,6 +18,8 @@ import qualified Data.Set                      as Set
 import qualified Data.Graph                    as Graph
 import           Data.Maybe                     ( mapMaybe )
 import           Data.Function                  ( on )
+import           Data.Text                      ( Text )
+import qualified Data.Text                     as T
 import           Control.Exception
 import           Control.Monad                  ( mapM )
 
@@ -48,16 +50,17 @@ generateMlfProgram decls = undefined
 cgDecl :: LDecl -> Translate (Maybe MlfBinding)
 cgDecl (LFun inline n as b) = do
   body <- cgExp b
-  let args   = map showCG as
-  let name   = showCG n
-  let isMain = showCG n == "Main.main"
+  let args   = map cgName as
+  let name   = cgName n
+  let isMain = name == T.pack "Main.main"
   if isMain && null as
     then pure $ Just $ RegBinding name body
     else pure $ Just $ RegBinding name $ MlfLam args body
 cgDecl _ = pure Nothing
 
-cgName :: Name -> MlfExp
-cgName n = MlfVar $ go $ showCG n
+cgName :: Name -> MlfName
+cgName = T.pack . showCG
+-- cgName = T.pack . go . showCG
  where
   okChar c =
     (isAscii c && isAlpha c) || isDigit c || c `elem` ".&|$+-!@#^*~?<>=_"
@@ -66,7 +69,21 @@ cgName n = MlfVar $ go $ showCG n
               | otherwise = "%" ++ show (ord c) ++ "%" ++ go cs
 
 cgExp :: LExp -> Translate MlfExp
-cgExp e = undefined
+cgExp (LV n             ) = pure $ MlfVar $ cgName n
+cgExp (LApp e1 e2 e3    ) = undefined
+cgExp (LLazyApp e1 e2   ) = undefined
+cgExp (LLazyExp e       ) = undefined
+cgExp (LForce   e       ) = undefined
+cgExp (LLet e1 e2 e3    ) = undefined
+cgExp (LLam  e1 e2      ) = undefined
+cgExp (LProj e1 e2      ) = undefined
+cgExp (LCon e1 e2 e3 e4 ) = undefined
+cgExp (LCase e1 e2 e3   ) = undefined
+cgExp (LConst e         ) = undefined
+cgExp (LForeign e1 e2 e3) = undefined
+cgExp (LOp e1 e2        ) = undefined
+cgExp LNothing            = undefined
+cgExp (LError e)          = undefined
 
 
 

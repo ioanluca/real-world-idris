@@ -2,6 +2,7 @@
 
 module Malfunction.AST where
 
+import           Data.Text                      ( Text )
 import qualified Data.Text                     as T
 
 -- data MlfProgram
@@ -9,7 +10,7 @@ import qualified Data.Text                     as T
 --     | Compiled [MlfBinding] MlfExp
 --     deriving (Eq, Show)
 
-type MlfName = String
+type MlfName = Text
 
 data MlfBinding
     = RegBinding MlfName MlfExp
@@ -93,48 +94,48 @@ data MlfExp
 
     | MlfOCaml MlfExp MlfExp
 
-    | MlfComment T.Text
+    | MlfComment Text
     deriving (Eq, Show)
 
-textShow :: Show a => a -> T.Text
+textShow :: Show a => a -> Text
 textShow = T.pack . show
 
-ip :: T.Text -> T.Text
+ip :: Text -> Text
 ip e = T.concat ["(", e, ")"]
 
-arithType2Text :: MlfArithType -> T.Text
+arithType2Text :: MlfArithType -> Text
 arithType2Text Int32Arith  = ".int32"
 arithType2Text Int64Arith  = ".int64"
 arithType2Text IntArith    = T.empty
 arithType2Text BigIntArith = ".ibig"
 arithType2Text FloatArith  = ".f64"
 
-vecType2text :: MlfVecType -> T.Text
+vecType2text :: MlfVecType -> Text
 vecType2text Normal = T.empty
 vecType2text Byte   = ".byte"
 
-name2Text :: MlfName -> T.Text
-name2Text name = '$' `T.cons` T.pack name
+name2Text :: MlfName -> Text
+name2Text name = '$' `T.cons` name
 
-binding2Text :: MlfBinding -> T.Text
+binding2Text :: MlfBinding -> Text
 binding2Text (RegBinding name e) =
     ip $ T.concat [name2Text name, " ", mlfAST2Text e]
 binding2Text (ExecBinding e) = ip $ T.concat ["_", " ", mlfAST2Text e]
 binding2Text (RecBinding es) =
     ip $ T.concat ["rec", " "] `T.append` T.concat (map binding2Text es)
 
-sel2Text :: MlfSel -> T.Text
+sel2Text :: MlfSel -> Text
 sel2Text (IntSel n       ) = textShow n
 sel2Text (IntRangeSel n m) = ip $ T.concat [textShow n, " ", textShow m]
 sel2Text DefaultInt        = "_"
 sel2Text (Tag tag)         = ip $ T.concat ["tag", " ", textShow tag]
 sel2Text DefaultTag        = ip $ T.concat ["tag", " ", "_"]
 
-case2Text :: MlfCase -> T.Text
+case2Text :: MlfCase -> Text
 case2Text (sels, e) =
     ip $ T.concat (map sel2Text sels) `T.append` mlfAST2Text e
 
-prim2Text :: MlfPrim -> T.Text
+prim2Text :: MlfPrim -> Text
 prim2Text MlfPlus         = "+"
 prim2Text MlfMinus        = "-"
 prim2Text MlfTimes        = "*"
@@ -153,7 +154,7 @@ prim2Text MlfBitLShift    = "<<"
 prim2Text MlfBitRShift    = ">>"
 prim2Text MlfBitRShiftExt = "a>>"
 
-const2Text :: MlfConst -> T.Text
+const2Text :: MlfConst -> Text
 const2Text (MlfInt32  e) = textShow e `T.append` arithType2Text Int32Arith
 const2Text (MlfInt64  e) = textShow e `T.append` arithType2Text Int64Arith
 const2Text (MlfBigInt e) = textShow e `T.append` arithType2Text BigIntArith
@@ -164,7 +165,7 @@ const2Text MlfNegInf     = "neg_infinity"
 const2Text MlfNaN        = "nan"
 const2Text (MlfString e) = T.pack e
 
-mlfAST2Text :: MlfExp -> T.Text
+mlfAST2Text :: MlfExp -> Text
 mlfAST2Text (MlfProg binds e) =
     ip
         $  T.concat
@@ -220,7 +221,7 @@ mlfAST2Text (MlfOCaml path fn) =
     ip $ T.concat ["global", " ", mlfAST2Text path, " ", mlfAST2Text fn]
 mlfAST2Text (MlfComment c) = T.unlines $ map ("; " `T.append`) $ T.lines c
 
-indent :: T.Text -> T.Text
+indent :: Text -> Text
 indent x =
     let l  = T.lines x
         il = map (\y -> T.replicate 4 " " `T.append` y) l
