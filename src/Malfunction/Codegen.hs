@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Malfunction.Codegen
   ( generateMlfProgram
   )
@@ -59,11 +61,8 @@ cgDecl (LFun inline n as b) = do
 cgDecl _ = pure Nothing
 
 cgName :: Name -> MlfName
-cgName = T.pack . showCG
 -- cgName = T.pack . go . showCG
-
-
-
+cgName = T.pack . showCG
  where
   okChar c =
     (isAscii c && isAlpha c) || isDigit c || c `elem` ".&|$+-!@#^*~?<>=_"
@@ -105,99 +104,82 @@ cgExp (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
     as <- mapM (cgExp . snd) args
     if null as
       then pure $ pervasiveCall $ T.pack fn
-      else
-        pure $ MlfApp (pervasiveCall $ T.pack fn) as
+      else pure $ MlfApp (pervasiveCall $ T.pack fn) as
 
 cgExp (LOp prim args) = cgOp prim args
 cgExp LNothing        = pure MlfNothing
-cgExp (LError err)      = pure $ failWith err
+cgExp (LError err)    = pure $ failWith err
 
 cgSwitch :: LExp -> [LAlt] -> Translate MlfExp
-cgSwitch x (LConstCase (BI n) y : cases) = undefined
--- cgSwitch x (LConstCase (BI n) y : cases) = do
---   e    <- cgExp x
---   exp  <- cgExp y
---   rest <- cgSwitch x cases
---   let sw = S [A "==.ibig", e, KBigInt n]
---   pure $ mlfSwitch sw [mlfSel [mlfIntCase 1] exp, mlfSel mlfDefaultCase rest]
--- cgSwitch e cases = do
---   a    <- cgExp e
---   ts   <- taggroups
---   tgs  <- mapM cgTagGroup ts
---   ntgs <- concatMapM cgNonTagCase cases
---   pure $ mlfLet [mlfBind scr a] $ mlfSwitch scr $ tgs ++ ntgs
---  where
-  -- scr :: Sexp
-  -- scr = A "$%matchOn"
+cgSwitch x (LConstCase (BI n) y : cases) = do
+  e    <- cgExp x
+  exp  <- cgExp y
+  rest <- cgSwitch x cases
+  let sw = MlfOp MlfEq BigIntArith [MlfLiteral $ MlfBigInt n, e]
+  pure $ MlfSwitch sw [([IntSel 1], exp), defaultCase rest]
+cgSwitch e cases = do
+  a   <- cgExp e
+  ts  <- taggroups
+  tgs <- mapM cgTagGroup ts
+  -- ntgs <- concatMapM cgNonTagCase cases
+  let ntgs = []
+  pure $ MlfLet [RegBinding matchOn a] (MlfSwitch matchOnExp $ tgs ++ ntgs)
+ where
+  matchOn    = T.pack "MATCH_ME"
+  matchOnExp = MlfVar matchOn
 
-  -- getTag n m = case Map.lookup n m of
-  --   Just (tag, arity) -> tag
-  --   Nothing           -> error "This should never happen"
+  getTag n m = case Map.lookup n m of
+    Just (tag, arity) -> tag
+    Nothing           -> error "This should never happen"
 
-  -- oneOfThree (a, _, _) = a
-  -- twoOfThree (_, a, _) = a
-  -- threeOfThree (_, _, a) = a
+  tagcases :: Translate [(Int, ([Name], LExp), Bool)]
+  tagcases = do
+    m <- ask
+    pure $ mapMaybe
+      (\case
+        (LConCase _ n [] b) -> Just (getTag n m, ([], b), False)
+        (LConCase _ n fs b) -> Just (getTag n m, (fs, b), True)
+        _                   -> Nothing
+      )
+      cases
 
-  -- tagcases :: Translate [(Int, LAlt, Bool)]
-  -- tagcases = do
-  --   m <- ask
-  --   pure $ mapMaybe
-  --     (\c -> case c of
-  --       (LConCase _ n [] _) -> Just (getTag n m, c, False)
-  --       (LConCase _ n _  _) -> Just (getTag n m, c, True)
-  --       _                   -> Nothing
-  --     )
-  --     cases
+  taggroups :: Translate [(Int, [([Name], LExp)], Bool)]
+  taggroups =
+    map
+        (\cs@((tag, c, isBlock) : _) ->
+          (tag, map (\(_, snd, _) -> snd) cs, isBlock)
+        )
+      .   groupBy ((==) `on` (\(fst, _, _) -> fst))
+      .   sortOn (\(fst, _, _) -> fst)
+      <$> tagcases
 
-  -- taggroups :: Translate [(Int, [LAlt], Bool)]
-  -- taggroups =
-  --   map
-  --       (\cases ->
-  --         ( oneOfThree $ head cases
-  --         , map twoOfThree cases
-  --         , threeOfThree $ head cases
-  --         )
-  --       )
-  --     .   groupBy ((==) `on` oneOfThree)
-  --     .   sortBy (comparing oneOfThree)
-  --     <$> tagcases
+  cgTagGroup :: (Int, [([Name], LExp)], Bool) -> Translate MlfCase
+  cgTagGroup (tagmod, cases, isBlock) = do
+    tgs <- mapM cgProjections cases
+    pure $ ([(if isBlock then Tag else IntSel) tagmod], head tgs) --fixme
 
-  -- cgTagGroup :: (Int, [LAlt], Bool) -> Translate Sexp
-  -- cgTagGroup (tagmod, cases, isBlock) = do
-  --   tgs <- cgTagClass cases
-  --   if isBlock
-  --     then pure $ S $ S [A "tag", KInt tagmod] : tgs
-  --     else pure $ S $ KInt tagmod : tgs
+  cgProjections :: ([Name], LExp) -> Translate MlfExp
+  cgProjections (fields, body) = do
+    let fieldBinds = zipWith
+          (\i n -> RegBinding (cgName n) (MlfProjection i matchOnExp))
+          [0 ..]
+          fields
+    exp <- cgExp body
+    if null fieldBinds then pure exp else pure $ MlfLet fieldBinds exp
 
-  -- cgTagClass :: [LAlt] -> Translate [Sexp]
-  -- cgTagClass cases = do
-  --   let fcs = [ c | c@(LConCase tag n _ _) <- cases ]
-  --   mapM cgProjections fcs
-
-  -- cgProjections :: LAlt -> Translate Sexp
-  -- cgProjections (LConCase tag name args body) = do
-  --   let fields =
-  --         zipWith (\i n -> S [cgName n, S [A "field", KInt i, scr]]) [0 ..] args
-  --   exp <- cgExp body
-  --   if null fields then pure exp else pure $ S $ [A "let"] ++ fields ++ [exp]
-
-  -- cgNonTagCase :: LAlt -> Translate [Sexp]
-  -- cgNonTagCase LConCase{}           = mapM pure []
-  -- cgNonTagCase (LConstCase (I n) e) = do
-  --   a <- cgExp e
-  --   pure [S [KInt n, a]]
-  -- -- cgNonTagCase (LConstCase (BI n) e) = do
-  -- --   a <- cgExp e
-  -- --   pure [S [KInt (fromInteger n), a]]
-  -- cgNonTagCase (LConstCase (BI n) e) = crashWith "Const bigInteger case"
-  -- cgNonTagCase (LConstCase (Ch c) e) = do
-  --   a <- cgExp e
-  --   pure [S [KInt (ord c), a]]
-  -- cgNonTagCase (LConstCase k e) =
-  --   crashWith $ "unsupported constant selector: " ++ show k
-  -- cgNonTagCase (LDefaultCase e) = do
-  --   a <- cgExp e
-  --   pure [S [A "_", S [A "tag", A "_"], a]]
+  cgNonTagCase :: LAlt -> Translate (Maybe MlfCase)
+  cgNonTagCase LConCase{}           = pure Nothing
+  cgNonTagCase (LConstCase (I n) e) = do
+    a <- cgExp e
+    pure $ Just ([IntSel n], a)
+  cgNonTagCase (LConstCase (Ch c) e) = do
+    a <- cgExp e
+    pure $ Just ([IntSel (ord c)], a)
+  cgNonTagCase (LConstCase k e) =
+    crashWith $ "unsupported constant selector: " ++ show k
+  cgNonTagCase (LDefaultCase e) = do
+    a <- cgExp e
+    pure $ Just $ defaultCase a
 
 cgConst :: Const -> Translate MlfExp
 cgConst c = undefined

@@ -237,10 +237,6 @@ cgSwitch e cases = do
     Just (tag, arity) -> tag
     Nothing           -> error "This should never happen"
 
-  oneOfThree (a, _, _) = a
-  twoOfThree (_, a, _) = a
-  threeOfThree (_, _, a) = a
-
   tagcases :: Translate [(Int, LAlt, Bool)]
   tagcases = do
     m <- ask
@@ -255,14 +251,11 @@ cgSwitch e cases = do
   taggroups :: Translate [(Int, [LAlt], Bool)]
   taggroups =
     map
-        (\cases ->
-          ( oneOfThree $ head cases
-          , map twoOfThree cases
-          , threeOfThree $ head cases
-          )
+        (\cases@((tag, c, isBlock) : _) ->
+          (tag, map (\(_, snd, _) -> snd) cases, isBlock)
         )
-      .   groupBy ((==) `on` oneOfThree)
-      .   sortBy (comparing oneOfThree)
+      .   groupBy ((==) `on` (\ fst, _, _) -> fst)
+      .   sortOn (\ (fst, _, _) -> fst )
       <$> tagcases
 
   cgTagGroup :: (Int, [LAlt], Bool) -> Translate Sexp
