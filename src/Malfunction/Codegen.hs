@@ -294,7 +294,7 @@ cgOp LStrCons [c, s] = do
     -- todo maybe use makevec builtin
 cgOp LStrIndex  [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
 cgOp LStrRev    args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
-cgOp LStrSubstr args     = stdLibCall "String" "sub" <$> mapM cgExp args
+cgOp LStrSubstr args     = stdLibCall "String" "sub" <$> mapM cgExp args --todo test
 cgOp LReadStr   args     = pervasiveCall "read_line" <$> mapM cgExp args
 cgOp LWriteStr (world : args) =
   pervasiveCall "print_string" <$> mapM cgExp args
