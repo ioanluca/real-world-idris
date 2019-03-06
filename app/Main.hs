@@ -1,17 +1,17 @@
 module Main where
 
-import Idris.Main
-import Idris.Core.TT
-import Idris.AbsSyntax
-import Idris.ElabDecls
-import Idris.Options
+import           Idris.Main
+import           Idris.Core.TT
+import           Idris.AbsSyntax
+import           Idris.ElabDecls
+import           Idris.Options
 
-import IRTS.Compiler
-import IRTS.CodegenMalfunction
-import IRTS.CodegenCommon
+import           IRTS.Compiler
+import           IRTS.NewCodegenMalfunction
+import           IRTS.CodegenCommon
 
-import System.Environment
-import System.Exit
+import           System.Environment
+import           System.Exit
 
 
 

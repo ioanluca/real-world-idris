@@ -15,6 +15,8 @@ import           System.Process
 import           System.Directory
 import           System.FilePath
 
+import qualified Data.Text.IO                  as T
+
 
 -- floats
 -- unicode, cannot just show KStrs, ocaml 8bit, overflow safety?
@@ -31,8 +33,8 @@ codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
 
   let prog = generateMlfProgram langDeclarations
-  -- get prog, textify, and write file
-  -- writeFile tmp $ show compileExp
+  T.writeFile tmp $ mlfAST2Text prog
+
   callCommand fmtCommand
   catch (callCommand compileCommand) handler
   removeFile tmp
@@ -47,9 +49,6 @@ codegenMalfunction ci = do
   fmtCommand       = "malfunction fmt " ++ tmp ++ " > " ++ mlfFile
   evalCommand      = "cat " ++ mlfFile ++ " | malfunction eval"
   compileCommand   = "malfunction compile -o " ++ outFile ++ " " ++ mlfFile
-
--- runMain = mlfApp (cgName (sMN 0 "runMain")) [KStr "RUNMAIN_EATME"]
-
 
 handler :: SomeException -> IO ()
 handler ex = putStrLn $ "Caught exception: " ++ show ex

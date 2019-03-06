@@ -4,6 +4,7 @@ module Malfunction.AST where
 
 import           Data.Text                      ( Text )
 import qualified Data.Text                     as T
+import           Data.List                      ( intersperse )
 
 -- data MlfProgram
 --     = Interpreted [MlfBinding] MlfExp
@@ -112,11 +113,14 @@ pervasiveCall name = MlfApp (pervasive name)
 
 failWith :: String -> MlfExp
 failWith err = pervasiveCall
-    "failWith"
-    [MlfLiteral $ MlfString $ "error " `T.append` T.pack err]
+    "failwith"
+    [MlfLiteral $ MlfString $ textShow $ "ERROR! -> " ++ err]
 
 textShow :: Show a => a -> Text
 textShow = T.pack . show
+
+concatWithSpaces :: [Text] -> Text
+concatWithSpaces = T.concat . intersperse " "
 
 ip :: Text -> Text
 ip e = T.concat ["(", e, ")"]
@@ -140,7 +144,7 @@ binding2Text (RegBinding name e) =
     ip $ T.concat [name2Text name, " ", mlfAST2Text e]
 binding2Text (ExecBinding e) = ip $ T.concat ["_", " ", mlfAST2Text e]
 binding2Text (RecBinding es) =
-    ip $ T.concat ["rec", " "] `T.append` T.concat (map binding2Text es)
+    ip $ T.concat ["rec", " ", concatWithSpaces (map binding2Text es)]
 
 sel2Text :: MlfSel -> Text
 sel2Text (IntSel n       ) = textShow n
@@ -151,7 +155,7 @@ sel2Text DefaultTag        = ip $ T.concat ["tag", " ", "_"]
 
 case2Text :: MlfCase -> Text
 case2Text (sels, e) =
-    ip $ T.concat (map sel2Text sels) `T.append` mlfAST2Text e
+    ip $ T.concat [concatWithSpaces $ map sel2Text sels, " ", mlfAST2Text e]
 
 prim2Text :: MlfPrim -> Text
 prim2Text MlfPlus         = "+"
@@ -181,25 +185,31 @@ const2Text (MlfFloat  e) = textShow e
 const2Text MlfPosInf     = "infinity"
 const2Text MlfNegInf     = "neg_infinity"
 const2Text MlfNaN        = "nan"
-const2Text (MlfString e) = e
+const2Text (MlfString e) = textShow e --fixme bottleNeck? becomes strings first..
 
 mlfAST2Text :: MlfExp -> Text
 mlfAST2Text (MlfProg binds e) =
     ip
         $  T.concat
-        $  [ip "module", " "]
-        ++ map binding2Text (binds ++ [ExecBinding e])
-        ++ [ip "export"]
+        $  ["module", " "]
+        ++ intersperse " " (map binding2Text (binds ++ [ExecBinding e]))
+        ++ [" ", ip "export"]
 mlfAST2Text (MlfVar     e        ) = name2Text e
 mlfAST2Text (MlfLiteral const    ) = const2Text const
 mlfAST2Text (MlfConvert from to e) = ip $ T.concat
     ["convert", arithType2Text from, arithType2Text to, " ", mlfAST2Text e]
 mlfAST2Text (MlfOp op at es) = ip $ T.concat
-    [prim2Text op, arithType2Text at, " ", T.concat $ map mlfAST2Text es]
+    [ prim2Text op
+    , arithType2Text at
+    , " "
+    , concatWithSpaces $ map mlfAST2Text es
+    ]
 mlfAST2Text (MlfLam args body) = ip $ T.concat
     [ "lambda"
     , " "
-    , ip . T.concat . map name2Text $ if null args then ["%EATME"] else args
+    , ip . concatWithSpaces . map name2Text $ if null args
+        then ["%EATME"]
+        else args
     , " "
     , mlfAST2Text body
     ]
@@ -208,18 +218,20 @@ mlfAST2Text (MlfApp fn args) = ip $ T.concat
     , " "
     , mlfAST2Text fn
     , " "
-    , T.concat . map mlfAST2Text $ if null args then [MlfNothing] else args
+    , concatWithSpaces . map mlfAST2Text $ if null args
+        then [MlfNothing]
+        else args
     ]
 mlfAST2Text (MlfLet binds e) = ip $ T.concat
-    ["let", " ", T.concat $ map binding2Text binds, " ", mlfAST2Text e]
+    ["let", " ", concatWithSpaces $ map binding2Text binds, " ", mlfAST2Text e]
 mlfAST2Text (MlfSeq es) =
-    ip $ T.concat ["seq", " ", T.concat $ map mlfAST2Text es]
+    ip $ T.concat ["seq", " ", concatWithSpaces $ map mlfAST2Text es]
 mlfAST2Text (MlfBlock tag fs) = ip $ T.concat
     [ "block"
     , " "
     , ip $ "tag " `T.append` textShow tag
     , " "
-    , T.concat $ map mlfAST2Text fs
+    , concatWithSpaces $ map mlfAST2Text fs
     ]
 mlfAST2Text (MlfProjection n e) =
     ip $ T.concat ["field", " ", textShow n, " ", mlfAST2Text e]
@@ -242,7 +254,12 @@ mlfAST2Text (MlfVecLen vt vec) =
 mlfAST2Text (MlfLazy e) = ip $ T.concat ["lazy", " ", mlfAST2Text e]
 mlfAST2Text (MlfForce e) = ip $ T.concat ["force", " ", mlfAST2Text e]
 mlfAST2Text (MlfSwitch switch cases) = ip $ T.concat
-    ["switch", " ", mlfAST2Text switch, " ", T.concat $ map case2Text cases]
+    [ "switch"
+    , " "
+    , mlfAST2Text switch
+    , " "
+    , concatWithSpaces $ map case2Text cases
+    ]
 mlfAST2Text (MlfIf cond true false) = ip $ T.concat
     ["if", " ", mlfAST2Text cond, " ", mlfAST2Text true, " ", mlfAST2Text false]
 mlfAST2Text (MlfOCaml path fn) =

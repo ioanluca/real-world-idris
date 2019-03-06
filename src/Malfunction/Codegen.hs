@@ -36,7 +36,7 @@ import           System.IO.Unsafe               ( unsafePerformIO )
 generateMlfProgram :: [(Name, LDecl)] -> MlfExp
 generateMlfProgram decls =
   let bindings = generateBindings $ asConnectedComponents . map snd $ decls
-      runMainApplication = MlfApp (MlfVar $ T.pack "runMain_0") []
+      runMainApplication = MlfApp (MlfVar $ cgName $ sMN 0 "runMain") []
   in  MlfProg (reverseStringMlf : bindings) runMainApplication
  where
   m = getNameTagArityMap $ map snd decls
@@ -66,8 +66,9 @@ cgDecl (LFun inline n as b) = do
 cgDecl _ = pure Nothing
 
 cgName :: Name -> MlfName
--- cgName = T.pack . go . showCG
-cgName = T.pack . showCG
+cgName = T.pack . go . showCG
+-- cgName = T.pack . showCG
+
  where
   okChar c =
     (isAscii c && isAlpha c) || isDigit c || c `elem` ".&|$+-!@#^*~?<>=_"
@@ -289,11 +290,11 @@ cgOp LStrCons [c, s] = do
     "^"
     [stdLibCall "String" "make" [MlfLiteral $ MlfInt 1, ch], str]
     -- todo maybe use makevec builtin
-cgOp LStrIndex  [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
-cgOp LStrRev    args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
+cgOp LStrIndex [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
+cgOp LStrRev   args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
 -- cgOp LStrSubstr args     = undefined
-cgOp LReadStr   args     = pervasiveCall "read_line" <$> mapM cgExp args
-cgOp LWriteStr  args     = pervasiveCall "print_string" <$> mapM cgExp args
+cgOp LReadStr  args     = pervasiveCall "read_line" <$> mapM cgExp args
+cgOp LWriteStr args     = pervasiveCall "print_string" <$> mapM cgExp args
 -- cgOp LSystemInfo        args = undefined
 -- cgOp LFork              args = undefined
 -- cgOp LPar               args = undefined
