@@ -42,7 +42,7 @@ codegenMalfunction ci = do
   langDeclarations = liftDecls ci
 
   outFile          = outputFile ci
-  mlfFile          = replaceExtensionIf outFile ".o" ".x.mlf"
+  mlfFile          = replaceExtensionIf outFile ".o" ".new.mlf"
   langFile         = replaceExtensionIf outFile ".o" ".lang"
   tmp              = "idris_malfunction_output.mlf"
 
