@@ -290,11 +290,12 @@ cgOp LStrCons [c, s] = do
   pure $ pervasiveCall
     "^"
     [stdLibCall "String" "make" [MlfLiteral $ MlfInt 1, ch], str]
+    --safety???? fixme
     -- todo maybe use makevec builtin
-cgOp LStrIndex [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
-cgOp LStrRev   args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
--- cgOp LStrSubstr args     = undefined
-cgOp LReadStr  args     = pervasiveCall "read_line" <$> mapM cgExp args
+cgOp LStrIndex  [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
+cgOp LStrRev    args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
+cgOp LStrSubstr args     = stdLibCall "String" "sub" <$> mapM cgExp args
+cgOp LReadStr   args     = pervasiveCall "read_line" <$> mapM cgExp args
 cgOp LWriteStr (world : args) =
   pervasiveCall "print_string" <$> mapM cgExp args
 -- cgOp LSystemInfo        args = undefined

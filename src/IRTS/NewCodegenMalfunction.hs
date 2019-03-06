@@ -18,16 +18,14 @@ import           System.FilePath
 import qualified Data.Text.IO                  as T
 
 
--- floats
 -- unicode, cannot just show KStrs, ocaml 8bit, overflow safety?
--- ffi with ocaml
 -- implement all primitives
 -- use ocaml gc optimizations through env vars
--- replace all dummy params with KInt 0 for speed?
 -- tail calls
--- functions with no args shouldn't be lambdas or applied
 -- squeese multiple lets together? let x = let y = 3 in 
+-- --interface flag?
 -- don't generate code for unused functions? ie remove dead code
+-- maybe get lang decls without liftings
 codegenMalfunction :: CodeGenerator
 codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
