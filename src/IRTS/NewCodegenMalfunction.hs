@@ -52,7 +52,7 @@ handler :: SomeException -> IO ()
 handler ex = putStrLn $ "Caught exception: " ++ show ex
 
 stringify :: [(Name, LDecl)] -> String
-stringify = unwords . map (\decl -> show decl ++ "\n\n")
+stringify = unwords . map ((\decl -> show decl ++ "\n\n\n") . snd)
 
 replaceExtensionIf :: FilePath -> String -> String -> FilePath
 replaceExtensionIf file curr new = case stripExtension curr file of

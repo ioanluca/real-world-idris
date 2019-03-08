@@ -1,5 +1,5 @@
 open Lwt.Infix
-let f lwt_return_unit logs_info 
+(* let f lwt_return_unit logs_info  *)
 
 module Hello (Time : Mirage_time_lwt.S) = struct
 

@@ -18,19 +18,19 @@ import           Data.Ord
 import qualified Data.Map.Strict               as Map
 import qualified Data.Set                      as Set
 import qualified Data.Graph                    as Graph
-import           Data.Maybe                     ( mapMaybe
-                                                , catMaybes
-                                                )
-import           Data.Function                  ( on )
-import           Data.Text                      ( Text )
+import           Data.Maybe                               ( mapMaybe
+                                                          , catMaybes
+                                                          )
+import           Data.Function                            ( on )
+import           Data.Text                                ( Text )
 import qualified Data.Text                     as T
 import           Control.Exception
-import           Control.Monad                  ( mapM )
+import           Control.Monad                            ( mapM )
 
 import           System.Process
 import           System.Directory
 import           System.FilePath
-import           System.IO.Unsafe               ( unsafePerformIO )
+import           System.IO.Unsafe                         ( unsafePerformIO )
 
 
 generateMlfProgram :: [(Name, LDecl)] -> MlfExp
@@ -113,12 +113,18 @@ cgExp LNothing        = pure MlfNothing
 cgExp (LError err)    = pure $ failWith err
 
 cgSwitch :: LExp -> [LAlt] -> Translate MlfExp
+cgSwitch x [LConstCase (BI n) y, LDefaultCase c] = do
+  e   <- cgExp x
+  exp <- cgExp y
+  cc  <- cgExp c
+  let sw = MlfOp MlfEq BigIntArith [MlfLiteral $ MlfBigInt n, e]
+  pure $ MlfIf sw exp cc
 cgSwitch x (LConstCase (BI n) y : cases) = do
   e    <- cgExp x
   exp  <- cgExp y
   rest <- cgSwitch x cases
   let sw = MlfOp MlfEq BigIntArith [MlfLiteral $ MlfBigInt n, e]
-  pure $ MlfSwitch sw [([IntSel 1], exp), defaultCase rest]
+  pure $ MlfIf sw exp rest
 cgSwitch e cases = do
   a    <- cgExp e
   ts   <- taggroups
@@ -292,10 +298,14 @@ cgOp LStrCons [c, s] = do
     [stdLibCall "String" "make" [MlfLiteral $ MlfInt 1, ch], str]
     --safety???? fixme
     -- todo maybe use makevec builtin
-cgOp LStrIndex  [s, idx] = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
-cgOp LStrRev    args     = MlfApp (MlfVar reverseName) <$> mapM cgExp args
-cgOp LStrSubstr args     = stdLibCall "String" "sub" <$> mapM cgExp args --todo test
-cgOp LReadStr   args     = pervasiveCall "read_line" <$> mapM cgExp args
+cgOp LStrIndex  [s, idx]  = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
+cgOp LStrRev    args      = MlfApp (MlfVar reverseName) <$> mapM cgExp args
+cgOp LStrSubstr [b, l, s] = do
+  bb <- cgExp b
+  ll <- cgExp l
+  ss <- cgExp s
+  pure $ stdLibCall "String" "sub" [ss, bb, ll]
+cgOp LReadStr args = pervasiveCall "read_line" <$> mapM cgExp args
 cgOp LWriteStr (world : args) =
   pervasiveCall "print_string" <$> mapM cgExp args
 -- cgOp LSystemInfo        args = undefined
