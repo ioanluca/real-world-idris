@@ -98,7 +98,10 @@ cgExp (LCon maybeName tag name []) =
 cgExp (LCon maybeName tag name args) = if tag > 198
   then crashWith "tag > 198"
   else MlfBlock <$> pure tag <*> mapM cgExp args
-cgExp (LCase _ e cases                   ) = cgSwitch e cases
+cgExp (LCase _ e cases) = cgSwitch e $ nubBy t cases
+ where
+  t (LDefaultCase _) (LDefaultCase _) = True
+  t _                _                = False
 cgExp (LConst k                          ) = cgConst k
 cgExp (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
   print fn
@@ -162,9 +165,12 @@ cgSwitch e cases = do
       <$> tagcases
 
   cgTagGroup :: (Int, [([Name], LExp)], Bool) -> Translate MlfCase
-  cgTagGroup (tagmod, cases, isBlock) = do
-    tgs <- mapM cgProjections cases
-    pure ([(if isBlock then Tag else IntSel) tagmod], head tgs) --fixme
+  cgTagGroup (tagmod, [c], isBlock) = do
+  -- cgTagGroup (tagmod, cases, isBlock) = do
+    tgs <- cgProjections c
+    pure ([(if isBlock then Tag else IntSel) tagmod], tgs) --fixme
+    -- tgs <- mapM cgProjections cases
+    -- pure ([(if isBlock then Tag else IntSel) tagmod], head tgs) --fixme
 
   cgProjections :: ([Name], LExp) -> Translate MlfExp
   cgProjections (fields, body) = do
