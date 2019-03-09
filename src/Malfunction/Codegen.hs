@@ -18,19 +18,19 @@ import           Data.Ord
 import qualified Data.Map.Strict               as Map
 import qualified Data.Set                      as Set
 import qualified Data.Graph                    as Graph
-import           Data.Maybe                               ( mapMaybe
-                                                          , catMaybes
-                                                          )
-import           Data.Function                            ( on )
-import           Data.Text                                ( Text )
+import           Data.Maybe                     ( mapMaybe
+                                                , catMaybes
+                                                )
+import           Data.Function                  ( on )
+import           Data.Text                      ( Text )
 import qualified Data.Text                     as T
 import           Control.Exception
-import           Control.Monad                            ( mapM )
+import           Control.Monad                  ( mapM )
 
 import           System.Process
 import           System.Directory
 import           System.FilePath
-import           System.IO.Unsafe                         ( unsafePerformIO )
+import           System.IO.Unsafe               ( unsafePerformIO )
 
 
 generateMlfProgram :: [(Name, LDecl)] -> MlfExp
@@ -55,7 +55,8 @@ generateMlfProgram decls =
     in  RecBinding (mapMaybe go ds) : generateBindings dss
 
 cgDecl :: LDecl -> Translate (Maybe MlfBinding)
-cgDecl (LFun inline n as b) = do
+-- todo figure out when inlined functions are actually called, seems to be the lifted ones
+cgDecl (LFun inline n as b) = do 
   body <- cgExp b
   let args   = map cgName as
   let name   = cgName n
@@ -116,21 +117,46 @@ cgExp LNothing        = pure MlfNothing
 cgExp (LError err)    = pure $ failWith err
 
 cgSwitch :: LExp -> [LAlt] -> Translate MlfExp
+cgSwitch x [LConstCase n@(Fl _) y, LDefaultCase c] = do
+  e   <- cgExp x
+  exp <- cgExp y
+  cc  <- cgExp c
+  nn  <- cgConst n
+  let sw = MlfOp MlfEq FloatArith [nn, e]
+  pure $ MlfIf sw exp cc
+cgSwitch x [LConstCase n@(Str _) y, LDefaultCase c] = do
+  exp <- cgExp y
+  cc  <- cgExp c
+  sw  <- cgOp LStrEq [x, LConst n]
+  pure $ MlfIf sw exp cc
 cgSwitch x [LConstCase (BI n) y, LDefaultCase c] = do
   e   <- cgExp x
   exp <- cgExp y
   cc  <- cgExp c
   let sw = MlfOp MlfEq BigIntArith [MlfLiteral $ MlfBigInt n, e]
   pure $ MlfIf sw exp cc
-cgSwitch x (LConstCase (BI n) y : cases) = do
+cgSwitch x (LConstCase n@(BI _) y : cases) = do
   e    <- cgExp x
   exp  <- cgExp y
   rest <- cgSwitch x cases
-  let sw = MlfOp MlfEq BigIntArith [MlfLiteral $ MlfBigInt n, e]
+  nn   <- cgConst n
+  let sw = MlfOp MlfEq BigIntArith [nn, e]
+  pure $ MlfIf sw exp rest
+cgSwitch x (LConstCase n@(Fl _) y : cases) = do
+  e    <- cgExp x
+  exp  <- cgExp y
+  rest <- cgSwitch x cases
+  nn   <- cgConst n
+  let sw = MlfOp MlfEq FloatArith [nn, e]
+  pure $ MlfIf sw exp rest
+cgSwitch x (LConstCase n@(Str _) y : cases) = do
+  exp  <- cgExp y
+  rest <- cgSwitch x cases
+  sw   <- cgOp LStrEq [x, LConst n]
   pure $ MlfIf sw exp rest
 cgSwitch e cases = do
   a    <- cgExp e
-  ts   <- taggroups
+  ts   <- tagcases
   tgs  <- mapM cgTagGroup ts
   ntgs <- mapM cgNonTagCase cases
   pure $ MlfLet [RegBinding matchOn a]
@@ -154,23 +180,20 @@ cgSwitch e cases = do
       )
       cases
 
-  taggroups :: Translate [(Int, [([Name], LExp)], Bool)]
-  taggroups =
-    map
-        (\cs@((tag, c, isBlock) : _) ->
-          (tag, map (\(_, snd, _) -> snd) cs, isBlock)
-        )
-      .   groupBy ((==) `on` (\(fst, _, _) -> fst))
-      .   sortOn (\(fst, _, _) -> fst)
-      <$> tagcases
+  -- taggroups :: Translate [(Int, [([Name], LExp)], Bool)]
+  -- taggroups =
+  --   map
+  --       (\cs@((tag, c, isBlock) : _) ->
+  --         (tag, map (\(_, snd, _) -> snd) cs, isBlock)
+  --       )
+  --     .   groupBy ((==) `on` (\(fst, _, _) -> fst))
+  --     .   sortOn (\(fst, _, _) -> fst)
+  --     <$> tagcases
 
-  cgTagGroup :: (Int, [([Name], LExp)], Bool) -> Translate MlfCase
-  cgTagGroup (tagmod, [c], isBlock) = do
-  -- cgTagGroup (tagmod, cases, isBlock) = do
+  cgTagGroup :: (Int, ([Name], LExp), Bool) -> Translate MlfCase
+  cgTagGroup (tagmod, c, isBlock) = do
     tgs <- cgProjections c
-    pure ([(if isBlock then Tag else IntSel) tagmod], tgs) --fixme
-    -- tgs <- mapM cgProjections cases
-    -- pure ([(if isBlock then Tag else IntSel) tagmod], head tgs) --fixme
+    pure ([(if isBlock then Tag else IntSel) tagmod], tgs)
 
   cgProjections :: ([Name], LExp) -> Translate MlfExp
   cgProjections (fields, body) = do
@@ -265,7 +288,7 @@ cgOp (LFloatInt at)  [e]  = MlfConvert FloatArith (cgIntType at) <$> cgExp e
 cgOp (LIntStr   at)  args = pervasiveCall "string_of_int" <$> mapM cgExp args
 cgOp (LStrInt   at)  args = pervasiveCall "int_of_string" <$> mapM cgExp args
 cgOp LFloatStr       args = pervasiveCall "string_of_float" <$> mapM cgExp args
-cgOp LStrFloat       args = pervasiveCall "float" <$> mapM cgExp args
+cgOp LStrFloat       args = pervasiveCall "float_of_string" <$> mapM cgExp args
 cgOp (LChInt at)     [e]  = cgExp e
 cgOp (LIntCh at)     [e]  = cgExp e
 -- cgOp (LBitCast at1 at2) args = undefined
@@ -347,7 +370,3 @@ reverseStringMlf = RegBinding reverseName $ MlfLam [T.pack "s"] $ MlfLet
     , MlfVar $ T.pack "s"
     ]
   )
-
-
-
-

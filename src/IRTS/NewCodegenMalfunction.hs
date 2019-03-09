@@ -26,6 +26,8 @@ import qualified Data.Text.IO                  as T
 -- --interface flag?
 -- don't generate code for unused functions? ie remove dead code
 -- maybe get lang decls without liftings
+-- use writerT and ReaderT to make Translate
+-- can remove inlined definitios I think
 codegenMalfunction :: CodeGenerator
 codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
