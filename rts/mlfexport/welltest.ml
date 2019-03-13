@@ -1,0 +1,1 @@
+let _ = print_endline Well.solo

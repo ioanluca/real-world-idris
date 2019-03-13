@@ -1,0 +1,4 @@
+description = "IdrisUnikernel"
+requires = "lwt"
+version = "1"
+archive(native) = "idrmirage.cmxa"

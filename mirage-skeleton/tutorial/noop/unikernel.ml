@@ -1,2 +1,2 @@
-let start =
-  Lwt.return_unit
+let start = Idrmirage.start
+  

@@ -1,7 +1,8 @@
 open Mirage
 
-let main =
-  foreign "Unikernel" job
+let main = foreign
+  ~packages:[package "idrmirage"]
+  "Unikernel" job
 
 let () =
   register "noop" [main]
