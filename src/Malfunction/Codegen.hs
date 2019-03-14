@@ -13,6 +13,7 @@ import           Malfunction.AST
 import           Malfunction.TranslateMonad
 
 import           Data.List
+import           Data.List.Split(splitOn)
 import           Data.Char
 import           Data.Ord
 import qualified Data.Map.Strict               as Map
@@ -110,8 +111,13 @@ cgExp (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
   print args
   pure $ do
     as <- mapM (cgExp . snd) args
-    if null as then pure $ pervasive fn else pure $ pervasiveCall fn as
-
+    pure $ if null as then stdLib mn f else stdLibCall mn f as
+  where splits = splitOn "." fn 
+        mn = concat $ intersperse "." $ init splits 
+        f = last splits
+         
+        
+        
 cgExp (LOp prim args) = cgOp prim args
 cgExp LNothing        = pure MlfNothing
 cgExp (LError err)    = pure $ failWith err

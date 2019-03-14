@@ -13,10 +13,10 @@ r = unsafePerformIO $
 
 lineOfAfile : OCaml_IO Unit
 lineOfAfile = do 
-     min_int <- foreign FFI_OCaml "Pervasives.min_int" (OCaml_IO Int)
+     min_int <- ocamlCall "Pervasives.min_int" (OCaml_IO Int)
      prim_write (show min_int)
-     ic <- foreign FFI_OCaml "Pervasives.open_in" (String -> OCaml_IO Ptr) "README.md"
-     str <- foreign FFI_OCaml "Pervasives.input_line" (Ptr -> OCaml_IO String) ic
+     ic <- ocamlCall "Pervasives.open_in" (String -> OCaml_IO Ptr) "README.md"
+     str <- ocamlCall "Pervasives.input_line" (Ptr -> OCaml_IO String) ic
      -- xs <- foreign FFI_OCaml "List.map" ((Int -> Int) -> List Int -> OCaml_IO ( List Int)) (+1) [1,2,3]
      -- prim_write $ show xs
      prim_write str

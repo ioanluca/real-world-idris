@@ -39,9 +39,6 @@ mutual
 -- pass we only have 'OCamlFn' and not the constructor.
 %used MkOCamlFn x
 
-||| The JavaScript FFI. The strings naming functions in this API are
-||| JavaScript code snippets, into which the arguments are substituted
-||| for the placeholders `%0`, `%1`, etc.
 %error_reverse
 public export
 FFI_OCaml : FFI
@@ -51,3 +48,8 @@ FFI_OCaml = MkFFI OCaml_Types String String
 public export
 OCaml_IO : Type -> Type
 OCaml_IO = IO' FFI_OCaml
+
+%inline
+ocamlCall : (fname : String) -> (ty : Type) ->
+          {auto fty : FTy FFI_OCaml [] ty} -> ty
+ocamlCall fname ty = foreign FFI_OCaml fname ty

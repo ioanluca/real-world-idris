@@ -27,6 +27,7 @@ dependencies:
 - directory
 - filepath
 - text
+- split
 
 library:
   source-dirs: src
