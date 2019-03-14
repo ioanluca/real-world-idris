@@ -287,3 +287,14 @@ cabal.project.local~
 *.mlf
 *.js
 idris-codegen-malfunction.cabal
+
+#ocaml 
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa

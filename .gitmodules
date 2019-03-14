@@ -1,0 +1,6 @@
+[submodule "mirage-skeleton"]
+	path = mirage-skeleton
+	url = git@github.com:ioanluca/mirage-skeleton.git
+[submodule "malfunction"]
+	path = malfunction
+	url = git@github.com:ioanluca/malfunction.git
