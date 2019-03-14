@@ -1,2 +1,0 @@
-let start = Idrmirage.start
-  
