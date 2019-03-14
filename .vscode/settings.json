@@ -8,7 +8,8 @@
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "**/node_modules/**": true,
-        ".stack-work": true,
+        "**/.stack-work/**": true,
+        "**/_build/**" : true,
     },
     "search.useIgnoreFiles": false
 }

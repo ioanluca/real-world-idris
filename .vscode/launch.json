@@ -14,7 +14,7 @@
             "startupFunc": "main",
             "startupArgs": "",
             "stopOnEntry": false,
-            "mainArgs": "${file} -o ${fileDirname}/${fileBasenameNoExtension}.o",
+            "mainArgs": "${file} -o ${fileDirname}/${fileBasenameNoExtension}.out",
             "ghciPrompt": "H>>= ",
             "ghciInitialPrompt": "Prelude>",
             "ghciCmd": "stack ghci --test --no-load --no-build --main-is TARGET --ghci-options -fprint-evld-with-show",

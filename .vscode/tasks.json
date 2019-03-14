@@ -22,7 +22,7 @@
             "label": "Build",
             "type": "shell",
             "group": "build",
-            "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o",
+            "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
@@ -32,7 +32,7 @@
         {
             "label": "Run",
             "type": "shell",
-            "command": "${fileDirname}/${fileBasenameNoExtension}.o",
+            "command": "${fileDirname}/${fileBasenameNoExtension}.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
@@ -42,7 +42,7 @@
         {
             "label": "Build and run",
             "type": "shell",
-            "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.o && ${fileDirname}/${fileBasenameNoExtension}.o",
+            "command": "stack exec -- idris --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.out && ${fileDirname}/${fileBasenameNoExtension}.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
@@ -52,7 +52,7 @@
         {
             "label": "Malfunction and run",
             "type": "shell",
-            "command": "malfunction compile ${file} -o ${fileDirname}/${fileBasenameNoExtension}o.o && ${fileDirname}/${fileBasenameNoExtension}o.o",
+            "command": "malfunction compile ${file} -o ${fileDirname}/${fileBasenameNoExtension}o.out && ${fileDirname}/${fileBasenameNoExtension}o.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
@@ -65,7 +65,7 @@
             "options": {
                 "cwd": "${workspaceRoot}/test-idris/"
             },
-            "command": "rm *.ibc *.o *.lang *.mlf",
+            "command": "rm *.ibc *.out *.lang *.mlf",
             "presentation": {
                 "reveal": "never"
             },
