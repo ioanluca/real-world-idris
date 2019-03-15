@@ -5,6 +5,9 @@ module OCaml.IO
 
 --------- The OCaml FFI
 
+data OCamlRaw : Type -> Type where
+  MkOCamlRaw : (x:t) -> OCamlRaw t
+%used MkOCamlRaw x
 
 -- Supported OCaml foreign types
 mutual
@@ -16,6 +19,8 @@ mutual
   data OCaml_IntTypes  : Type -> Type where
        OCaml_IntChar   : OCaml_IntTypes Char
        OCaml_IntNative : OCaml_IntTypes Int
+       OCaml_IntBits32 : OCaml_IntTypes Bits32
+       OCaml_IntBits64 : OCaml_IntTypes Bits64
 
   public export
   data OCaml_FnTypes : Type -> Type where
@@ -28,11 +33,14 @@ mutual
        OCaml_Str   : OCaml_Types String
        OCaml_Float : OCaml_Types Double
        OCaml_Bool  : OCaml_Types Bool
-       OCaml_Int   : OCaml_Types Int
        OCaml_Ptr   : OCaml_Types Ptr
        OCaml_Unit  : OCaml_Types ()
+       OCaml_Any   : OCaml_Types (OCamlRaw a)
        OCaml_FnT   : OCaml_FnTypes a -> OCaml_Types (OCamlFn a)
-     --   OCaml_IntT  : OCaml_IntTypes i -> OCaml_Types i
+       OCaml_Pair  : OCaml_Types a -> OCaml_Types b -> OCaml_Types (a, b)
+       OCaml_List  : OCaml_Types a -> OCaml_Types (List a)
+       OCaml_Maybe : OCaml_Types a -> OCaml_Types (Maybe a)
+       OCaml_IntT  : OCaml_IntTypes i -> OCaml_Types i
 
 -- Tell erasure analysis not to erase the argument. Needs to be outside the
 -- mutual block, since directives are done on the first pass and in the first
@@ -53,3 +61,18 @@ OCaml_IO = IO' FFI_OCaml
 ocamlCall : (fname : String) -> (ty : Type) ->
           {auto fty : FTy FFI_OCaml [] ty} -> ty
 ocamlCall fname ty = foreign FFI_OCaml fname ty
+
+printLn : Show a => a -> OCaml_IO ()
+printLn = printLn'
+
+putStrLn : String -> OCaml_IO ()
+putStrLn = putStrLn'
+
+print : Show a => a -> OCaml_IO ()
+print = print'
+
+putStr : String -> OCaml_IO ()
+putStr = putStr'
+
+getLine : OCaml_IO String
+getLine = getLine'
