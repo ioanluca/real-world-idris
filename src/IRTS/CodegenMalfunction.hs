@@ -7,7 +7,7 @@ import           Idris.Core.TT
 import           IRTS.CodegenCommon
 import           IRTS.Lang
 import           IRTS.CodegenUtils
-import           Malfunction.TranslateMonad
+import           IRTS.TranslateMonad
 
 import           Data.List
 import           Data.Char

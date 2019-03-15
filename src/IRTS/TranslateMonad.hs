@@ -1,4 +1,4 @@
-module Malfunction.TranslateMonad where
+module IRTS.TranslateMonad where
 
 import           Data.Map.Strict               as M
 import           Idris.Core.TT                  ( Name )

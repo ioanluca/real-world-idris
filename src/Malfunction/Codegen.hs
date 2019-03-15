@@ -9,11 +9,11 @@ import           Idris.Core.TT
 import           IRTS.CodegenCommon
 import           IRTS.CodegenUtils
 import           IRTS.Lang
+import           IRTS.TranslateMonad
+import           IRTS.OCamlFFI
 import           Malfunction.AST
-import           Malfunction.TranslateMonad
 
-import           Data.List
-import           Data.List.Split(splitOn)
+import           Data.List                      ( nubBy )
 import           Data.Char
 import           Data.Ord
 import qualified Data.Map.Strict               as Map
@@ -57,7 +57,7 @@ generateMlfProgram decls =
 
 cgDecl :: LDecl -> Translate (Maybe MlfBinding)
 -- todo figure out when inlined functions are actually called, seems to be the lifted ones
-cgDecl (LFun inline n as b) = do 
+cgDecl (LFun inline n as b) = do
   body <- cgExp b
   let args   = map cgName as
   let name   = cgName n
@@ -104,20 +104,10 @@ cgExp (LCase _ e cases) = cgSwitch e $ nubBy t cases
  where
   t (LDefaultCase _) (LDefaultCase _) = True
   t _                _                = False
-cgExp (LConst k                          ) = cgConst k
-cgExp (LForeign (FCon ret) (FStr fn) args) = unsafePerformIO $ do
-  print fn
-  print ret
-  print args
-  pure $ do
-    as <- mapM (cgExp . snd) args
-    pure $ if null as then stdLib mn f else stdLibCall mn f as
-  where splits = splitOn "." fn 
-        mn = concat $ intersperse "." $ init splits 
-        f = last splits
-         
-        
-        
+cgExp (LConst k            ) = cgConst k
+cgExp (LForeign ret fn args) = do
+  es <- mapM (cgExp . snd) args
+  pure $ makeForeignCall ret fn (map fst args) es
 cgExp (LOp prim args) = cgOp prim args
 cgExp LNothing        = pure MlfNothing
 cgExp (LError err)    = pure $ failWith err

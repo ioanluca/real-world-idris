@@ -28,6 +28,8 @@ import qualified Data.Text.IO                  as T
 -- maybe get lang decls without liftings
 -- use writerT and ReaderT to make Translate
 -- can remove inlined definitios I think
+-- patterns and view patterns 
+-- use state with a record for code generation monad
 codegenMalfunction :: CodeGenerator
 codegenMalfunction ci = do
   writeFile langFile $ stringify langDeclarations
