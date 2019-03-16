@@ -1,4 +1,11 @@
 {
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 80,
+    // adding latex and haskell comment in regex
+    "todo-tree.regex": "((//|--|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
+    "files.associations": {
+        "*.mlf": "clojure"
+    },
     "files.exclude": {
         ".stack-work": true,
         "**/*.ibc": true,
@@ -11,5 +18,6 @@
         "**/.stack-work/**": true,
         "**/_build/**" : true,
     },
-    "search.useIgnoreFiles": false
+    "search.useIgnoreFiles": false,
+    "markdown.preview.fontSize": 17,
 }
