@@ -1,8 +1,8 @@
 {
     "editor.wordWrap": "wordWrapColumn",
     "editor.wordWrapColumn": 80,
-    // adding latex and haskell comment in regex
-    "todo-tree.regex": "((//|--|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
+    // adding latex and haskell comment in regex and ocaml
+    "todo-tree.regex": "((//|\\(\\*|--|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
     "files.associations": {
         "*.mlf": "clojure"
     },
