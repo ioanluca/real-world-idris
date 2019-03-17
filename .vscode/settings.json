@@ -20,4 +20,6 @@
     },
     "search.useIgnoreFiles": false,
     "markdown.preview.fontSize": 17,
+    "explorer.autoReveal": false,
+    "terminal.integrated.fontSize": 16
 }

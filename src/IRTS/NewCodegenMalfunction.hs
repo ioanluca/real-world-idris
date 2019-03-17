@@ -17,7 +17,7 @@ import           System.FilePath
 
 import qualified Data.Text.IO                  as T
 
-
+-- todo big todo
 -- unicode, cannot just show KStrs, ocaml 8bit, overflow safety?
 -- implement all primitives
 -- use ocaml gc optimizations through env vars
@@ -30,10 +30,11 @@ import qualified Data.Text.IO                  as T
 -- can remove inlined definitios I think
 -- patterns and view patterns 
 -- use state with a record for code generation monad
-codegenMalfunction :: CodeGenerator
-codegenMalfunction ci = do
+codegenMalfunction :: [String] -> CodeGenerator
+codegenMalfunction ps ci = do
   writeFile langFile $ stringify langDeclarations
-
+  
+  print ps
   let prog = generateMlfProgram langDeclarations
   T.writeFile tmp $ mlfAST2Text prog
 

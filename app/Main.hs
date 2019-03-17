@@ -17,40 +17,43 @@ import           System.Exit
 
 data Opts = Opts { inputs :: [FilePath],
                    output :: FilePath,
-                   interface :: Bool }
-
-
+                   interface :: Bool,
+                   camlPkgs :: [String] }
 
 showUsage :: IO a
 showUsage = do
+  putStrLn "A code generator which is intended to be called by the compiler"
   putStrLn
-    "A code generator which is intended to be called by the compiler, not by a user."
-  putStrLn "Usage: idris-malfunction <ibc-files> [-o <output-file>]"
+    "Usage: idris-malfunction \
+  \ <ibc-files> [-o <output-file>] [-op/--ocamlpackage <ocaml-packages]"
   exitSuccess
 
-
-
 getOpts :: IO Opts
-getOpts = process (Opts [] "a.out" False) <$> getArgs
+getOpts = process (Opts [] "a.out" False []) <$> getArgs
  where
   process opts ("-o" : o      : xs) = process (opts { output = o }) xs
   process opts ("--interface" : xs) = process (opts { interface = True }) xs
-  process opts (x : xs) = process (opts { inputs = x : inputs opts }) xs
-  process opts []                   = opts
+  process opts (x             : xs) = case words x of
+    [z] -> process (opts { inputs = z : inputs opts }) xs
+    zs ->
+      let f ys ("-op"            : p : ps) = f (p : ys) ps
+          f ys ("--ocamlpackage" : p : ps) = f (p : ys) ps
+          f ys (p                    : ps) = f ys ps
+          f ys []                          = ys
+      in  process (opts { camlPkgs = f [] zs }) xs
+  process opts [] = opts
 
-
-
-malfunction_main :: Opts -> Idris ()
-malfunction_main opts = do
+malfunctionMain :: Opts -> Idris ()
+malfunctionMain opts = do
   elabPrims
   loadInputs (inputs opts) Nothing
   mainProg <- elabMain
   ir <- compile (Via IBCFormat "malfunction") (output opts) (Just mainProg)
-  runIO $ codegenMalfunction (ir { interfaces = interface opts })
-
-
+  runIO
+    $ codegenMalfunction (camlPkgs opts) (ir { interfaces = interface opts })
 
 main :: IO ()
 main = do
   opts <- getOpts
-  if null (inputs opts) then showUsage else runMain (malfunction_main opts)
+  as   <- getArgs
+  if null (inputs opts) then showUsage else runMain (malfunctionMain opts)
