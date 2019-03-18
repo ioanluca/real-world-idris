@@ -16,6 +16,7 @@ import           System.Directory
 import           System.FilePath
 
 import qualified Data.Text.IO                  as T
+import           Data.List                      ( intersperse )
 
 -- todo big todo
 -- unicode, cannot just show KStrs, ocaml 8bit, overflow safety?
@@ -33,25 +34,28 @@ import qualified Data.Text.IO                  as T
 codegenMalfunction :: [String] -> CodeGenerator
 codegenMalfunction ps ci = do
   writeFile langFile $ stringify langDeclarations
-  
+
   print ps
   let prog = generateMlfProgram langDeclarations
   T.writeFile tmp $ mlfAST2Text prog
 
   callCommand fmtCommand
+  print compileCommand
   catch (callCommand compileCommand) handler
   removeFile tmp
  where
   langDeclarations = liftDecls ci
 
   outFile          = outputFile ci
-  mlfFile          = replaceExtensionIf outFile ".o" ".new.mlf"
-  langFile         = replaceExtensionIf outFile ".o" ".lang"
+  mlfFile          = replaceExtensionIf outFile ".out" ".mlf"
+  langFile         = replaceExtensionIf outFile ".out" ".lang"
   tmp              = "idris_malfunction_output.mlf"
 
+  camlPks          = concat . (:) " -p " . intersperse " -p "
+
   fmtCommand       = "malfunction fmt " ++ tmp ++ " > " ++ mlfFile
-  evalCommand      = "cat " ++ mlfFile ++ " | malfunction eval"
-  compileCommand   = "malfunction compile -o " ++ outFile ++ " " ++ mlfFile
+  compileCommand =
+    "malfunction compile -o " ++ outFile ++ camlPks ps ++ " " ++ mlfFile
 
 handler :: SomeException -> IO ()
 handler ex = putStrLn $ "Caught exception: " ++ show ex

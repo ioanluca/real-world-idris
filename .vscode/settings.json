@@ -4,7 +4,8 @@
     // adding latex and haskell comment in regex and ocaml
     "todo-tree.regex": "((//|\\(\\*|--|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
     "files.associations": {
-        "*.mlf": "clojure"
+        "*.mlf": "clojure",
+        "*.mlfa": "clojure"
     },
     "files.exclude": {
         ".stack-work": true,

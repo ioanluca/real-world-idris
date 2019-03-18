@@ -1,0 +1,29 @@
+(module 
+
+($start (lambda ($tt) (lambda ($t)
+ (let 
+    (rec ($loop (lambda ($n) (switch $n 
+        (0 (global $Lwt $return_unit))
+        (_ (let
+        (_ (apply (global $Logs $info) (lambda ($f) (apply $f "hei"))))
+    ($x (apply (global $Duration $of_sec) 1))
+    (apply (global $Lwt $bind) (apply (field 0 $tt) $x) 
+    (lambda ($folk) 
+    (apply $loop (- $n 1)))))))))
+        )
+        (apply $loop 4)
+    ))))
+
+    
+
+($strt (lambda ($t) (let 
+(_ (apply (global $Pervasives $print_endline) "hi")) 
+(global $Lwt $return_unit) )))
+
+($Unmodul
+ (lambda ($time) 
+ (block (tag 0) (lambda ($a) "ok") " pa" (apply $start $time))))
+($ascot "cancer:")
+
+
+(export $Unmodul $ascot))
