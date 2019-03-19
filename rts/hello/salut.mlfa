@@ -5,7 +5,8 @@
     (rec ($loop (lambda ($n) (switch $n 
         (0 (global $Lwt $return_unit))
         (_ (let
-        (_ (apply (global $Logs $info) (lambda ($f) (apply $f "hei"))))
+        (_ (apply (global $Pervasives $print_endline) "hey idris uni"))
+        ; (_ (apply (global $Logs $info) (lambda ($f) (apply $f "hei"))))
     ($x (apply (global $Duration $of_sec) 1))
     (apply (global $Lwt $bind) (apply (field 0 $tt) $x) 
     (lambda ($folk) 
@@ -23,7 +24,7 @@
 ($Unmodul
  (lambda ($time) 
  (block (tag 0) (lambda ($a) "ok") " pa" (apply $start $time))))
-($ascot "cancer:")
+($ascot "cheers:")
 
 
 (export $Unmodul $ascot))

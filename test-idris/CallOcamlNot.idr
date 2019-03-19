@@ -5,6 +5,9 @@ import OCaml.IO
 f : String -> (String, Maybe Double)
 f x = (x ++ x, Just (1.3 + 1.3))
 
+exports : FFI_Export FFI_OCaml "salut.mli" []
+exports = Data (OCaml_FnTypes Int) "ListInt" $ Fun f "f" End
+
 main : OCaml_IO ()
 main = do 
      min_int <- ocamlCall "Pervasives.min_int" (OCaml_IO Int)

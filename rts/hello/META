@@ -1,4 +1,4 @@
 description = "mlf package"
-requires = "lwt duration logs"
+requires = "lwt duration"
 version = "1"
 archive(native) = "salut.cmxa"

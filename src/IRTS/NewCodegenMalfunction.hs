@@ -34,7 +34,7 @@ import           Data.List                      ( intersperse )
 codegenMalfunction :: [String] -> CodeGenerator
 codegenMalfunction ps ci = do
   writeFile langFile $ stringify langDeclarations
-
+  mapM print (exportDecls ci)
   print ps
   let prog = generateMlfProgram langDeclarations
   T.writeFile tmp $ mlfAST2Text prog
@@ -51,9 +51,10 @@ codegenMalfunction ps ci = do
   langFile         = replaceExtensionIf outFile ".out" ".lang"
   tmp              = "idris_malfunction_output.mlf"
 
-  camlPks          = concat . (:) " -p " . intersperse " -p "
+  camlPks =
+    if null ps then const "" else concat . (:) " -p " . intersperse " -p "
 
-  fmtCommand       = "malfunction fmt " ++ tmp ++ " > " ++ mlfFile
+  fmtCommand = "malfunction fmt " ++ tmp ++ " > " ++ mlfFile
   compileCommand =
     "malfunction compile -o " ++ outFile ++ camlPks ps ++ " " ++ mlfFile
 
