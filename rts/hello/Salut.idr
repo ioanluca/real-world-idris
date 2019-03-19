@@ -11,12 +11,11 @@ Unmodul : ModuleTy
 Unmodul time = 
   unsafePerformIO $ mkMod $ Step (MkOCamlFn (\k => "sdkjhsdf")) 
           (Step "ok"
-          (Step (MkOCamlFn (\t => modGet 0 time )) Stop))
+          (Step (MkOCamlFn (\t => unsafePerformIO $ modGet 0 time )) Stop))
 
--- start : 
 
--- exports : FFI_Export FFI_OCaml "salut.mli" []
--- exports = Data (OCaml_FnTypes Int) "ListInt" $ Fun f "f" End
+exports : FFI_Export FFI_OCaml "salut.mli" []
+exports = Fun Unmodul "Unmodul" End
 
 main : OCaml_IO ()
 main = printLn' "a"

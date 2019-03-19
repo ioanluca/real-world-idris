@@ -78,20 +78,28 @@ putStr = putStr'
 getLine : OCaml_IO String
 getLine = getLine'
 
+-- {auto ok: InBounds i tys} 
 
-modGet : (i : Nat) -> OCamlModule tys -> a
-
--- modGet : (i : Nat) -> {auto index' i tys = Some a} -> OCamlModule tys -> a
+modGet : (i : Nat) -> OCamlModule tys ->
+         {auto ok : InBounds i tys} ->
+         {auto p : OCamlTypeList tys} ->
+         OCaml_IO Ptr
+modGet {tys = tys} i m = 
+ ocamlCall "Obj.field" (OCamlModule tys -> Int -> OCaml_IO Ptr) m (cast i)
 
 data Values : List Type -> Type where
   Stop : Values []
   Step : t -> Values tys -> Values (t :: tys)
 
-mkMod : Values tys -> {auto p : OCamlTypeList tys} -> OCaml_IO (OCamlModule tys)
+mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
+        OCaml_IO (OCamlModule tys)
 mkMod {tys = tys} vs {p = p} = go vs p 0 where
-  go : Values tys2 -> OCamlTypeList tys2 -> Int -> OCaml_IO (OCamlModule tys)
-  go {tys2 = []} Stop Done n = ocamlCall "Obj.new_block" (Int -> Int -> OCaml_IO (OCamlModule tys)) 0 n
+  go : Values tys2 -> OCamlTypeList tys2 ->
+       Int -> OCaml_IO (OCamlModule tys)
+  go {tys2 = []} Stop Done n =
+   ocamlCall "Obj.new_block" (Int -> Int -> OCaml_IO (OCamlModule tys)) 0 n
   go {tys2 = ty :: tys2} (Step v vs) (Next x q) n = do
      m <- go vs q (n + 1)
-     ocamlCall "Obj.set_field" (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
+     ocamlCall "Obj.set_field" 
+          (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
      pure m
