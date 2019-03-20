@@ -1,0 +1,58 @@
+\documentclass[a4paper, 12pt, oneside]{report}
+
+\usepackage[utf8]{inputenc} % TODO
+% \usepackage{indentfirst} % FIXME matter of taste
+% \usepackage[margin=0.8in]{geometry} % fixme
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\title{Real World Idris}
+\author{Ioan Luca \\ 201638554 \\ \small supervised by Dr. Robert Atkey \\
+	\small University of Strathclyde} % fixme
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\pagenumbering{roman}
+
+\listoffigures
+\listoftables
+
+\chapter*{Acknowledgements}
+
+\begin{abstract}
+    Salut c'est quoi?
+\end{abstract}
+
+\tableofcontents
+
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+\label{ch:intro}
+\input{chapters/introduction}
+
+\chapter{Technical Introduction}
+\label{ch:techintro}
+
+\chapter{Method}
+\label{ch:method}
+
+\chapter{Results}
+\label{ch:results}
+
+\chapter{Conclusions}
+\label{ch:conc}
+
+\appendix
+\chapter{Appendix Title}
+\input{appendices/appendix}
+
+\bibliographystyle{plain}
+\bibliography{thesis}
+
+\end{document}
