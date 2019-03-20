@@ -85,34 +85,24 @@ data Values : List Type -> Type where
   Stop : Values []
   Step : t -> Values tys -> Values (t :: tys)
 
--- %inline
-%extern modGet : (i : Nat) -> OCamlModule tys ->
-         {auto ok : InBounds i tys} ->
-         {auto p : OCamlTypeList tys} ->
-         Ptr
-
--- %inline
-%extern mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
-        OCamlModule tys
-
--- modGet : (i : Nat) -> OCamlModule tys ->
---          {auto ok : InBounds i tys} ->
---          {auto p : OCamlTypeList tys} ->
---          OCaml_IO Ptr
--- modGet {tys = tys} i m = 
---  ocamlCall "Obj.field" (OCamlModule tys -> Int -> OCaml_IO Ptr) m (cast i)
+modGet : (i : Nat) -> OCamlModule tys ->
+         {a : Type} ->
+         {auto ok : index' i tys = Just a} ->
+         {auto p : OCaml_Types a} -> 
+         OCaml_IO a
+modGet {tys = tys} {a = a} i m = 
+ ocamlCall "Obj.field" (Ptr -> Int -> OCaml_IO a) (cast m) (cast i)
 
 
-
--- mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
---         OCaml_IO (OCamlModule tys)
--- mkMod {tys = tys} vs {p = p} = go vs p 0 where
---   go : Values tys2 -> OCamlTypeList tys2 ->
---        Int -> OCaml_IO (OCamlModule tys)
---   go {tys2 = []} Stop Done n =
---    ocamlCall "Obj.new_block" (Int -> Int -> OCaml_IO (OCamlModule tys)) 0 n
---   go {tys2 = ty :: tys2} (Step v vs) (Next x q) n = do
---      m <- go vs q (n + 1)
---      ocamlCall "Obj.set_field" 
---           (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
---      pure m
+mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
+        OCaml_IO (OCamlModule tys)
+mkMod {tys = tys} vs {p = p} = go vs p 0 where
+  go : Values tys2 -> OCamlTypeList tys2 ->
+       Int -> OCaml_IO (OCamlModule tys)
+  go {tys2 = []} Stop Done n =
+   ocamlCall "Obj.new_block" (Int -> Int -> OCaml_IO (OCamlModule tys)) 0 n
+  go {tys2 = ty :: tys2} (Step v vs) (Next x q) n = do
+     m <- go vs q (n + 1)
+     ocamlCall "Obj.set_field" 
+          (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
+     pure m

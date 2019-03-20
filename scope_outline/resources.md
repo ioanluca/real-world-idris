@@ -1,1 +1,0 @@
-gold - https://queue.acm.org/detail.cfm?id=2566628
