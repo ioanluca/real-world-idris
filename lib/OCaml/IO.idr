@@ -80,9 +80,20 @@ getLine : OCaml_IO String
 getLine = getLine'
 
 -- Modules
+
+data Values : List Type -> Type where
+  Stop : Values []
+  Step : t -> Values tys -> Values (t :: tys)
+
 -- %inline
-%extern prim__ocaml__proj : OCamlModule tys -> Nat -> Ptr
-%extern prim__ocaml__mkField : a -> ()
+%extern modGet : (i : Nat) -> OCamlModule tys ->
+         {auto ok : InBounds i tys} ->
+         {auto p : OCamlTypeList tys} ->
+         Ptr
+
+-- %inline
+%extern mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
+        OCamlModule tys
 
 -- modGet : (i : Nat) -> OCamlModule tys ->
 --          {auto ok : InBounds i tys} ->
@@ -91,15 +102,7 @@ getLine = getLine'
 -- modGet {tys = tys} i m = 
 --  ocamlCall "Obj.field" (OCamlModule tys -> Int -> OCaml_IO Ptr) m (cast i)
 
-modGet : (i : Nat) -> OCamlModule tys ->
-         {auto ok : InBounds i tys} ->
-         {auto p : OCamlTypeList tys} ->
-         Ptr
-modGet {tys = tys} i m = prim__ocaml__proj m i
 
-data Values : List Type -> Type where
-  Stop : Values []
-  Step : t -> Values tys -> Values (t :: tys)
 
 -- mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
 --         OCaml_IO (OCamlModule tys)
@@ -113,10 +116,3 @@ data Values : List Type -> Type where
 --      ocamlCall "Obj.set_field" 
 --           (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
 --      pure m
-
-mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
-        OCamlModule tys
-mkMod {tys = tys} vs {p = p} = prim__ocaml__newblock (go vs) where
-  go : Values tys2 -> (OCamlModule tys)
-  go {tys2 = []} Stop = ()
-  go {tys2 = ty :: tys2} (Step v vs) = prim__ocaml__mkField v

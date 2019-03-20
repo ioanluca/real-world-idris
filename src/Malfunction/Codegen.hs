@@ -13,27 +13,27 @@ import           IRTS.TranslateMonad
 import           IRTS.OCamlFFI
 import           Malfunction.AST
 
-import           Data.List                      ( nubBy
-                                                , isSuffixOf
-                                                )
+import           Data.List                                ( nubBy
+                                                          , isSuffixOf
+                                                          )
 import           Data.Char
 import           Data.Ord
 import qualified Data.Map.Strict               as Map
 import qualified Data.Set                      as Set
 import qualified Data.Graph                    as Graph
-import           Data.Maybe                     ( mapMaybe
-                                                , catMaybes
-                                                )
-import           Data.Function                  ( on )
-import           Data.Text                      ( Text )
+import           Data.Maybe                               ( mapMaybe
+                                                          , catMaybes
+                                                          )
+import           Data.Function                            ( on )
+import           Data.Text                                ( Text )
 import qualified Data.Text                     as T
 import           Control.Exception
-import           Control.Monad                  ( mapM )
+import           Control.Monad                            ( mapM )
 
 import           System.Process
 import           System.Directory
 import           System.FilePath
-import           System.IO.Unsafe               ( unsafePerformIO )
+import           System.IO.Unsafe                         ( unsafePerformIO )
 
 
 generateMlfProgram :: [(Name, LDecl)] -> MlfExp
@@ -222,7 +222,7 @@ cgConst (BI  n) = pure $ MlfLiteral $ MlfBigInt n
 cgConst (Fl  f) = pure $ MlfLiteral $ MlfFloat f
 cgConst (Ch  c) = pure $ MlfLiteral $ MlfInt (ord c)
 cgConst (Str c) = pure $ MlfLiteral $ MlfString $ T.pack c
-cgConst c       = crashWith $ "unimplemented constant " ++ show c
+cgConst c       = pure $ failWith $ "unimplemented constant " ++ show c
 
 -- cgArithType :: ArithTy -> Translate MlfArithType
 -- cgArithType (ATInt (ITFixed IT8)) = pure IntArith
@@ -339,8 +339,15 @@ cgOp LWriteStr (world : args) =
 -- cgOp LPar               args = undefined
 -- todo use %unqualified so name comes clean
 -- cgOp (LExternal (UN name)) args | T.isSuffixOf (T.pack "sap") name =
-cgOp (LExternal name) args | "sap" `isSuffixOf` show name =
-  pure $ failWith "differror"
+cgOp (LExternal name) [types, vs, tyList] | "mkMod" `isSuffixOf` show name = do
+  e <- cgExp vs
+  pure $ MlfBlock 7 [e]
+cgOp (LExternal name) [idx, blk, _, _, _] | "modGet" `isSuffixOf` show name = do
+  -- (MlfLiteral (MlfInt i)) <- cgExp idx
+  e <- cgExp idx
+  -- MlfProjection i <$> cgExp blk
+  b <- cgExp blk
+  pure $ MlfApp e [b]
 -- cgOp LCrash             args = undefined
 -- cgOp LNoOp              args = undefined
 cgOp p _ = pure $ failWith $ "unimplemented primitive: " ++ show p
