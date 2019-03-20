@@ -13,7 +13,9 @@ import           IRTS.TranslateMonad
 import           IRTS.OCamlFFI
 import           Malfunction.AST
 
-import           Data.List                      ( nubBy )
+import           Data.List                      ( nubBy
+                                                , isSuffixOf
+                                                )
 import           Data.Char
 import           Data.Ord
 import qualified Data.Map.Strict               as Map
@@ -61,7 +63,7 @@ cgDecl (LFun inline n as b) = do
   body <- cgExp b
   let args   = map cgName as
   let name   = cgName n
-  let isMain = name == T.pack "Main.main"
+  let isMain = name == T.pack "Main.main" --fixme name depends on module
   if isMain && null as
     then pure $ Just $ RegBinding name body
     else pure $ Just $ RegBinding name $ MlfLam args body
@@ -249,59 +251,59 @@ cgIntType ITChar         = IntArith
 -- is a source of bugs, some things receive the world as a param
 -- mostly the ones that do IO prob
 cgOp :: PrimFn -> [LExp] -> Translate MlfExp
-cgOp (LPlus  at    ) args = MlfOp MlfPlus (cgArithType at) <$> mapM cgExp args
-cgOp (LMinus at    ) args = MlfOp MlfMinus (cgArithType at) <$> mapM cgExp args
-cgOp (LTimes at    ) args = MlfOp MlfTimes (cgArithType at) <$> mapM cgExp args
+cgOp (LPlus  at     ) args = MlfOp MlfPlus (cgArithType at) <$> mapM cgExp args
+cgOp (LMinus at     ) args = MlfOp MlfMinus (cgArithType at) <$> mapM cgExp args
+cgOp (LTimes at     ) args = MlfOp MlfTimes (cgArithType at) <$> mapM cgExp args
 -- cgOp (LUDiv  at     )   args = undefined
-cgOp (LSDiv  at    ) args = MlfOp MlfDiv (cgArithType at) <$> mapM cgExp args
+cgOp (LSDiv  at     ) args = MlfOp MlfDiv (cgArithType at) <$> mapM cgExp args
 -- cgOp (LURem  at     )   args = undefined
-cgOp (LSRem  at    ) args = MlfOp MlfMod (cgArithType at) <$> mapM cgExp args
-cgOp (LAnd   at    ) args = MlfOp MlfBitAnd (cgIntType at) <$> mapM cgExp args
-cgOp (LOr    at    ) args = MlfOp MlfBitOr (cgIntType at) <$> mapM cgExp args
-cgOp (LXOr   at    ) args = MlfOp MlfBitXOr (cgIntType at) <$> mapM cgExp args
-cgOp (LCompl at    ) args = MlfOp MlfBitAnd (cgIntType at) <$> mapM cgExp args
-cgOp (LSHL   at    ) args = MlfOp MlfBitAnd (cgIntType at) <$> mapM cgExp args
+cgOp (LSRem  at     ) args = MlfOp MlfMod (cgArithType at) <$> mapM cgExp args
+cgOp (LAnd   at     ) args = MlfOp MlfBitAnd (cgIntType at) <$> mapM cgExp args
+cgOp (LOr    at     ) args = MlfOp MlfBitOr (cgIntType at) <$> mapM cgExp args
+cgOp (LXOr   at     ) args = MlfOp MlfBitXOr (cgIntType at) <$> mapM cgExp args
+cgOp (LCompl at     ) args = MlfOp MlfBitAnd (cgIntType at) <$> mapM cgExp args
+cgOp (LSHL   at     ) args = MlfOp MlfBitAnd (cgIntType at) <$> mapM cgExp args
 cgOp (LLSHR at) args = MlfOp MlfBitRShift (cgIntType at) <$> mapM cgExp args
 cgOp (LASHR at) args = MlfOp MlfBitRShiftExt (cgIntType at) <$> mapM cgExp args
-cgOp (LEq    at    ) args = MlfOp MlfEq (cgArithType at) <$> mapM cgExp args
+cgOp (LEq    at     ) args = MlfOp MlfEq (cgArithType at) <$> mapM cgExp args
 -- cgOp (LLt    at     )   args = undefined
 -- cgOp (LLe    at     )   args = undefined
 -- cgOp (LGt    at     )   args = undefined
 -- cgOp (LGe    at     )   args = undefined
-cgOp (LSLt   at    ) args = MlfOp MlfLT (cgArithType at) <$> mapM cgExp args
-cgOp (LSLe   at    ) args = MlfOp MlfLTEq (cgArithType at) <$> mapM cgExp args
-cgOp (LSGt   at    ) args = MlfOp MlfGT (cgArithType at) <$> mapM cgExp args
-cgOp (LSGe   at    ) args = MlfOp MlfGTEq (cgArithType at) <$> mapM cgExp args
-cgOp (LSExt at1 at2) [e]  = cgExp e --fixme use ocaml figure direction
+cgOp (LSLt   at     ) args = MlfOp MlfLT (cgArithType at) <$> mapM cgExp args
+cgOp (LSLe   at     ) args = MlfOp MlfLTEq (cgArithType at) <$> mapM cgExp args
+cgOp (LSGt   at     ) args = MlfOp MlfGT (cgArithType at) <$> mapM cgExp args
+cgOp (LSGe   at     ) args = MlfOp MlfGTEq (cgArithType at) <$> mapM cgExp args
+cgOp (LSExt  at1 at2) [e]  = cgExp e --fixme use ocaml figure direction
 -- cgOp (LZExt  at1 at2)   args = undefined
--- cgOp (LTrunc at1 at2)   args = undefined
-cgOp LStrConcat      args = pervasiveCall "^" <$> mapM cgExp args
+cgOp (LTrunc at1 at2) [e]  = cgExp e --fixme danger
+cgOp LStrConcat       args = pervasiveCall "^" <$> mapM cgExp args
 -- cgOp LStrLt             args = undefined
-cgOp LStrEq          args = stdLibCall "String" "equal" <$> mapM cgExp args
-cgOp LStrLen         [e]  = MlfVecLen Byte <$> cgExp e
-cgOp (LIntFloat at)  [e]  = MlfConvert (cgIntType at) FloatArith <$> cgExp e
-cgOp (LFloatInt at)  [e]  = MlfConvert FloatArith (cgIntType at) <$> cgExp e
-cgOp (LIntStr   at)  args = pervasiveCall "string_of_int" <$> mapM cgExp args
-cgOp (LStrInt   at)  args = pervasiveCall "int_of_string" <$> mapM cgExp args
-cgOp LFloatStr       args = pervasiveCall "string_of_float" <$> mapM cgExp args
-cgOp LStrFloat       args = pervasiveCall "float_of_string" <$> mapM cgExp args
-cgOp (LChInt at)     [e]  = cgExp e
-cgOp (LIntCh at)     [e]  = cgExp e
+cgOp LStrEq           args = stdLibCall ["String", "equal"] <$> mapM cgExp args
+cgOp LStrLen          [e]  = MlfVecLen Byte <$> cgExp e
+cgOp (LIntFloat at)   [e]  = MlfConvert (cgIntType at) FloatArith <$> cgExp e
+cgOp (LFloatInt at)   [e]  = MlfConvert FloatArith (cgIntType at) <$> cgExp e
+cgOp (LIntStr   at)   args = pervasiveCall "string_of_int" <$> mapM cgExp args
+cgOp (LStrInt   at)   args = pervasiveCall "int_of_string" <$> mapM cgExp args
+cgOp LFloatStr        args = pervasiveCall "string_of_float" <$> mapM cgExp args
+cgOp LStrFloat        args = pervasiveCall "float_of_string" <$> mapM cgExp args
+cgOp (LChInt at)      [e]  = cgExp e
+cgOp (LIntCh at)      [e]  = cgExp e
 -- cgOp (LBitCast at1 at2) args = undefined
-cgOp LFExp           args = pervasiveCall "exp" <$> mapM cgExp args
-cgOp LFLog           args = pervasiveCall "log" <$> mapM cgExp args
-cgOp LFSin           args = pervasiveCall "sin" <$> mapM cgExp args
-cgOp LFCos           args = pervasiveCall "cos" <$> mapM cgExp args
-cgOp LFTan           args = pervasiveCall "tan" <$> mapM cgExp args
-cgOp LFASin          args = pervasiveCall "asin" <$> mapM cgExp args
-cgOp LFACos          args = pervasiveCall "acos" <$> mapM cgExp args
-cgOp LFATan          args = pervasiveCall "atan" <$> mapM cgExp args
-cgOp LFATan2         args = pervasiveCall "atan2" <$> mapM cgExp args
-cgOp LFSqrt          args = pervasiveCall "sqrt" <$> mapM cgExp args
-cgOp LFFloor         args = pervasiveCall "floor" <$> mapM cgExp args
-cgOp LFCeil          args = pervasiveCall "ceil" <$> mapM cgExp args
-cgOp LFNegate        args = MlfOp MlfNeg IntArith <$> mapM cgExp args --fixme
-cgOp LStrHead        [e]  = do
+cgOp LFExp            args = pervasiveCall "exp" <$> mapM cgExp args
+cgOp LFLog            args = pervasiveCall "log" <$> mapM cgExp args
+cgOp LFSin            args = pervasiveCall "sin" <$> mapM cgExp args
+cgOp LFCos            args = pervasiveCall "cos" <$> mapM cgExp args
+cgOp LFTan            args = pervasiveCall "tan" <$> mapM cgExp args
+cgOp LFASin           args = pervasiveCall "asin" <$> mapM cgExp args
+cgOp LFACos           args = pervasiveCall "acos" <$> mapM cgExp args
+cgOp LFATan           args = pervasiveCall "atan" <$> mapM cgExp args
+cgOp LFATan2          args = pervasiveCall "atan2" <$> mapM cgExp args
+cgOp LFSqrt           args = pervasiveCall "sqrt" <$> mapM cgExp args
+cgOp LFFloor          args = pervasiveCall "floor" <$> mapM cgExp args
+cgOp LFCeil           args = pervasiveCall "ceil" <$> mapM cgExp args
+cgOp LFNegate         args = MlfOp MlfNeg IntArith <$> mapM cgExp args --fixme
+cgOp LStrHead         [e]  = do
   let fstIdx = MlfLiteral $ MlfInt 0
   s <- cgExp e
   pure $ MlfVecLoad Byte s fstIdx
@@ -309,8 +311,7 @@ cgOp LStrTail [s] = do
   str <- cgExp s
   len <- cgOp LStrLen [s]
   pure $ stdLibCall
-    "String"
-    "sub"
+    ["String", "sub"]
     [ str
     , MlfLiteral $ MlfInt 1
     , MlfOp MlfMinus IntArith [len, MlfLiteral $ MlfInt 1]
@@ -320,7 +321,7 @@ cgOp LStrCons [c, s] = do
   str <- cgExp s
   pure $ pervasiveCall
     "^"
-    [stdLibCall "String" "make" [MlfLiteral $ MlfInt 1, ch], str]
+    [stdLibCall ["String", "make"] [MlfLiteral $ MlfInt 1, ch], str]
     --safety???? fixme
     -- todo maybe use makevec builtin
 cgOp LStrIndex  [s, idx]  = MlfVecLoad Byte <$> cgExp s <*> cgExp idx
@@ -329,14 +330,17 @@ cgOp LStrSubstr [b, l, s] = do
   bb <- cgExp b
   ll <- cgExp l
   ss <- cgExp s
-  pure $ stdLibCall "String" "sub" [ss, bb, ll]
+  pure $ stdLibCall ["String", "sub"] [ss, bb, ll]
 cgOp LReadStr args = pervasiveCall "read_line" <$> mapM cgExp args
 cgOp LWriteStr (world : args) =
   pervasiveCall "print_string" <$> mapM cgExp args
 -- cgOp LSystemInfo        args = undefined
 -- cgOp LFork              args = undefined
 -- cgOp LPar               args = undefined
--- cgOp (LExternal at)     args = undefined
+-- todo use %unqualified so name comes clean
+-- cgOp (LExternal (UN name)) args | T.isSuffixOf (T.pack "sap") name =
+cgOp (LExternal name) args | "sap" `isSuffixOf` show name =
+  pure $ failWith "differror"
 -- cgOp LCrash             args = undefined
 -- cgOp LNoOp              args = undefined
 cgOp p _ = pure $ failWith $ "unimplemented primitive: " ++ show p
@@ -354,8 +358,7 @@ reverseStringMlf = RegBinding reverseName $ MlfLam [T.pack "s"] $ MlfLet
       )
   ]
   (stdLibCall
-    "String"
-    "mapi"
+    ["String", "mapi"]
     [ MlfLam
       [T.pack "i", T.pack "c"]
       (MlfVecLoad

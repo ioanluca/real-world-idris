@@ -93,20 +93,20 @@ data MlfExp
     | MlfSwitch MlfExp [MlfCase]
     | MlfIf MlfExp MlfExp MlfExp
 
-    | MlfOCaml MlfName MlfName
+    | MlfOCaml [MlfName]
 
     | MlfComment Text
     | MlfNothing
     deriving (Eq, Show)
 
-stdLib :: String -> String -> MlfExp
-stdLib m = (MlfOCaml $ T.pack m) . T.pack
+stdLib :: [String] -> MlfExp
+stdLib = MlfOCaml . map T.pack
 
-stdLibCall :: String -> String -> [MlfExp] -> MlfExp
-stdLibCall m n = MlfApp (stdLib m n)
+stdLibCall :: [String] -> [MlfExp] -> MlfExp
+stdLibCall = MlfApp . stdLib
 
 pervasive :: String -> MlfExp
-pervasive = stdLib "Pervasives"
+pervasive s = stdLib ["Pervasives", s]
 
 pervasiveCall :: String -> [MlfExp] -> MlfExp
 pervasiveCall name = MlfApp (pervasive name)
@@ -262,8 +262,8 @@ mlfAST2Text (MlfSwitch switch cases) = ip $ T.concat
     ]
 mlfAST2Text (MlfIf cond true false) = ip $ T.concat
     ["if", " ", mlfAST2Text cond, " ", mlfAST2Text true, " ", mlfAST2Text false]
-mlfAST2Text (MlfOCaml path fn) =
-    ip $ T.concat ["global", " ", name2Text path, " ", name2Text fn]
+mlfAST2Text (MlfOCaml path) =
+    ip $ concatWithSpaces $ "global" : map name2Text path
 mlfAST2Text (MlfComment c) = T.unlines $ map ("; " `T.append`) $ T.lines c
 mlfAST2Text MlfNothing     = "0"
 

@@ -5,6 +5,7 @@ where
 
 import           Idris.Core.TT
 import           IRTS.CodegenCommon
+import           IRTS.OCamlFFI
 import           IRTS.Lang
 import           Malfunction.AST
 import           Malfunction.Codegen

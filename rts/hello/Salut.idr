@@ -9,9 +9,9 @@ ModuleTy = OCamlModule [ OCamlFn (Int -> Ptr) ] ->
 
 Unmodul : ModuleTy
 Unmodul time = 
-  unsafePerformIO $ mkMod $ Step (MkOCamlFn (\k => "sdkjhsdf")) 
+  mkMod $ Step  (MkOCamlFn (\k => "sdkjhsdf")) 
           (Step "ok"
-          (Step (MkOCamlFn (\t => unsafePerformIO $ modGet 0 time )) Stop))
+          (Step (MkOCamlFn (\t => modGet 0 time )) Stop))
 
 
 exports : FFI_Export FFI_OCaml "salut.mli" []
