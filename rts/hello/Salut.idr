@@ -4,21 +4,23 @@ ModuleTy : Type
 ModuleTy = OCamlModule [ OCamlFn (Int -> Int) ] ->
            OCamlModule [ OCamlFn (Int -> String)
                        , String
-                       , OCamlFn (Ptr -> Ptr) ]
+                       , OCamlFn (Ptr -> OCamlFn (Int -> Int)) ]
 
 Unmodul : ModuleTy
 Unmodul time = 
    let vs =  Step  (MkOCamlFn (\k => "sdkjhsdf")) 
           (Step "ok"
-          (Step (MkOCamlFn (\t => modGet 0 time )) Stop))
-   in mkMod vs
+          (Step (MkOCamlFn (\t => unsafePerformIO $ 
+            modGet 0 time )) Stop))
+   in unsafePerformIO $ mkMod vs
 
 DummyTimeModule : OCamlModule [ OCamlFn (Int -> Int)]
-DummyTimeModule = mkMod $ Step (MkOCamlFn (+1)) Stop 
+DummyTimeModule = unsafePerformIO $ 
+    mkMod $ Step (MkOCamlFn (+1)) Stop 
 
 f : (Maybe Bool) -> OCamlModule [ OCamlFn (Int -> String)
                , String
-               , OCamlFn (Ptr -> Ptr) ]
+               , OCamlFn (Ptr -> OCamlFn (Int -> Int)) ]
     -> String
 f Nothing _ = "showing module nth"
 f (Just True) _ = "showing module true"

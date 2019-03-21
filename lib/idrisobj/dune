@@ -1,0 +1,3 @@
+(library
+ (name        idrisobj)
+ (public_name idrisobj))

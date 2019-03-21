@@ -57,7 +57,7 @@ codegenMalfunction ps ci = do
 
   fmtCommand = "malfunction fmt " ++ tmp ++ " > " ++ mlfFile
   compileCommand =
-    "malfunction compile -o " ++ outFile ++ camlPks ps ++ " " ++ mlfFile
+    "malfunction compile -p idrisobj -o " ++ outFile ++ camlPks ps ++ " " ++ mlfFile
 
 handler :: SomeException -> IO ()
 handler ex = putStrLn $ "Caught exception: " ++ show ex
