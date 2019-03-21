@@ -1,0 +1,4 @@
+description = "mlf package"
+requires = "lwt duration idrisobj"
+version = "1"
+archive(native) = "idrikernel.cmxa"

@@ -8,7 +8,7 @@ ModuleTy = OCamlModule [ OCamlFn (Int -> Int) ] ->
 
 
 Unmodul : ModuleTy
-Unmodul time = 
+Unmodul time =
    let vs = Step  (MkOCamlFn (\k => "ok")) 
           (Step " pa"
           (Step (MkOCamlFn (\t => unsafePerformIO $ do
