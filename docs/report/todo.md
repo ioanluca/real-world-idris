@@ -112,6 +112,9 @@ works for simple examples.
 - [ ] describe the monad used, avoid saying design pattern, use applicatives etc
 - [ ] how I broke the AST 
 - [ ] how you modified what, added to Malfunction for ex
+- [ ] wrapper `Obj`
+- [ ] added `-p` and `-op` CLI flags to link in ocaml libraries
+- [ ] whole thing with cmx cmi ocaml object files etc 
 
 check commit history to see what happened chaos
 
