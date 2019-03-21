@@ -24,5 +24,6 @@
     "explorer.autoReveal": false,
     "terminal.integrated.fontSize": 16,
     "editor.lineNumbers": "on",
-    "cSpell.language": "en-GB"
+    "cSpell.language": "en-GB",
+    "latex-workshop.latex.outDir": "%DIR%/_build/"
 }
