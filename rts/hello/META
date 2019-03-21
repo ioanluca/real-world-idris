@@ -1,4 +1,4 @@
 description = "mlf package"
-requires = "lwt duration"
+requires = "lwt duration idrisobj"
 version = "1"
 archive(native) = "salut.cmxa"

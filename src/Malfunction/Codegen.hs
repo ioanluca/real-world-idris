@@ -36,11 +36,14 @@ import           System.FilePath
 import           System.IO.Unsafe                         ( unsafePerformIO )
 
 
-generateMlfProgram :: [(Name, LDecl)] -> MlfExp
-generateMlfProgram decls =
+generateMlfProgram :: [(Name, LDecl)] -> [Name] -> MlfExp
+generateMlfProgram decls names2export =
   let bindings = generateBindings $ asConnectedComponents . map snd $ decls
-      runMainApplication = MlfApp (MlfVar $ cgName $ sMN 0 "runMain") []
-  in  MlfProg (reverseStringMlf : bindings) runMainApplication
+      runMainApplication = if null names2export
+        then [ExecBinding $ MlfApp (MlfVar $ cgName $ sMN 0 "runMain") []]
+        else []
+      exports = map cgName names2export
+  in  MlfProg ((reverseStringMlf : bindings) ++ runMainApplication) exports
  where
   m = getNameTagArityMap $ map snd decls
 

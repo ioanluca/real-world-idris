@@ -42,7 +42,8 @@
         {
             "label": "Build and run",
             "type": "shell",
-            "command": "stack exec -- idris --cg-opt '-op idrisobj' -p ocaml --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.out && ${fileDirname}/${fileBasenameNoExtension}.out",
+            "options": {"cwd": "${fileDirname}"},
+            "command": "stack exec -- idris --cg-opt '-op idrisobj -op lwt' -p ocaml --codegen malfunction ${fileBasename} -o ${fileBasenameNoExtension}.out && ./${fileBasenameNoExtension}.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",

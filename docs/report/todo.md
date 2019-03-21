@@ -115,6 +115,8 @@ works for simple examples.
 - [ ] wrapper `Obj`
 - [ ] added `-p` and `-op` CLI flags to link in ocaml libraries
 - [ ] whole thing with cmx cmi ocaml object files etc 
+- [ ] how data is exported in idris from an ffi
+- [ ] how exporting doesnt create an executable, or creates one that does nothing
 
 check commit history to see what happened chaos
 

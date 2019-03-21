@@ -2,9 +2,9 @@
 
 module Malfunction.AST where
 
-import           Data.Text                      ( Text )
+import           Data.Text                                ( Text )
 import qualified Data.Text                     as T
-import           Data.List                      ( intersperse )
+import           Data.List                                ( intersperse )
 
 -- data MlfProgram
 --     = Interpreted [MlfBinding] MlfExp
@@ -66,7 +66,7 @@ data MlfConst
     deriving (Eq, Show)
 
 data MlfExp
-    = MlfProg [MlfBinding] MlfExp
+    = MlfProg [MlfBinding] [MlfName] -- defs, run exp, exports
     | MlfVar MlfName
 
     | MlfLiteral MlfConst
@@ -188,12 +188,12 @@ const2Text MlfNaN        = "nan"
 const2Text (MlfString e) = textShow e --fixme bottleNeck? becomes strings first..
 
 mlfAST2Text :: MlfExp -> Text
-mlfAST2Text (MlfProg binds e) =
+mlfAST2Text (MlfProg binds es) =
     ip
         $  T.concat
         $  ["module", " "]
-        ++ intersperse " " (map binding2Text (binds ++ [ExecBinding e]))
-        ++ [" ", ip "export"]
+        ++ intersperse " " (map binding2Text binds)
+        ++ [" ", ip $ concatWithSpaces $ "export" : map name2Text es]
 mlfAST2Text (MlfVar     e        ) = name2Text e
 mlfAST2Text (MlfLiteral const    ) = const2Text const
 mlfAST2Text (MlfConvert from to e) = ip $ T.concat
