@@ -295,5 +295,6 @@ idris-codegen-malfunction.cabal
 *.cmx
 *.cmxs
 *.cmxa
+**/_build
 
-report/rwi.pdf
+docs/report/rwi.pdf

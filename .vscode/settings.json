@@ -23,5 +23,6 @@
     "markdown.preview.fontSize": 17,
     "explorer.autoReveal": false,
     "terminal.integrated.fontSize": 16,
-    "editor.lineNumbers": "on"
+    "editor.lineNumbers": "on",
+    "cSpell.language": "en-GB"
 }

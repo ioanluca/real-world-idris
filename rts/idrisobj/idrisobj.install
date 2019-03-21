@@ -1,0 +1,13 @@
+lib: [
+  "_build/install/default/lib/idrisobj/META" {"META"}
+  "_build/install/default/lib/idrisobj/dune-package" {"dune-package"}
+  "_build/install/default/lib/idrisobj/idrisobj.a" {"idrisobj.a"}
+  "_build/install/default/lib/idrisobj/idrisobj.cma" {"idrisobj.cma"}
+  "_build/install/default/lib/idrisobj/idrisobj.cmi" {"idrisobj.cmi"}
+  "_build/install/default/lib/idrisobj/idrisobj.cmt" {"idrisobj.cmt"}
+  "_build/install/default/lib/idrisobj/idrisobj.cmx" {"idrisobj.cmx"}
+  "_build/install/default/lib/idrisobj/idrisobj.cmxa" {"idrisobj.cmxa"}
+  "_build/install/default/lib/idrisobj/idrisobj.cmxs" {"idrisobj.cmxs"}
+  "_build/install/default/lib/idrisobj/idrisobj.ml" {"idrisobj.ml"}
+  "_build/install/default/lib/idrisobj/opam" {"opam"}
+]

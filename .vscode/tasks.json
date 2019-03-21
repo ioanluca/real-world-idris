@@ -26,7 +26,7 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
-                "focus": true,
+                "focus": true
             }
         },
         {
@@ -36,17 +36,17 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
-                "focus": true,
+                "focus": true
             }
         },
         {
             "label": "Build and run",
             "type": "shell",
-            "command": "stack exec -- idris --cg-opt '-op irdrisobj' -p ocaml --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.out && ${fileDirname}/${fileBasenameNoExtension}.out",
+            "command": "stack exec -- idris --cg-opt '-op idrisobj' -p ocaml --codegen malfunction ${file} -o ${fileDirname}/${fileBasenameNoExtension}.out && ${fileDirname}/${fileBasenameNoExtension}.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
-                "focus": true,
+                "focus": true
             }
         },
         {
@@ -56,18 +56,34 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
-                "focus": true,
+                "focus": true
             }
         },
         {
             "label": "Clean",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}/test-idris/"
+                "cwd": "${workspaceFolder}}/test-idris/"
             },
             "command": "rm *.ibc *.out *.lang *.mlf",
             "presentation": {
                 "reveal": "never"
+            }
+        },
+        {
+            "label": "OCaml Lib",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/lib/"
+            },
+            "command": "stack exec -- idris --install ocaml.ipkg",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": false
             },
             "problemMatcher": []
         }
