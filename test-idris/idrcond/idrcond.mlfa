@@ -1,0 +1,26 @@
+(module
+
+($H (apply (global $Cohttp_mirage $Server) 
+    (global $Conduit_mirage $Flow)))
+
+($respond_string (field 8 $H))
+
+($make (field 5 $H))
+
+($listen (field 14 $H))
+
+($httpclbck (lambda ($conid $req $body) 
+    (apply $respond_string 17692 "hello mirage world")))
+
+($spec (apply $make 0 $httpclbck))
+
+($port (block (tag 0) 4192257 8080))
+
+($start (lambda ($CON $conduit)
+    (apply (field 6 $CON) 
+        $port (apply $listen $spec))))
+
+($Main (lambda ($CON) 
+    (block (tag 0) (apply $start $CON))))
+
+(export $Main))
