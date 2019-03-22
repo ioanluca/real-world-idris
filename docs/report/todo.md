@@ -117,6 +117,8 @@ works for simple examples.
 - [ ] whole thing with cmx cmi ocaml object files etc 
 - [ ] how data is exported in idris from an ffi
 - [ ] how exporting doesnt create an executable, or creates one that does nothing
+- [ ] hard to make server because the libs are too modular and it's not trivial to figure out what gets instantiated where in terms of functors modules etc.
+- [ ] plus some stuff is private and only becomes private through functors.
 
 check commit history to see what happened chaos
 
