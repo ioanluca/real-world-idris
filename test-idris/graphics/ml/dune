@@ -1,0 +1,3 @@
+(executable
+ (name gtest)
+ (libraries graphics))

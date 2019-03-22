@@ -1,4 +1,4 @@
 (library
  (name        idrisobj)
- (libraries compiler-libs)
+ (libraries compiler-libs graphics)
  (public_name idrisobj))

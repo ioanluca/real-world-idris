@@ -5,14 +5,12 @@ import OCaml.IO
 f : String -> (String, Maybe Double)
 f x = (x ++ x, Just (1.3 + 1.3))
 
-exports : FFI_Export FFI_OCaml "salut.mli" []
-exports = Data (OCaml_FnTypes Int) "ListInt" $ Fun f "f" End
 
 main : OCaml_IO ()
 main = do 
      min_int <- ocamlCall "Pervasives.min_int" (OCaml_IO Int)
      printLn min_int
-     ic <- ocamlCall "Pervasives.open_in" (String -> OCaml_IO Ptr) "README.md"
+     ic <- ocamlCall "Pervasives.open_in" (String -> OCaml_IO Ptr) "Foo.idr"
      str <- ocamlCall "Pervasives.input_line" (Ptr -> OCaml_IO String) ic
      l <- ocamlCall "List.length" (List Int -> OCaml_IO Int) [1,2,3]
      ll <- ocamlCall "List.flatten" ((List (List Int)) -> OCaml_IO (List Int)) [[1,2,3], [9,10,11]]
