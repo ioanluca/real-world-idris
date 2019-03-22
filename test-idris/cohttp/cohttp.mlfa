@@ -1,0 +1,34 @@
+(module 
+
+
+($port (block (tag 0) 4192257 
+    (block (tag 0) 892710817 8000)))
+
+($callback (lambda ($conn $req $body) 
+    (let 
+    ($uri (apply (global $Uri $to_string)
+            (apply (global $Cohttp_lwt_unix $Request $uri) $req)))
+    ($meth (apply (global $Cohttp $Code $string_of_method)
+            (apply (global $Cohttp_lwt_unix $Request $meth) $req)))
+    ($headers (apply (global $Cohttp $Header $to_string)
+            (apply (global $Cohttp_lwt_unix $Request $headers) $req)))
+    ($a (lambda ($bdy)
+        (apply (global $Printf $sprintf)
+            "IDRIS :)\nUri: %s\nMethod: %s\nHeaders\nHeaders: %s\nBody: %s"
+             $uri $meth $headers $bdy)))
+    ($x (apply (global $Lwt $map)
+        $a (apply (global $Cohttp_lwt $Body $to_string)
+            $body)))
+    ($y (lambda ($str) 
+        (apply (global $Cohttp_lwt_unix $Server $respond_string) 0 0 
+             17692 $str 0)))
+    (apply (global $Lwt $bind)
+        $x $y))))
+
+($server (apply (global $Cohttp_lwt_unix $Server $create) 0 0 0 0 0
+    $port (apply (global $Cohttp_lwt_unix $Server $make) 0 $callback 0)))
+
+(_ 
+ (apply (global $Lwt_main $run) $server))
+
+(export))
