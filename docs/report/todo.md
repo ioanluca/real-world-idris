@@ -119,6 +119,27 @@ works for simple examples.
 - [ ] how exporting doesnt create an executable, or creates one that does nothing
 - [ ] hard to make server because the libs are too modular and it's not trivial to figure out what gets instantiated where in terms of functors modules etc.
 - [ ] plus some stuff is private and only becomes private through functors.
+- [ ] Stephen Malfunction that used the other inefficient represenation plus extra tags.
+
+#### todo 
+- [ ]  idris
+  - [ ]  pure
+  - [ ]  active dev under Edwin Brady
+  - [ ]  new code gen backends without affecting the modular compiler
+  - [ ]  interactive development
+  - [ ]  type inference
+  - [ ]  totality checking
+  - [ ]  smart FFI 
+  - [ ]  laziness/strictness
+  - [ ]  Phase
+  - [ ]  general purpose, compiling code, working programmer
+  - [ ] seamless integration of the idris compiler of the backends
+- [ ] design
+  - [ ] what other backends use for IR
+  - [ ] the codegeninfo
+  - [ ] I ignored modules of idris, all code is generated in one malfunction file that has no particular extension, however I chose to use .mlf
+
+
 
 check commit history to see what happened chaos
 
