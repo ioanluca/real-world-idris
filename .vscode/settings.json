@@ -30,7 +30,8 @@
     "cSpell.words": [
         "Caml",
         "Idris",
-        "OCaml"
+        "OCaml",
+        "unikernels"
     ],
     "latex-workshop.synctex.afterBuild.enabled": true,
     "todo-tree.includeGlobs": ["**/*.tex", "**/*.md"]

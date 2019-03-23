@@ -162,18 +162,6 @@ make latex report structure summarizing chapters sectins ETC
 - [ ] documentation how to run the program
 - [ ] document the API, idris maybe haskell as well?
 
-## Style
-
-### spell check
-- [ ] `detex` 
-- [ ] unix wc
-
-### code snippets 
-- [ ] listings change to other monospace
-
-### biblio style
-- [ ] use the ones that say the name
-
 
 # write programs in:
 - [ ] graphics
@@ -186,29 +174,10 @@ make latex report structure summarizing chapters sectins ETC
 - [ ] modules user friendly
 
 
-
-
-## Misc
-### `latex` package for inserting code?
-listings but change font
-
-
-
-# maybe build with dune with custom rule
-
-
-
-
-
 # Monday
 
 - [ ] need to generate the `mli`
-    - [ ] was thinking to use exports, idk if it's correct to use it like that
-    - [ ] have a function in `mlf` that creates modules/functors 
-
-- [ ] and then write everything in Idris
-    - need some start data types for that I think
-    - and to change the FFI descriptor to something more powerful than `String`
+    - [x] was thinking to use exports, idk if it's correct to use it like that
 
 module is a list of OCamlTypes?
 
