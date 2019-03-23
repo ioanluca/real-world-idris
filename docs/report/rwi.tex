@@ -1,42 +1,40 @@
-\documentclass[a4paper, 12pt, oneside]{report} % fixme font size
+\documentclass[a4paper, 12pt, oneside]{report} % todo play with font size
 
 \usepackage[utf8]{inputenc}
 \usepackage[UKenglish]{babel}
-% \usepackage{indentfirst} % FIXME matter of taste
-% \usepackage[margin=0.8in]{geometry} % fixme
 \usepackage[hidelinks]{hyperref}
-% \usepackage{fancyhdr}
+% \usepackage{fancyhdr} todo want header?
 % \pagestyle{fancy}
 
 \usepackage{natbib} % fixme which one?
-% \usepackage[square,sort,comma,numbers]{natbib}
 \bibliographystyle{plainnat}
 \usepackage[nottoc]{tocbibind}
 
 \title{Real World Idris}
 \author{Ioan Luca \\ 201638554 \\ 
-	\small University of Strathclyde} % fixme
+	\small University of Strathclyde} % todo title
 \date{\today}
 
 % \linespread{1.3} % fixme line spacing
 
 \begin{document}
 
-\maketitle
+% \maketitle fixme
 
 \pagenumbering{roman}
 
 % \listoffigures
 % \listoftables
 
-% \chapter*{Acknowledgements}
+% \begin{abstract} todo abstract
+%     \phantomsection\addcontentsline{toc}{chapter}{\abstractname}
+% \end{abstract}
+
+% \chapter*{Acknowledgements} todo
+% \addcontentsline{toc}{chapter}{Acknowledgements}
 %  thanks bob my supervisor for pl introducing me to the world of FP and Idris and dependent types and for all the help with the project and all the knowledge and opportunities and  pointing me in the right directions and share his excitement;
 
 %  thanks to Stephen Dolan for implementing floats in malfunction at my request, and for adding laziness support after we chatted at ICFP 18 in st luis.
-
-\begin{abstract}
-    Salut c'est quoi?
-\end{abstract}
 
 \tableofcontents
 
@@ -45,24 +43,31 @@
 \chapter{Introduction}\label{ch:intro}
 \input{chapters/introduction}
 
-\chapter{Related Work}\label{ch:techintro}
+\chapter{Related Work}\label{ch:related}
+\input{chapters/related}
+
 ocaml still unpopular check index \autoref{ch:intro}
 
-\chapter{Problem Description and Specification}\label{ch:method}
+\chapter{Problem Description and Specification}\label{ch:spec}
+\input{chapters/spec}
 
-\chapter{System Design}
+\chapter{System Design}\label{ch:design}
+\input{chapters/design}
 
-\chapter{Detailed Design and Implementation}
+\chapter{Detailed Design and Implementation}\label{implementation}
+\input{chapters/implementation}
 
-\chapter{Verification and Validation}
+\chapter{Verification and Validation}\label{verification}
+\input{chapters/verification}
 
-\chapter{Results and Evaluation}
+\chapter{Results and Evaluation}\label{evaluation}
 \citep{blackholes}
 \citep{Abedon1994}
 \citep{AbedonHymanThomas2003}
 \citep{website:fermentas-lambda}
 
-\chapter{Summary and Conclusions}
+\chapter{Summary and Conclusions}\label{conclusion}
+\input{chapters/conclusion}
 
 
 \bibliography{bibliography}
@@ -70,6 +75,5 @@ ocaml still unpopular check index \autoref{ch:intro}
 \appendix
 \chapter{Appendix Title}
 \input{appendices/appendix}
-
 
 \end{document}

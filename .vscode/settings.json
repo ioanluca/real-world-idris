@@ -28,6 +28,10 @@
     "latex-workshop.latex.outDir": "%DIR%/_build",
     "latex-workshop.chktex.enabled": true,
     "cSpell.words": [
-        "Idris"
-    ]
+        "Caml",
+        "Idris",
+        "OCaml"
+    ],
+    "latex-workshop.synctex.afterBuild.enabled": true,
+    "todo-tree.includeGlobs": ["**/*.tex", "**/*.md"]
 }
