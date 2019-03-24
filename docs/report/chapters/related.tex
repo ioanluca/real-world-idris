@@ -1,3 +1,6 @@
+The following research has been done in order to carry out this
+project.
+
 \section{Idris and Dependent Types}
 In recent years, dependently-typed programming languages such
 as Agda\footnote{https://wiki.portal.chalmers.se/agda/pmwiki.php}
@@ -12,9 +15,9 @@ executing \citep{brady_2013}.
 
 While Agda and Coq emerged from the theorem proving community,
 Idris is more oriented towards general purpose programming. For
-example, it is possible to specify and verify properties of
-a network packet processing system at compile time using
-dependent types \citep{systemprog}.
+example, it is possible to use dependent types to specify and
+verify properties of a network packet processing
+system at compile time.\citep{systemprog}.
 
 
 % \begin{lstlisting}[caption=asd]
@@ -51,44 +54,137 @@ as long as possible.
 That is, function calls are evaluated before the arguments which
 are only evaluated when something that depends on them requests to
 be evaluated.
+This makes it harder to reason about execution of programs but can
+implement interesting infinite data structures like streams.
 
-
-As previously mentioned in the \hyperref[ch:intro]{Introduction}
-, Idris is a pure functional programming language.
-Pure functions are functions in the mathematical sense: they
-do not have side effects.
-
-
-\subsection{Dependent Types}
-
-In recent years, dependently typed programming languages
-have become more and more \citep{brady_2013}
-
-Not popular slow etc
-
-slow because garbage collection?
-
-
-\subsection{Other code generators for Idris}
-idris malfunction  wrong defs
-
-idris ocaml wrong  wrong defs
+Idris is under active development lead by Edwin Brady.
 
 \section{OCaml}
-high performance, garbage collected etc
+OCaml is a general purpose industrial-strength functional
+programming language with a high-performance runtime system
 
-functional and optimized with flambda
+According to \citep{rwocaml}, OCaml plays an important role in the
+world of programming language design because it provides a mix
+of expressiveness, efficiency and practicality.
+This mix, is in fact a collection of carefully chosen features
+that have been developed over the last 40 years.
+
+Since its development has started in 1996, an active community of
+academics and their industry counterparts have contributed to a rich set of
+libraries and tools for building advanced, secure and reliable software
+using OCaml.
+Later in this chapter, we discuss \hyperref[sec:mirage]{Mirage} which is
+an example of such a system.
+
+The OCaml compiler benefits from a simple
+compilation strategy that doesn't require heavy optimizations or
+complicated dynamic just-in-time (JIT) features to produce performant
+code. Moreover, OCaml is strictly evaluated just like Idris which
+makes it easy to predict performance.
+The language uses  a precise incremental garbage collection strategy
+that avoids spikes while the runtime is straightforward and highly
+portable.
+
+Normally, what also makes OCaml practical, is that it supports some
+imperative programming style constructs like mutable references,
+side effects and even objects.
+However, release 4.02 has brought the \emph{flambda} optimisations to the
+native compiler. They are a series of tweaks
+that enable idiomatic functional programming characteristics like clojures,
+higher-order functions and immutability to be used at no extra
+performance cost.\citep{leroy2014ocaml}
+
+All these properties, together with the extensive support
+for functional programming make OCaml's runtime a great
+candidate for Idris, as the 2 languages have a lot in common.
 
 \section{Malfunction}
-thin wrapper around lambda and untyped
+Malfunction is minimal, untyped program representation intended as a
+compilation target for functional languages.
 
-motivation for it, Stephen's etc
+Malfunction is in fact a thin wrapper around the Lambda intermediate
+representation (IR) of OCaml meaning that compilers targeting it
+are compiled to native code by the OCaml compiler enjoying the
+\emph{flambda} optimisations and the garbage collector mentioned
+earlier \citep{dolan2016malfunctional}.
 
-pretty feature rich tbh, especially after adding support
-for floating point numbers and laziness
+In a way, it serves the same purpose as the Java Virtual Machine (JVM)
+bytecode, although it is much more high-level as
+to suit functional languages. For instance, Malfunction has
+let bindings, recursive definitions, lambdas, very basic case
+expressions, higher order functions and arguments currying.
 
+As it us usually the case with low-level untyped languages, Malfunction
+has undefined behaviour.
+Its semantics is that of Lambda, namely an untyped lambda calculus but
+stricter in certain places which make it more robust to changes in the
+OCaml toolchain.
+\citep{dolan2016malfunctional}.
+
+Similarly, its syntax is based on s-expressions\footnote{
+    what Lisp looks like
+} which are easy to generate from many abstract syntax trees (ASTs).
+\hyperref[lst:mlfex]{Listing~\ref{lst:mlfex}} shows mutually recursive
+functions that determine a number's parity.
+
+\begin{lstlisting}[label={lst:mlfex}, caption=
+    Mutually recursive functions in Malfunction
+    ]
+    (let
+    (rec
+      ($even (lambda ($n) 
+        (if (<= $n 1) (== $n 0) (apply $odd (- $n 1)))))
+      ($odd (lambda ($n) 
+        (if (<= $n 1) (== $n 1) (apply $even (- $n 1))))))
+    ($res (apply $even 42))
+    $res)
+  => 1
+\end{lstlisting}
+
+Malfunction primitive types are strings and integers with
+different precisions and common arithmetic operations
+work. The language also has the ability to call OCaml code as long
+as it is located on the standard library path.
+\hyperref[lst:mlfforeign]{Listing~\ref{lst:mlfforeign}}
+shows code that prints the contents of a list of strings in both
+languages.
+
+\begin{lstlisting}[label={lst:mlfforeign}, caption=
+    Calling OCaml code from Malfunction]
+    (apply
+        (global $List $iter)
+        (global $Pervasives $print_string)
+            (block "Hello" (block "World" 0)))
+
+    ; is equivalent to the following OCaml code
+    List.iter print_string ["Hello"; "World"]
+\end{lstlisting}
+% \lstinputlisting{../../../test-idris/cohttp/cohttp.mlfa}
+
+Recently, Malfunction received an upgrade.
+Now it also supports lazy evaluation and
+floating point numbers.
+
+Considering all of the above, Malfunction represents a good
+solution for connecting Idris to the OCaml runtime.
+
+\subsection{Idris Code Generators}
+Idris is intended for general use. \citep{crosscompilers} argues
+that this raises the need for Idris to run in various, potentially
+very different environments. 
+
+To address this concern, Idris provides a modular compiler 
+infrastructure as a Haskell library in which different code
+generators can easily be plugged in. 
+
+A code generator is a program that type checks and elaborates 
+Idris programs using the compiler as a library. 
+
+The same paper proposes a generic foreign function interface that
+supports multiple platforms.
 
 \section{Idris-Malfunction}
+
 built upon Stephens experimental
 not good because was using the wrong decls
 constructors were inefficient
@@ -96,5 +192,5 @@ constructors were inefficient
 goes pretty fast, probably because \ldots
 benchmarks
 
-\section{Unikernels and MirageOS}
+\section{Unikernels and MirageOS}\label{sec:mirage}
 the rise of the library OS

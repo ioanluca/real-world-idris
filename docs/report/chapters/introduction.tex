@@ -4,7 +4,7 @@ Idris\footnote{\url{https://www.idris-lang.org/}} is a pure functional,
 general purpose, dependently typed programming language.
 Idris programs use types as the main building block which allows it
 to encode complex invariants directly into source code.
-This means that the compiler checks the programs for
+This means that the compiler checks programs for
 correctness before they run, enabling
 ``lightweight verification''\footnote{specification is
 	defined early in the development phase as a language construct;
@@ -22,16 +22,16 @@ support for fast and reliable software.
 
 \subsubsection{The Idris-Malfunction code generation backend}
 
-Idris-Malfunction is recent experimental compiler backend targeted at
+Idris-Malfunction is a recent experimental compiler backend targeted at
 solving the performance gap between Idris and other compiled languages
 by compiling Idris to the OCaml ``battle-tested'' runtime system
 via a small but expressive intermediate language
 called
 Malfunction\footnote{\url{https://github.com/stedolan/malfunction}}.
 
-This backend was developed by myself, under the supervision
-of Dr. Robert Atkey, as part of a research internship within the
-Mathematically Structured Programming (MSP) group at the
+This backend was developed by myself, under the
+supervision of Dr.~Robert Atkey, as part of a research internship
+within the Mathematically Structured Programming (MSP) group at the
 University of Strathclyde.
 
 ``Real World Idris'' aims to upgrade Idris-Malfunction
