@@ -1,54 +1,114 @@
-
-brief description of idris and Idris-malfunction, what they are
-and what they tried to achieve (performance) 
-
-scope was to enhance the OCaml interoperability so that libraries 
-and other cool stuff can be used in Idris 
-
-also, to solve some of the ergonomic problems with the back-end 
-like slower code generation etc which increased drastically after 
-switching to generating code using Text
-
 \section{Towards a more practical Idris}
 
+Idris\footnote{\url{https://www.idris-lang.org/}} is a pure functional,
+general purpose, dependently typed programming language.
+Idris programs use types as the main building block which allows it
+to encode complex invariants directly into source code.
+This means that the compiler checks the programs for
+correctness before they run, enabling
+``lightweight verification''\footnote{specification is
+	defined early in the development phase as a language construct;
+	the implementing code is then guaranteed to work against it}.
+This has the potential to drastically reduce the costs
+of reliable software by integrating verification into development
+instead of considering it a separate concern.
 
+Despite being novel and popular amongst Programming Language research
+groups, Idris did not catch the attention of industrial developer
+communities.
+This is partly because the language lacks a high performance
+runtime system and partly because its library ecosystem has poor
+support for fast and reliable software.
+
+\subsubsection{The Idris-Malfunction code generation backend}
+
+Idris-Malfunction is recent experimental compiler backend targeted at
+solving the performance gap between Idris and other compiled languages
+by compiling Idris to the OCaml ``battle-tested'' runtime system
+via a small but expressive intermediate language
+called
+Malfunction\footnote{\url{https://github.com/stedolan/malfunction}}.
+
+This backend was developed by myself, under the supervision
+of Dr. Robert Atkey, as part of a research internship within the
+Mathematically Structured Programming (MSP) group at the
+University of Strathclyde.
+
+``Real World Idris'' aims to upgrade Idris-Malfunction
+with a Foreign Function Interface (FFI) to OCaml.
+The idea is to enable the two-way interoperability between these two
+languages.
+
+This would essentially allow Idris programs to access the mature OCaml
+library ecosystem, which would ultimately make Idris more suitable
+for practical programming.
 
 \section{Objectives}
-build an FFI 
+This project has two main goals, as detailed below:
 
-build a lib IO 
+\subsubsection{Fix some ergonomic problems with Idris-Malfunction}
+\begin{enumerate}
+	\item Identify and fix \emph{bottlenecks} to increase code generation
+	      speed (\textbf{basic}, executable)
+	\item Add support for more Idris
+	      \emph{primitives} (\textbf{basic}, executable)
+	\item Add support for \emph{floating-point} numbers
+	      (\textbf{basic}, executable)
+	\item Add \emph{native} support for \emph{lazy evaluation}
+	      (\textbf{intermediate}, executable)
+	\item \emph{Refactor} the code base, improving the architecture and
+	      the compilation time (\textbf{intermediate}, source)
+	\item Add support for Unicode (\textbf{advanced}, executable)
+\end{enumerate}
 
-build etc.
+\subsubsection{Create the FFI OCaml}
+\begin{enumerate}
+	\item Map primitive Idris types to OCaml equivalents
+	      (\textbf{basic}, source and document)
+	\item Call Idris basic functions
+	      back from OCaml (\textbf{intermediate}, source)
+	\item Provide a typed API to the OCaml runtime system
+	      (\textbf{intermediate}, Idris library and document)
+	\item Add option to compile Idris source as OCaml bytecode
+	      objects to later be linked in OCaml libraries
+	      (\textbf{intermediate}, executable)
+	\item Map algebraic data types to OCaml equivalents
+	      being able to exchange complex data
+	      (\textbf{advanced}, source and document)
+	\item Export Idris functions and data types to
+	      safely exchange complex data between the two languages
+	      (\textbf{advanced}, executable)
+	\item Describe the OCaml module system with dependent types
+	      (\textbf{advanced}, executable and document)
+	\item Explore a potential translation of Idris dependent types
+	      to OCaml (\textbf{advanced}, document)
+\end{enumerate}
+
+\subsubsection{Prove the concept with a ``real world'' use case}
+\begin{enumerate}
+	\item Create a small set of Idris programs that call simple
+	      OCaml functions (\textbf{basic}, source)
+	\item Create an Idris program that uses OCaml \emph{Graphics}
+	      library \\ (\textbf{intermediate}, executable)
+	\item Create an Idris program that uses MirageOS\footnote{\url{
+			      https://mirage.io/}} to construct a simple
+	      unikernel (\textbf{advanced}, executable)
+	\item Create an Idris program that uses MirageOS to construct an
+	      HTTP server as a unikernel (\textbf{advanced}, executable)
+\end{enumerate}
+
+
 
 \section{Contributions}
-OCaml FFI 
+The main contributions of this project are the enhancements brought
+to the Idris-Malfunction code generation backend and a
+system that enables the interoperability between Idris and OCaml
+to an extent, which is documented and supported by running code
+examples. In addition there is some basic support for building
+Haskell and OCaml based applications inside
+Docker\footnote{\url{https://en.wikipedia.org/wiki/Docker_(software)}}
+containers.
 
-Added flag to Malfunction
-
-Improve the prev back-end  (ergonomic problems)
-	- added AST allows to now generate ast instead, potentially reusable
-	- solve some laziness bugs with the help of Malfunction 
-	- faster code generation using Data.Text
-	- implement more primitives 
-	- modularize the code base 
-	- added support for flags from the outside --cg-opt
-	- can export functions as cmx 
-	- a few more test cases
-
-on the side of idris, an io for interfacing with OCaml library
-
-an OCaml wrapper for interfacing with the Obj OCaml library for
-interacting with OCaml runtime values. 
-
-a few examples of Idris interfacing with OCaml like the
-grahphics
-
-a Docker image suitable for developing haskell and OCaml
-based projects, Opam + stack etc.
-
-a basic simple encoding of OCaml complex module system in
-a dependent typed way using Idris upon which to build
-upon and support properly
 
 
 

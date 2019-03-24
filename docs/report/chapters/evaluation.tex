@@ -11,7 +11,7 @@ which was quite involved; looking at other back-ends
 I thought piece of cake but guess what, they were
 toys. 
 
-The OCaml expressivity comes at a cost which is complexity,
+The OCaml expressiveness comes at a cost which is complexity,
 I believe I underestimated that, however it helped that
 I was familiar to Haskell to an extent. 
 
@@ -25,3 +25,29 @@ dependent types do
 
 
 the Idris type system should be powerful enough to express them
+
+Added flag to Malfunction
+Improve the previous back-end  (ergonomic problems)
+- added AST allows to now generate AST instead, potentially reusable
+- solve some laziness bugs with the help of Malfunction
+- faster code generation using Data.Text
+- implement more primitives
+- modularize the code base
+- added support for flags from the outside --cg-opt
+- can export functions as
+- a few more test cases
+
+on the side of idris, an IO for interfacing with OCaml library
+
+an OCaml wrapper for interfacing with the Obj OCaml library for
+interacting with OCaml runtime values.
+
+a few examples of Idris interfacing with OCaml like the
+grahphics
+
+a Docker image suitable for developing haskell and OCaml
+based projects, Opam + stack etc.
+
+a basic simple encoding of OCaml complex module system in
+a dependent typed way using Idris upon which to build
+upon and support properly
