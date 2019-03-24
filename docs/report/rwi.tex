@@ -5,7 +5,8 @@
 \usepackage[hidelinks]{hyperref}
 % \usepackage{fancyhdr} todo want header?
 % \pagestyle{fancy}
-
+\usepackage{listings}
+\lstset{basicstyle=\footnotesize, captionpos=b, language=Haskell}
 \usepackage{natbib} % fixme which one?
 \bibliographystyle{plainnat}
 \usepackage[nottoc]{tocbibind}
@@ -69,6 +70,7 @@ ocaml still unpopular check index \autoref{ch:intro}
 \input{chapters/conclusion}
 
 
+\nocite{*}
 \bibliography{bibliography}
 
 \appendix

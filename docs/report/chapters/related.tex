@@ -1,16 +1,78 @@
-\section{Idris and dependent types}
-\subsection{Idris}
-Idris\footnote{\url{https://www.idris-lang.org/}} is and is not
+\section{Idris and Dependent Types}
+In recent years, dependently-typed programming languages such
+as Agda\footnote{https://wiki.portal.chalmers.se/agda/pmwiki.php}
+and Coq\footnote{https://coq.inria.fr/} have been developed.
+They are promising mechanisms for ensuring software correctness
+by encoding the specification of programs in the type system.
+This is only possible because the types are predicated by values,
+which makes types very precise.
+This way, by type checking, the compiler essentially produces a
+mathematical proof that the program behaves as intended when
+executing \citep{brady_2013}.
 
-Not popular slow etc 
+While Agda and Coq emerged from the theorem proving community,
+Idris is more oriented towards general purpose programming. For
+example, it is possible to specify and verify properties of
+a network packet processing system at compile time using
+dependent types \citep{systemprog}.
 
-slow because garbaxge collection?
+
+% \begin{lstlisting}[caption=asd]
+% data List : (elem : Type) -> Type where
+%   Nil : List elem
+%   (::) : (x : elem) -> (xs : List elem) -> List elem 
+% \end{lstlisting}
+
+% \begin{lstlisting}
+% data Vect : (len : Nat) -> (elem : Type) -> Type where
+%   Nil  : Vect Z elem
+%   (::) : (x : elem) -> (xs : Vect len elem) -> Vect (S len) elem
+% \end{lstlisting}
+
+According to \citep{brady_2013}, Idris is the answer to the following
+question:
+\emph{``What if Haskell had full dependent types?''}
+Indeed, Idris is heavily inspired by Haskell from which it
+borrows many of its features including do notation,
+interfaces\footnote{very similar to Haskell type
+    classes}, where clauses, let expressions, case expressions and
+Generalized Algebraic Data Types (GADTs).
+The Idris syntax is also very similar to Haskell'.
+
+However, unlike Haskell, Idris is eagerly evaluated but has
+support for lazy evaluation.
+Eager or strict evaluation is what most of the languages
+use by default and means that expressions are evaluated
+as soon as they are bound to a variable.
+For example, arguments are evaluated before they are passed
+to a function call.
+In contrast, lazy evaluation delays the evaluation of expressions for
+as long as possible.
+That is, function calls are evaluated before the arguments which
+are only evaluated when something that depends on them requests to
+be evaluated.
+
+
+As previously mentioned in the \hyperref[ch:intro]{Introduction}
+, Idris is a pure functional programming language.
+Pure functions are functions in the mathematical sense: they
+do not have side effects.
+
+
+\subsection{Dependent Types}
+
+In recent years, dependently typed programming languages
+have become more and more \citep{brady_2013}
+
+Not popular slow etc
+
+slow because garbage collection?
 
 
 \subsection{Other code generators for Idris}
 idris malfunction  wrong defs
 
-idris ocaml wrong  wrong defs 
+idris ocaml wrong  wrong defs
 
 \section{OCaml}
 high performance, garbage collected etc
@@ -25,10 +87,9 @@ motivation for it, Stephen's etc
 pretty feature rich tbh, especially after adding support
 for floating point numbers and laziness
 
-\section{Other code generation back-ends for Idris}
 
 \section{Idris-Malfunction}
-built upon Stephens experimental 
+built upon Stephens experimental
 not good because was using the wrong decls
 constructors were inefficient
 
