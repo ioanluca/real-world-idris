@@ -1,36 +1,276 @@
 %25
 
-3 coding languages, Haskell, Etc Etc, build tools Docker
-use git for version control Dune Stack Opam 
+\section{Technologies used}
 
-\section{Code generation}
+\subsubsection{Languages}
+This project was developed using 4 programming languages.
+Haskell was used to develop Idris-Malfunction.
+OCaml was used to write test programs, Mirage unikernels and configuration
+files. It was also used to add a `-p' flag
+to the Malfunction toolchain.
+Idris was used to develop the Foreign System and the set of programs
+that interoperate with OCaml.
+Some Malfunction programs were written by hand to experiment
+with OCaml functions from different libraries and new features like
+floating point numbers and lazy evaluation.
+\LaTeX powered this report.
+
+\subsubsection{Build tools and package managers}
+
+Docker containers were used at some point to replicate build
+environments.
+Dune, Opam and OCamlfind were used to manage and build OCaml libraries.
+Stack was used to manage the Haskell code base.
+Git was the version control system of choice.
+
+\section{Code Generator}
+
+Code generation starts with the following function which now accepts
+a list of strings which are the names of the OCaml libraries
+that should be passed to the Malfunction build command.
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+codegenMalfunction :: [String] -> CodeGenerator
+codegenMalfunction ps ci = do
+    writeFile langFile $ stringify langDeclarations
+    print $ names2Export exps
+    putStrLn " are being exported"
+    let prog = generateMlfProgram langDeclarations (names2Export exps)
+    T.writeFile tmp $ mlfAST2Text prog
+        
+    callCommand fmtCommand
+    let cmd = if null exps then compileCommand else cmxCommand
+    print cmd
+    catch (callCommand cmd) handler
+    removeFile tmp
+    \end{minted}
+    \caption{Entry point for code generation}
+    % \label{lst:}
+\end{listing}
 
 
+\subsubsection{IR to Malfunction mappings}
+In order to improve efficiency, Malfunction recursive calls are annotated with the ``rec'' keyword instead of automatically being recognised. Since in Idris there is no difference
+between normal and recursive declarations, a directed graph of
+identifiers is used to determine which definitions are
+recursive by checking for potential cycles. This idea was borrowed
+from the initial Malfunction backend developed by Stephen Dolan.
 
+\begin{itemize}
+    \item Idris top level definitions map to Malfunction lambdas that get bound to variables
+    \item Idris integers and strings map to Malfunction equivalents
+    \item Idris constructor values map as follows:
+          \begin{itemize}
+              \item if they have no arguments, they map to integers starting from 0; the uniqueness of integers is guaranteed for each type
+              \item if they have arguments, they map to Malfunction blocks with a unique integer tags (unique per type); each constructor argument is mapped to a block field
+          \end{itemize}
+    \item Idris case expressions map to Malfunction switch expressions
+          that switch on integers or tags; a catch all case is supported in Malfunction; if one of the constructor's fields is also a constructor, then a nested switch gets created
+    \item Idris function applications, let bindings and lambdas map to Malfunction equivalents
+    \item Idris lazy expressions used to be wrapped in Malfunction lambdas which return them; Currently, a direct mapping exists to the
+          OCaml primitive
+    \item Idris forced expressions used to be Malfunction function applications; since for every lazy expression, a lambda is generated, applying the lambda will force the evaluation; now the OCaml primitive is used
+          instead
+    \item Idris arithmetic operators are mapped to Malfunction equivalents
+    \item Other Idris primitives like string concatenation or comparison operators are mapped to OCaml equivalents; this is possible because Malfunction has a specialised syntax that allows interfacing with OCaml primitive and non-primitive functions;
+\end{itemize}
 
-\section{Types translation}
-
-\section{Modules, Functors etc}
-
-what something means in the other part
-
-\section{Idris exports}
-
-\section{Wrapping in a lib to be used by mirage}
-
-\section{Code generation}
 \subsection{Foreign code compilation}
-\subsection{Translate Monad}
+Because of powerful Foreign System, the translation of foreign
+calls is pretty simple:
 
-\section{OCaml Search Paths}
-Malfunction didn't have them. 
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+makeForeignCall :: FDesc -> FDesc -> [FDesc] -> [MlfExp] -> MlfExp
+makeForeignCall ret (FStr fn) fds args = if null args
+      then stdLib splits
+      else stdLibCall splits args
+      where splits = splitOn "." f
+    \end{minted}
+    \caption{Translating Foreign IR}
+    % \label{lst:}
+\end{listing}
 
-Had to add them and add flags.
 
-\section{Problems}
+\subsubsection{OCaml Search Paths}
+Malfunction could normally only look for OCaml modules on the
+standard library path. A '-p' flag
 
-ocaml functions have labeled args and optionals which become idk
-what plus a lot of infix operators which Idris also does
 
-used T.Text to increase code generation speeds 
-removed some of the inefficient switch statements
+\section{Foreign System}
+Mainly implemented on the compiler frontend side, namely in the Idris
+source code.
+
+\subsubsection{The new FFI types}
+The important Idris types for defining an FFI are the following:
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+public export
+record FFI where
+    constructor MkFFI
+    ffi_types : Type -> Type
+    ffi_fn : Type
+    ffi_data : Type
+    \end{minted}
+    \caption{FFI record from the Idris standard library}
+    % \label{lst:}
+\end{listing}
+
+This record specifies the FFI, explaining how a particular backend
+handles foreign calls. \emph{ffi\_types} specifies which types
+are allowed to be passes in and out, \emph{ffi\_fn} says how
+functions are identified in the target language and
+\emph{ffi\_data} shows what exported data looks like.
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+data IO' : (lang : FFI) -> Type -> Type where
+    MkIO : (World -> PrimIO (WorldRes a)) -> IO' lang a
+    \end{minted}
+    \caption{The IO Type Parameterised over an FFI, Idris Prelude}
+    % \label{lst:}
+\end{listing}
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+data FTy : FFI -> List Type -> Type -> Type where
+FRet : ffi_types f t -> FTy f xs (IO' f t)
+FFun : ffi_types f s -> FTy f (s :: xs) t -> FTy f xs (s -> t)
+    \end{minted}
+    \caption{The Type of proofs that a type is valid in a given FFI, Idris Prelude}
+    % \label{lst:}
+\end{listing}
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+foreign : (f : FFI) -> (fname : ffi_fn f) -> (ty : Type) -> 
+                {auto fty : FTy f [] ty} -> ty
+foreign ffi fname ty {fty} = foreign_prim ffi fname fty []
+    \end{minted}
+    \caption{This is the how foreign calls are made in the target platform}
+    % \label{lst:}
+\end{listing}
+
+What follows is the implementation of the required above types in the 
+case of OCaml.
+
+OCaml\_Types is very important. All its constructors represent
+OCaml types supported by Idris. 
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+data OCamlRaw : Type -> Type where
+     MkOCamlRaw : (x:t) -> OCamlRaw t
+      
+data OCamlModule : List Type -> Type
+      
+mutual
+    data OCamlFn : Type -> Type where
+         MkOCamlFn : (x : t) -> OCamlFn t
+        
+    data OCaml_IntTypes  : Type -> Type where
+         OCaml_IntChar   : OCaml_IntTypes Char
+         OCaml_IntNative : OCaml_IntTypes Int
+         OCaml_IntBits32 : OCaml_IntTypes Bits32
+         OCaml_IntBits64 : OCaml_IntTypes Bits64
+      
+    data OCaml_FnTypes : Type -> Type where
+         OCaml_Fn     : OCaml_Types s -> OCaml_FnTypes t -> OCaml_FnTypes (s -> t)
+         OCaml_FnIO   : OCaml_Types t -> OCaml_FnTypes (IO' l t)
+         OCaml_FnBase : OCaml_Types t -> OCaml_FnTypes t
+      
+    data OCamlTypeList : List Type -> Type where
+         Done : OCamlTypeList []
+         Next : OCaml_Types a -> OCamlTypeList tys -> OCamlTypeList (a :: tys)
+        
+    data OCaml_Types : Type -> Type where
+         OCaml_Str   : OCaml_Types String
+         OCaml_Float : OCaml_Types Double
+         OCaml_Bool  : OCaml_Types Bool
+         OCaml_Ptr   : OCaml_Types Ptr
+         OCaml_Unit  : OCaml_Types ()
+         OCaml_Any   : OCaml_Types (OCamlRaw a)
+         OCaml_FnT   : OCaml_FnTypes a -> OCaml_Types (OCamlFn a)
+         OCaml_Pair  : OCaml_Types a -> OCaml_Types b -> OCaml_Types (a, b)
+         OCaml_List  : OCaml_Types a -> OCaml_Types (List a)
+         OCaml_Maybe : OCaml_Types a -> OCaml_Types (Maybe a)
+         OCaml_IntT  : OCaml_IntTypes i -> OCaml_Types i
+         OCaml_Mod   : OCamlTypeList tys -> OCaml_Types (OCamlModule tys)
+             
+       
+FFI_OCaml : FFI
+FFI_OCaml = MkFFI OCaml_Types String String
+      
+OCaml_IO : Type -> Type
+OCaml_IO = IO' FFI_OCaml
+      
+ocamlCall : (fname : String) -> (ty : Type) ->
+            {auto fty : FTy FFI_OCaml [] ty} -> ty
+ocamlCall fname ty = foreign FFI_OCaml fname t
+    \end{minted}
+    \caption{The OCaml\_FFI}
+    % \label{lst:}
+\end{listing}
+
+
+% \section{OCaml values representation}
+
+\section{Modules and Functors} 
+OCaml modules are a very powerful system for software modularisation. 
+It is interesting that they have a very simple runtime representation.
+Essentially,  modules are blocks of memory and functors are functions
+from blocks to blocks. The difference between modules(functors) and
+structs(functions) only exists at compile-time.
+
+In Idris, the following functions and data declarations are are used to 
+describe them in a very raw way.
+
+It is not yet possible to use module names.
+
+\begin{listing}[H]
+    \begin{minted}[linenos]{haskell}
+data Values : List Type -> Type where
+Stop : Values []
+Step : t -> Values tys -> Values (t :: tys)
+      
+modGet : (i : Nat) -> OCamlModule tys ->
+               {auto ok : index' i tys = Just a} ->
+               {auto p : OCaml_Types a} -> 
+               {auto q : OCamlTypeList tys} ->
+               OCaml_IO a
+modGet {tys = tys} {a = a} i m = 
+ ocamlCall "Idrisobj.field"
+         (OCamlModule tys -> Int -> OCaml_IO a) m (cast i)
+      
+      
+mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
+              OCaml_IO (OCamlModule tys)
+mkMod {tys = tys} vs {p = p} = go vs p 0 where
+    go : Values tys2 -> OCamlTypeList tys2 ->
+         Int -> OCaml_IO (OCamlModule tys)
+    go {tys2 = []} Stop Done n =
+         ocamlCall "Idrisobj.new_block" (Int -> Int -> OCaml_IO (OCamlModule tys)) 0 n
+    go {tys2 = ty :: tys2} (Step v vs) (Next x q) n = do
+           m <- go vs q (n + 1)
+           ocamlCall "Idrisobj.set_field" 
+                (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
+           pure m
+\end{minted}
+\caption{Modules are described as a list of Idris types that need to 
+be valid in the OCaml FFI; Functors are functions from such lists to
+such lists}
+    % \label{lst:}
+\end{listing}
+
+% \section{Idris exports}
+
+
+% \section{Problems}
+
+% OCaml functions have labeled args and optionals which become
+% what plus a lot of infix operators which Idris also does
+
+% used T.Text to increase code generation speeds
+% removed some of the inefficient switch statements

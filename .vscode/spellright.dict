@@ -43,3 +43,7 @@ CG
 GHC
 CodegenUtils
 IO
+Idrisobj
+Obj
+OCamlfind
+Opam

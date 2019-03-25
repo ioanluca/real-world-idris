@@ -15,10 +15,19 @@ or as a library to be linked with other OCaml code, as
 it will be illustrated in the Mirage unikernel example.
 
 There are three main components that this system relies on:
+\begin{enumerate}
+    \item The Code Generator (CG) --- it resides in the
+          backend of the compiler; ensures that the semantics
+          of the Idris source code is preserved at runtime
+    \item The Foreign Call System --- defines the semantics
+          of the Idris-OCaml interaction
+    \item The Runtime System --- this is in fact the OCaml
+          runtime which Malfunction compiles to;
+\end{enumerate}
 The Code Generator(CG) which resides in the
 the backend of the compiler, the Foreign Call System which
 lives in Idris source code and is processed by the compiler
-frontend and the Runtime System.
+frontend and the Runtime system.
 
 \section{The Code Generator}
 This one is written in Haskell as it needs to interfere
@@ -151,5 +160,21 @@ Ultimately, an user-friendly method of using the OCaml environment must be
 available to other Idris programs.
 
 Idris comes with a basic package manager which was used to wrap a small typed
-API around the IO' FFI\_OCaml into a library that other programs can install
-and import to have access the backend.
+API around the IO' FFI\_OCaml in a library that other programs can install
+and import to access the backend.
+
+\section{The Runtime}
+This is like a black box. It is where the Malfunction compilation
+units end up executing
+The overall system has no control over what happens at this stage
+once the program is compiled to the binary. Its job is to ensure that
+the Foreign System semantics is preserved in the code that CG
+generates. If this is not ensured, the programs will have
+undefined behaviour during execution, crashing in unexpected ways.
+
+A form of runtime support is provided through the use of
+OCaml libraries that Malfunction can interact with in order to
+implement certain primitives. This project created the Idrisobj
+library as a wrapper around the OCaml Obj which Malfunction can't
+access directly because it doesn't implement certain OCaml
+primitives.

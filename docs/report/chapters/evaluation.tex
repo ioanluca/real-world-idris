@@ -1,49 +1,63 @@
 %15
+\section{The value of my work}
+OCaml developers can also benefit from this backend by using the 
+software libraries they are already familiar but in a more expressive 
+type system.
 
+The most exciting points of my work are the fact you can use a library like
+OCaml graphics from Idris and even build a unikernel in Idris using Mirage as long as you provide the configuration file manually and the interface file (.mli).
+
+
+\section{Were my requirements met?}
+
+Although I didn't manage to implement and document of the requirements
+listed in the 3rd chapter.
+
+I think I still managed to achieve most of them. my work explores some interesting ideas about interfacing with
+OCaml. 
 
 \section{My own performance}
-I did not do well, underestimated the project
-which was quite involved; looking at other back-ends 
-I thought piece of cake but guess what, they were
-toys. 
+I underestimated the project
+which was quite involved; looking at some of the other back-ends (mostly
+toy backends)
+I thought this project was going to be much easier.
 
-The OCaml expressiveness comes at a cost which is complexity,
-I believe I underestimated that, however it helped that
+The OCaml expressiveness comes at a cost which is complexity and
+I believe I underestimated this complexity. 
 I was familiar to Haskell to an extent. 
 
+% \subsection{Modules}
+% unikernel run
+% make them user friend
 
-\subsection{Modules}
-unikernel run
-make them user friend
-
-Functors in a way try to fulfil some of the things that
-dependent types do
+% Functors in a way try to fulfil some of the things that
+% dependent types do
 
 
-the Idris type system should be powerful enough to express them
+% the Idris type system should be powerful enough to express them
 
-Added flag to Malfunction
-Improve the previous back-end  (ergonomic problems)
-- added AST allows to now generate AST instead, potentially reusable
-- solve some laziness bugs with the help of Malfunction
-- faster code generation using Data.Text
-- implement more primitives
-- modularize the code base
-- added support for flags from the outside --cg-opt
-- can export functions as
-- a few more test cases
+% Added flag to Malfunction
+% Improve the previous back-end  (ergonomic problems)
+% - added AST allows to now generate AST instead, potentially reusable
+% - solve some laziness bugs with the help of Malfunction
+% - faster code generation using Data.Text
+% - implement more primitives
+% - modularize the code base
+% - added support for flags from the outside --cg-opt
+% - can export functions as
+% - a few more test cases
 
-on the side of idris, an IO for interfacing with OCaml library
+% on the side of idris, an IO for interfacing with OCaml library
 
-an OCaml wrapper for interfacing with the Obj OCaml library for
-interacting with OCaml runtime values.
+% an OCaml wrapper for interfacing with the Obj OCaml library for
+% interacting with OCaml runtime values.
 
-a few examples of Idris interfacing with OCaml like the
-grahphics
+% a few examples of Idris interfacing with OCaml like the
+% grahphics
 
-a Docker image suitable for developing haskell and OCaml
-based projects, Opam + stack etc.
+% a Docker image suitable for developing haskell and OCaml
+% based projects, Opam + stack etc.
 
-a basic simple encoding of OCaml complex module system in
-a dependent typed way using Idris upon which to build
-upon and support properly
+% a basic simple encoding of OCaml complex module system in
+% a dependent typed way using Idris upon which to build
+% upon and support properly

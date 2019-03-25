@@ -1,10 +1,7 @@
-\documentclass[a4paper,oneside]{report}
-
+\documentclass[a4paper, 12pt, oneside]{report}
+\usepackage{setspace}
+\onehalfspacing
 \usepackage[outputdir=_build]{minted}
-% \documentclass[a4paper, 12pt, oneside]{report}
-% \usepackage{setspace}
-% \onehalfspacing
-
 \usepackage[utf8]{inputenc}
 \usepackage[UKenglish]{babel}
 \usepackage[hidelinks]{hyperref}
@@ -17,34 +14,73 @@
 \bibliographystyle{plainnat}
 \usepackage[nottoc]{tocbibind}
 
-\title{Real World Idris}
-\author{Ioan Luca \\ 201638554 \\ 
-	\small University of Strathclyde} % todo title
-\date{\today}
-
-% \linespread{1.3} % fixme line spacing
+% \title{Real World Idris}
+% \author{Ioan Luca \\ 201638554 \\ 
+% 	\small University of Strathclyde} % todo title
+% \date{\today}
 
 \begin{document}
 
-% \maketitle fixme
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE Submitted for the Degree of B.Sc. in Computer Science, 2018/19 \par}
+	\vspace{1cm}
+	{\huge\bfseries Real World Idris\par}
+	\vspace{1.5cm}
+	{\scshape\Large Ioan Luca \par}
+	\vspace{2cm}
+	{\Large\itshape Except where explicitly stated all the work in this report, including appendices, is my own and was carried out during my final year. It has not been submitted for assessment in any other context.\par}
+	\vfill
+	201638554 
+
+	\vfill
+
+% Bottom of the page
+	{\large \today\par}
+\end{titlepage}
+
+% \maketitle 
 
 \pagenumbering{roman}
 
 % \listoffigures
 % \listoftables
 
-% \begin{abstract} todo abstract
-%     \phantomsection\addcontentsline{toc}{chapter}{\abstractname}
-	% idris is at the forefront on programming languages that support
-	% lightweight verification
-% \end{abstract}
+\begin{abstract} 
+Idris is a general purpose, dependently typed programming language that has an
+advanced type system which encodes complex properties about programs into
+types, which means that the compiler checks the programs for correctness
+before they run.
 
-% \chapter*{Acknowledgements} todo
+Idris is at the forefront of a new generation of programming languages
+that support “lightweight verification” --- specifications are defined
+early during development, enabling writing maintainable code that is
+guaranteed to work.
+This has the potential to drastically reduce the costs of reliable software by
+integrating verification into development, instead of considering it a separate
+concern.
+
+``Real World Idris'' aims to upgrade the Idris ecosystem
+with a Foreign Function Interface (FFI) to OCaml.
+The idea is to enable the two-way interoperability between these two
+languages.
+
+This would essentially allow Idris programs to access the mature OCaml
+library ecosystem, which would ultimately make Idris more suitable
+for practical programming.
+\end{abstract}
+
+\chapter*{Acknowledgements} 
 % \addcontentsline{toc}{chapter}{Acknowledgements}
-%  thanks bob my supervisor for pl introducing me to the world of FP and Idris and dependent types and for all the help with the project and all the knowledge and opportunities and  pointing me in the right directions and share his excitement;
-
-%  thanks to Stephen Dolan for implementing floats in malfunction at my request, and for adding laziness support after we chatted at ICFP 18 in st luis.
-
+First and foremost, I have to thank my research supervisor,  
+Dr.~Robert Atkey.
+Without his assistance and dedicated 
+involvement in every step throughout the process, 
+this work would have never been accomplished. 
+I would like to thank you very much for your 
+support and understanding over the past year and for
+introducing me to the wonderful world of Programming Language Research.
+ 
 \tableofcontents
 
 \pagenumbering{arabic}
