@@ -57,7 +57,19 @@ be evaluated.
 This makes it harder to reason about execution of programs but can
 implement interesting infinite data structures like streams.
 
-Idris is under active development lead by Edwin Brady.
+Idris is under active development lead by Edwin Brady, the author
+of the language who also wrote ``Type Driven Development''\citep{tdd}.
+The type system of Idris allows for a powerful REPL
+\footnote{Read Eval Print Loop} that assists interactive code editing
+and theorem proving.
+Idris can have \emph{typed holes} in its source code.
+They allow programs to compile, but crash at runtime if a hole
+is to be evaluated.
+This is useful because it enables developers to reason about
+not fully implemented code.
+The fact that the holes are typed also helps figuring out what goes in
+a hole. Indeed, sometimes the types are so precise in which case Idris can
+just generate correct code automatically.
 
 \section{OCaml}
 OCaml is a general purpose industrial-strength functional
@@ -296,4 +308,36 @@ See tables \hyperref[tab:fibtab]{\ref{tab:fibtab}},
 
 
 \section{Unikernels and MirageOS}\label{sec:mirage}
-the rise of the library OS
+Mirage\footnote{\url{https://mirage.io/}} is a library operating system written in OCaml, used to build network
+applications with an emphasis on safety and speed.
+Such an application is designed to run as a unikernel that can be
+deployed across a variety of platforms.
+
+% Library OS
+A library OS offers typical functionality, such as networking,
+in the form of a collection of software libraries that can be
+mixed with configuration code to encapsulate an application
+in a unikernel.
+
+% Unikernel
+Unikernels are specialized machine images.
+They are said to be ``single address space'' because they provide
+only one address space that is shared globally between all processes.
+Unikernels can run directly on a so called hypervisor ---
+a piece of hardware, firmware or software
+that creates and runs virtual machines.
+Some popular hypervisors are Xen and KVM. Mirage supports
+both.
+
+% wrap up
+In essence, Mirage enables programmers to select a minimal set of OS specific
+low-level functionality required for their applications which are then deployed
+as fixed-purpose programs that don't need an underlying OS to be executed
+
+Interoperability between Idris and OCaml would ultimately mean
+that Idris would have access to this library, and ``real world''
+software could actually be written using dependent types.
+
+To what extent the Mirage API would be user-friendly to Idris,
+is yet to be explored, but intuitively, this can be achieved
+which such a flexible and expressive type system.
