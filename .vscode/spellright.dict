@@ -39,3 +39,6 @@ REPL
 Unikernels
 Xen
 KVM
+CG
+GHC
+CodegenUtils

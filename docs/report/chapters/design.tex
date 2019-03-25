@@ -1,29 +1,104 @@
 %10
-\section{The Idris compiler infrastructure}
-\subsection{Code generation backends}
 
-\subsection{Idris compilation stages and IRs}
-\subsubsection{codegeninfo}
+\section{Overview}
+A brief description of the various stages of compilation was
+was already illustrated as part of \hyperref[ch:related]{Chapter~\ref{ch:related}}.
+
+The overall architecture of the system
+resembles the one that the other backends use and mainly
+imposed by the Idris compiler library.
+
+This system uses Idris as
+a library to type check and elaborate Idris source files,
+generate code which can then be compiled into native code,
+or as a library to be linked with other OCaml code, as
+it will be illustrated in the Mirage unikernel example.
+
+There are three main components that this system relies on:
+The code generator which resides in the
+the backend of the compiler, the Foreign System which
+lives in Idris source code and is processed by the compiler
+frontend and the Runtime System.
+
+\section{The Code Generator (CG)}
+This one is written in Haskell as it needs to interfere
+with the compiler library, which is also written in Haskell.
+
+It used to be that the CG was made of two big files that became
+unmanageable because of their size.
+That being said, the CG is now split into modules, making
+it easier to reason about components and improved the
+GHC\footnote{Glasgow Haskell Compiler} compilation times.
+
+\subsubsection{The Malfunction AST}
+The old CG used to be able generate any possible
+s-expressions. Not only is that error prone as not all of them
+will be valid Malfunction syntax but the code generation
+depends directly on the syntax which can change.
+
+The CG defines the Malfunction
+AST and the rules by which it is generated
+from
+IR\textsubscript{lift}. The Codegen module produces ASTs
+which later knows how to write themselves to a file as
+s-expressions.
+IR\textsubscript{lift} is a suitable representation to generate
+code from since Malfunction has all the features that this
+IR assumes.
+
+There is a CodegenUtils module that can determine which
+definitions are recursive as they need special treatment
+in Malfunction. It does that using graph connectivity.
+The TranslateMonad represents a monadic structure used
+to keep track of the current code generation state.
+It holds a mapping from constructor names to tags as well
+as the possibility of failure in the case of undefined
+behaviour.
+
+The CG is loosely coupled to the compiler frontend,
+the interface between the two being very small.
+That is, someone implementing this component does not need
+to know about any of Idris' advanced features, like proof
+obligations, totality checking or dependent types.
+
+The NewCodegenMalfunction is the only entity that directly
+communicates with the front end and it is responsible for
+delegating the responsibilities to other modules as
+soon as it receives the CodegenInfo. This module also creates
+the Malfunction source file, and builds either the native binary
+or the OCaml object files calling the \emph{malfunction}
+external command.
+
+One can specify the code generator Idris should use with
+the \emph{--codegen } flag.
+The C code generator is the default, but in our case
+calling \emph{--codegen malfunction} will look for an
+executable named \emph{idris-codegen-malfunction} on the
+\emph{\$PATH} and call it with the compiled sources and
+other compiler options.
+
+The code generator knows when to create an Idris executable
+by checking if any declarations are being exported.
+In case there are, the system compiles the generated code
+into an OCaml object file that exports the required declarations
+and can later be linked in other OCaml libraries. At the time
+of writing, the accompanying interface files are not
+automatically generated and need to be written by hand.
+
+
 
 \section{The new IO and foreign system}
+The same paper proposes a generic foreign function interface that
+supports multiple platforms through dependent types
 \subsection{An IO for OCaml}
-
 \subsection{Exports}
-
-\section{Enahncements to the backend} 
+\subsection{Idris libraries}
+\section{Enahncements to the backend}
 an additional compilation mode
 
-\section{OCaml runtime representation of values}
 
-\subsection{AST} 
-better design choice as the actual MLF syntax may change,
-but the AST may also need to be updated in that case? dunno
-
-PRIMITIVES 
-
+PRIMITIVES
 
 
 before there were the laziness mechanism was dumb was relying
 on a hack wrapping things in lambdas etc; this has now changed
-\section{Idris libraries}
-

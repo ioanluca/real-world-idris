@@ -188,6 +188,7 @@ Considering all of the above, Malfunction represents a good
 solution for connecting Idris to the OCaml runtime.
 
 \section{Idris Code Generators}
+
 Idris is intended for general use. \citep{crosscompilers} argues
 that this raises the need for Idris to run in various, potentially
 very different environments.
@@ -219,7 +220,7 @@ of Idris itself:
 They all resemble the same information but at different levels
 of abstraction. This is because they assume certain sets of features
 in the target language such that choosing a rich IR
-for a low-level language would be a bad idea
+for a low-level language would be a bad idea.
 \citep{ElliottIdrisErlang}.
 
 
@@ -230,13 +231,6 @@ IR to generate code from.
 The process of creating a new code generator is well
 documented by \citep{ElliottIdrisErlang} which also does a great job
 at specifying the Idris IRs and the primitives.
-
-The user can specify the code generator Idris should use with
-the \emph{--codegen} flag.
-The C code generator is the default.
-
-The same paper proposes a generic foreign function interface that
-supports multiple platforms through dependent types.
 
 Some of the researched code generation backends are outlined
 below.
