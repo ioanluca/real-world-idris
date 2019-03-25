@@ -17,7 +17,7 @@
         "**/.git/subtree-cache/**": true,
         "**/node_modules/**": true,
         "**/.stack-work/**": true,
-        "**/_build/**" : true,
+        "**/_build/**": true,
     },
     "search.useIgnoreFiles": false,
     "markdown.preview.fontSize": 17,
@@ -38,5 +38,40 @@
     ],
     "spellright.language": [
         "en_GB"
-    ]
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "--shell-escape",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": [
+                "%DOCFILE%"
+            ],
+            "env": {}
+        }
+    ],
 }

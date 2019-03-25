@@ -1,29 +1,97 @@
-\section{Motivation}
-no libraries no popularity no etc
+\section{Problem Description}
+An interesting question appears on the official Idris'
+FAQ\footnote{\url{http://docs.idris-lang.org/en/latest/faq/faq.html}}
+that asks the following question \emph{``Is Idris production ready?''}.
 
-Is Idris production ready?
-Idris is primarily a research tool for exploring the possibilities of software development with dependent types, meaning that the primary goal is not (yet) to make a system which could be used in production. As such, there are a few rough corners, and lots of missing libraries. Nobody is working on Idris full time, and we don’t have the resources at the moment to polish the system on our own. Therefore, we don’t recommend building your business around it!
+According to the answer, at the moment Idris is mainly a research tools
+for exploring ``Type Driven Development'' \citep{tdd} with
+dependent types.
+Currently there are not enough resources available to develop Idris
+full-time.
+There is also a message which deems contributions such as library and
+platform support very welcome.
 
-Having said that, contributions which help towards making Idris suitable for use in production would be very welcome - this includes (but is not limited to) extra library support, polishing the run-time system (and ensuring it is robust), providing and maintaining a JVM back end, etc.
+As previously stated, the Idris-Malfunction backend solves some of the
+performance issues with that Idris suffers from.
+However, it does not help with Idris lacking a rich library ecosystem
+which is necessary to build production ready software.
+
+``Real World Idris'' aimed to enhance the Idris ecosystem by building an
+interface to OCaml under the form of a Foreign Function Interface (FFI).
+
+The idea of this upgrade was to enable Idris programs to build on top of
+``battle-tested'' software which would ultimately make Idris more suitable
+for real world uses cases.
+
+For instance, one could write a secure, high-performance network application in Idris running as a unikernel constructed by MirageOS, an OCaml built library
+operating system.
 
 
+\section{Requirements}
+This project has three main goals, as detailed below:
 
-For example, it is possible to compile Idris to JavaScript or to C
-to run in the browser or natively. 
+\subsubsection{Fix some ergonomic problems with Idris-Malfunction}
+\begin{enumerate}
+    \item Identify and fix \emph{bottlenecks} to increase code generation
+          speed (\textbf{basic}, executable)
+    \item Add support for more Idris
+          \emph{primitives} (\textbf{basic}, executable)
+    \item Add support for \emph{floating-point} numbers
+          (\textbf{basic}, executable)
+    \item Add \emph{native} support for \emph{lazy evaluation}
+          (\textbf{intermediate}, executable)
+    \item \emph{Refactor} the code base, improving the architecture and
+          the compilation time (\textbf{intermediate}, source)
+    \item Add support for Unicode (\textbf{advanced}, executable)
+\end{enumerate}
 
-Idris supports multiple code generation backends.
+\subsubsection{Create the FFI to OCaml}
+\begin{enumerate}
+    \item Map primitive Idris types to OCaml equivalents
+          (\textbf{basic}, source and document)
+    \item Call Idris basic functions
+          back from OCaml (\textbf{intermediate}, source)
+    \item Provide a typed API to the OCaml runtime system
+          (\textbf{intermediate}, Idris library and document)
+    \item Add option to compile Idris source as OCaml bytecode
+          objects to later be linked in OCaml libraries
+          (\textbf{intermediate}, executable)
+    \item Map algebraic data types to OCaml equivalents
+          being able to exchange complex data
+          (\textbf{advanced}, source and document)
+    \item Export Idris functions and data types to
+          safely exchange complex data between the two languages
+          (\textbf{advanced}, executable)
+    \item Describe the OCaml module system with dependent types
+          (\textbf{advanced}, executable and document)
+    \item Explore a potential translation of Idris dependent types
+          to OCaml (\textbf{advanced}, document)
+\end{enumerate}
+
+\subsubsection{Prove the concept with a ``real world'' use case}
+\begin{enumerate}
+    \item Create a small set of Idris programs that call simple
+          OCaml functions (\textbf{basic}, source)
+    \item Create an Idris program that uses OCaml \emph{Graphics}
+          library \\ (\textbf{intermediate}, executable)
+    \item Create an Idris program that uses MirageOS\footnote{\url{
+                  https://mirage.io/}} to construct a simple
+          unikernel (\textbf{advanced}, executable)
+    \item Create an Idris program that uses MirageOS to construct an
+          HTTP server as a unikernel (\textbf{advanced}, executable)
+\end{enumerate}
 
 \section{Approach}
 
-maybe include some of the deliverables here
+The solution was developed incrementally, in an Agile way.
 
-\section{Functionality}
+For this work to be carried out, the internals of the Idris compiler
+were extensively researched. A deep understanding of the two languages
+was required to explore their interaction.
 
-call OCaml code
+% todo say what was needed getting familiar with build tools etc  languages
 
-interface with it? to what extent
-
-break down what calling OCaml is supposed to be like
-foreign calls whats supported whats not
+The original plan of the project can be found in
+\hyperref[ch:origplan]{Appendix \ref{ch:origplan}}.
 
 \section{A comparison between the two type systems}

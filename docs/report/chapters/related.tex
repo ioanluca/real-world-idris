@@ -139,9 +139,9 @@ Similarly, its syntax is based on s-expressions\footnote{
 \hyperref[lst:mlfex]{Listing~\ref{lst:mlfex}} shows mutually recursive
 functions that determine a number's parity.
 
-\begin{lstlisting}[label={lst:mlfex}, caption=
-    Mutually recursive functions in Malfunction
-    ]
+
+\begin{listing}
+    \begin{minted}{newlisp}
     (let
     (rec
       ($even (lambda ($n) 
@@ -151,7 +151,10 @@ functions that determine a number's parity.
     ($res (apply $even 42))
     $res)
   => 1
-\end{lstlisting}
+  \end{minted}
+    \caption{Mutually recursive functions in Malfunction}
+    \label{lst:mlfex}
+\end{listing}
 
 Malfunction primitive types are strings and integers with
 different precisions and common arithmetic operations
@@ -161,16 +164,20 @@ as it is located on the standard library path.
 shows code that prints the contents of a list of strings in both
 languages.
 
-\begin{lstlisting}[label={lst:mlfforeign}, caption=
-    Calling OCaml code from Malfunction]
-    (apply
+\begin{listing}
+    \begin{minted}{newlisp}
+     (apply
         (global $List $iter)
         (global $Pervasives $print_string)
             (block "Hello" (block "World" 0)))
 
-    ; is equivalent to the following OCaml code
-    List.iter print_string ["Hello"; "World"]
-\end{lstlisting}
+     ; is equivalent to the following OCaml code
+     List.iter print_string ["Hello"; "World"]
+  \end{minted}
+    \caption{Calling OCaml code from Malfunction}
+    \label{lst:mlfforeign}
+\end{listing}
+
 % \lstinputlisting{../../../test-idris/cohttp/cohttp.mlfa}
 
 Recently, Malfunction received an upgrade.
@@ -180,7 +187,7 @@ floating point numbers.
 Considering all of the above, Malfunction represents a good
 solution for connecting Idris to the OCaml runtime.
 
-\subsection{Idris Code Generators}
+\section{Idris Code Generators}
 Idris is intended for general use. \citep{crosscompilers} argues
 that this raises the need for Idris to run in various, potentially
 very different environments.
@@ -234,7 +241,7 @@ supports multiple platforms through dependent types.
 Some of the researched code generation backends are outlined
 below.
 
-\subsubsection{Idris-Malfunction}
+\subsection{Idris-Malfunction}
 
 Originally, Stephen Dolan, the author of Malfunction created a
 version\footnote{hosted at
@@ -305,6 +312,12 @@ See tables \hyperref[tab:fibtab]{\ref{tab:fibtab}},
     \end{tabular}
 \end{table}
 
+\subsection{Other similar backends}
+idris python
+
+idris ocaml
+
+idris erlang
 
 
 \section{Unikernels and MirageOS}\label{sec:mirage}
