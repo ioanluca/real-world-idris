@@ -1,5 +1,8 @@
 import OCaml.IO
 
+%lib malfunction "duration"
+%lib malfunction "lwt"
+
 Lwt : Type -> Type
 Lwt _ = Ptr
 

@@ -43,7 +43,7 @@
             "label": "Build and run",
             "type": "shell",
             "options": {"cwd": "${fileDirname}"},
-            "command": "stack exec -- idris --cg-opt '-op graphics -op lwt -op duration' -p ocaml --codegen malfunction ${fileBasename} -o ${fileBasenameNoExtension}.out && ./${fileBasenameNoExtension}.out",
+            "command": "stack exec -- idris -p ocaml --codegen malfunction ${fileBasename} -o ${fileBasenameNoExtension}.out && ./${fileBasenameNoExtension}.out",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",

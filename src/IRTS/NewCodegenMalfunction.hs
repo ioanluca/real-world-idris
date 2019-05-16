@@ -17,7 +17,7 @@ import           System.Directory
 import           System.FilePath
 
 import qualified Data.Text.IO                  as T
-import           Data.List                                ( intersperse )
+import           Data.List                                ( intersperse, nub )
 import           Data.Char                                ( toLower )
 
 -- todo big todo
@@ -36,14 +36,24 @@ import           Data.Char                                ( toLower )
 codegenMalfunction :: [String] -> CodeGenerator
 codegenMalfunction ps ci = do
   writeFile langFile $ stringify langDeclarations
-  print $ names2Export exps
-  putStrLn " are being exported"
+
+  putStrLn "codegeninfo: "
+  print (interfaces ci)
+  print (compileObjs ci)
+  print (outputType ci)
+  print (compileLibs ci)
+  print (compilerFlags ci)
+  print (includes ci)
+  print (importDirs ci)
+  print (targetTriple ci)
+  print (targetCPU ci)
+
   let prog = generateMlfProgram langDeclarations (names2Export exps)
   T.writeFile tmp $ mlfAST2Text prog
 
   callCommand fmtCommand
   let cmd = if null exps then compileCommand else cmxCommand
-  print cmd
+  putStrLn cmd
   catch (callCommand cmd) handler
   removeFile tmp
  where
@@ -56,13 +66,14 @@ codegenMalfunction ps ci = do
   langFile = replaceExtensionIf outFile ".out" ".lang"
   tmp      = "idris_malfunction_output.mlf"
 
-  camlPks =
-    if null ps then const "" else concat . (:) " -p " . intersperse " -p "
+  ocamllibs = nub $ "idrisobj" : (compileLibs ci) ++ ps
+  camlPks = 
+    if null ocamllibs then const "" else concat . (:) " -p " . intersperse " -p "
 
   fmtCommand = "malfunction fmt " ++ tmp ++ " > " ++ mlfFile
   compileCommand =
-    "malfunction compile -o " ++ outFile ++ camlPks ps ++ " " ++ mlfFile
-  cmxCommand = "malfunction cmx " ++ camlPks ps ++ " " ++ mlfFile
+    "malfunction compile -o " ++ outFile ++ camlPks ocamllibs ++ " " ++ mlfFile
+  cmxCommand = "malfunction cmx " ++ camlPks ocamllibs ++ " " ++ mlfFile
 
 handler :: SomeException -> IO ()
 handler ex = putStrLn $ "Caught exception: " ++ show ex
