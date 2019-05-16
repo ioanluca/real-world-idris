@@ -30,3 +30,11 @@ main = do
         (MkOCamlFn (\ a => (\b => printLn' (a + b)))) 
         [1..10]
         [11..20]
+     ocamlCall "List.init" 
+       (Int -> OCamlFn (Int -> OCaml_IO ()) -> 
+         OCaml_IO (List ()))
+       4
+       (MkOCamlFn (\ x => printLn' x))
+     pure ()
+      
+   --   printLn is
