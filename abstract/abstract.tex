@@ -1,0 +1,83 @@
+\documentclass[a4paper,twocolumn]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+
+\newcommand{\malfunction}{\texttt{malfunction}}
+
+\title{An Idris Foreign Function Interface to OCaml}
+\author{Robert Atkey  $\langle$\texttt{robert.atkey@strath.ac.uk}$\rangle$ \\
+  Ioan Luca $\langle$\texttt{FIXME}$\rangle$}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+
+
+\begin{itemize}
+\item Idris is a dependently typed programming langauge
+\item OCaml isn't, but it has a lot of libraries
+\item Dolan's \texttt{malfunction} backend enables compilation from
+  Idris to machine code via the OCaml compiler, but only provides
+  limited support for calling external OCaml functions.
+\item We would like to exploit the possibility of compiling via the
+  OCaml backend to not only generate more efficient programs, but also
+  to access OCaml's library ecosystem.
+\item This entails constructing an FFI for Idris to interface with
+  OCaml programs. FFIs have been constructed for other backends, but
+  these backends are either to languages with simpler type systems
+  (e.g., C), or to languages with no static type system at all
+  (JavaScript, Erlang). When both sides of the FFI have complex type
+  systems, a common solution is to restrict to a subset of the
+  intersection of the two type systems, often only allowing
+  monomorphic, non higher order types. We want to explore doing
+  something more expressive, so that we don't end up writing
+  translation code in OCaml for Idris to interface with.
+\end{itemize}
+
+What we've done:
+\begin{enumerate}
+\item Improved the Idris \malfunction{} backend by not using Idris's
+  defunctionalised representation, and by using the same compilation
+  scheme
+\item Made an FFI definition for Idris that allows basic interaction
+  between OCaml and Idris code. This has allowed us to write a simple
+  web server in Idris, using the Cohttp library.
+\end{enumerate}
+
+\section{Background}
+
+\subsection{Idris}
+
+\subsection{Malfunction}
+
+\section{OCaml Types in Idris}
+
+\paragraph{Primitive types}
+
+\paragraph{Function Types}
+
+\paragraph{Algebraic datatypes}
+
+\paragraph{Records}
+
+\paragraph{Modules}
+
+\section{Future Work}
+
+\begin{itemize}
+\item Polymorphism, properly. This is tricky because we need to insert
+  the right coercions between Idris and OCaml types (especially the
+  effectful ones). Do we need runtime type representations?
+\item Algebraic datatypes, generally. We can write an encoding of
+  algebraic datatypes in Idris, but this will be separate from Idris's
+  native algebraic datatypes.
+\item Properly reflecting the module system (related to the
+  polymorphism problem)
+\item Generating Idris type definitions from \texttt{.cmi} files.
+\end{itemize}
+
+\end{document}
