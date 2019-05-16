@@ -13,6 +13,9 @@ test: test.ml idrikernel.cmxa
 install: idrikernel.cmxa
 	ocamlfind install idrikernel META idrikernel.cmi idrikernel.cmxa idrikernel.cmx idrikernel.a idrikernel.o
 
+remove:
+	ocamlfind remove idrikernel
+
 clean:
-	rm -f *.a *.cmi *.cmx *.cmxa *.o *.ibc *~ *.mlf *.cmx.lang
+	rm -f *.a *.cmi *.cmx *.cmxa *.o *.ibc *~ *.mlf *.lang
 	rm -f test
