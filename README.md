@@ -75,7 +75,6 @@ $ opam install .
 This is a runtime support library. 
 It is a wrapper around the OCaml
 [Obj](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Obj.html) module.
-
 The plan is to get rid of it and implement
 the required functions from `Obj` using Idris primitives.
 
@@ -91,7 +90,8 @@ $ ./a.out
 Some test programs can be found 
 in [test-idris](/test-idris/).
 
-To compile the graphics example:
+To compile the 
+[graphics](/test-idris/graphics/) example:
 ```
 $ cd test-idris/
 $ cd graphics/
