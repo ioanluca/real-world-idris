@@ -28,8 +28,11 @@ showUsage = do
   \ <ibc-files> [-o <output-file>] [-op/--ocamlpackage <ocaml-packages]"
   exitSuccess
 
+defaults :: [String]
+defaults = ["idrisobj"]
+
 getOpts :: IO Opts
-getOpts = process (Opts [] "a.out" False []) <$> getArgs
+getOpts = process (Opts [] "a.out" False defaults) <$> getArgs
  where
   process opts ("-o" : o      : xs) = process (opts { output = o }) xs
   process opts ("--interface" : xs) = process (opts { interface = True }) xs
@@ -40,7 +43,7 @@ getOpts = process (Opts [] "a.out" False []) <$> getArgs
           f ys ("--ocamlpackage" : p : ps) = f (p : ys) ps
           f ys (p                    : ps) = f ys ps
           f ys []                          = ys
-      in  process (opts { camlPkgs = f [] zs }) xs
+      in  process (opts { camlPkgs = f defaults zs }) xs
   process opts [] = opts
 
 malfunctionMain :: Opts -> Idris ()

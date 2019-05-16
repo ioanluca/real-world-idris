@@ -2,7 +2,7 @@ idrikernel.cmxa: idrikernel.cmi idrikernel.cmx
 	ocamlopt -g -a -o $@ idrikernel.cmx
 
 idrikernel.cmx: idrikernel.cmi Idrikernel.idr
-	stack exec -- idris --codegen malfunction Idrikernel.idr -i ../../lib/ --cg-opt '-op lwt -op idrisobj -op duration' -o idrikernel.cmx
+	stack exec -- idris --codegen malfunction Idrikernel.idr -i ../../lib/ --cg-opt '-op lwt -op duration' -o idrikernel.cmx
 
 idrikernel.cmi: idrikernel.mli
 	ocamlfind ocamlc -package mirage-time-lwt -c idrikernel.mli
