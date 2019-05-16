@@ -104,9 +104,9 @@ $ idris IdrCamlGrphics.idr --codegen malfunction -p ocaml --cg-opt '-op graphics
 $ ./CamlGraphics.out
 ```
 
-Note that the above example is linking the OCaml 
-[graphics](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html)
-module using the `--cg-opt '-op graphics'` flags.
+Note that the above example is linking the 
+[OCaml graphics module](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html)
+using the `--cg-opt '-op graphics'` flags.
 
 Alternatively, `graphics` could also be linked by having the 
 following line in [IdrCamlGraphics.idr](/test-idris/graphics/IdrCamlGraphics.idr):
