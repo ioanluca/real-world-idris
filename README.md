@@ -85,6 +85,8 @@ $ idris Source.idr --codegen malfunction -p ocaml --cg-opt '-op ocamllib1 -op oc
 $ ./a.out
 ```
 
+`-op` is short for `--ocamlpackage` 
+
 ## Examples 
 
 Some test programs can be found 
