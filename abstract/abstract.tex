@@ -1,6 +1,28 @@
 \documentclass[a4paper,twocolumn]{article}
 
 \usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{%
+frame=single,
+% framesep=13pt,
+% framexleftmargin=7pt,
+xleftmargin=20pt,
+% fillcolor=\color{gray!10},
+backgroundcolor = \color{gray!5},
+rulecolor=\color{black!30},
+numberstyle=\sffamily\color{black!75},
+numbers = left,
+% breaklines = true,
+% showspaces = false,
+basicstyle = \ttfamily\footnotesize,
+tabsize = 2,
+captionpos=b,
+language=Haskell,
+morekeywords={data,where},
+keywordsprefix=\#,
+alsoletter=\#
+}
 
 \newcommand{\malfunction}{\texttt{malfunction}}
 
@@ -50,13 +72,29 @@ What we've done:
 
 \section{Background}
 
-\subsection{Idris}
+\paragraph{Idris}
 
-\subsection{Malfunction}
+Idris \cite{idris} is a dependently typed language with a strict
+evaluation semantics. Idris's implementation has been written to allow
+pluggable backends. C and JavaScript backends are included with the
+main distribution, and
+
+\paragraph{Malfunction}
+
+
 
 \section{OCaml Types in Idris}
 
+\begin{lstlisting}
+data OCaml_Types : Type -> Type where
+   OCaml_Str   : OCaml_Types String
+   OCaml_Float : OCaml_Types Double
+   OCaml_Bool  : OCaml_Types Bool
+\end{lstlisting}
+
 \paragraph{Primitive types}
+
+
 
 \paragraph{Function Types}
 
