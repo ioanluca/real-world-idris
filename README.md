@@ -87,6 +87,9 @@ $ ./a.out
 
 `-op` is short for `--ocamlpackage` 
 
+Alternatively, `%lib malfunction "ocamllib"` can be used in an Idris file to link an OCaml library.
+
+
 ## Examples 
 
 Some test programs can be found 
@@ -104,6 +107,12 @@ $ ./CamlGraphics.out
 Note that the above example is linking the OCaml 
 [graphics](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html)
 module using the `--cg-opt '-op graphics'` flags.
+
+Alternatively, `graphics` could also be linked by having the 
+following line in [IdrCamlGraphics.idr](/test-idris/graphics/IdrCamlGraphics.idr):
+```
+%lib malfunction "graphics"
+```
 
 
 ## Benchmarking
