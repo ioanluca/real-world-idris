@@ -8,7 +8,7 @@ idriscohttp.cmi: idriscohttp.mli
 	ocamlfind ocamlc -package cohttp,cohttp-lwt idriscohttp.mli
 
 test: test.ml idriscohttp.cmxa
-	ocamlfind ocamlopt -package cohttp,idrisobj -thread -g -linkpkg -o test idriscohttp.cmxa test.ml
+	ocamlfind ocamlopt -package cohttp,cohttp-lwt,uri,cohttp-lwt-unix -thread -g -linkpkg -o test idriscohttp.cmxa test.ml
 
 install: idriscohttp.cmxa
 	ocamlfind install idriscohttp META idriscohttp.cmi idriscohttp.cmxa idriscohttp.cmx idriscohttp.a idriscohttp.o

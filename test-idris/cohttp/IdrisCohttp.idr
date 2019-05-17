@@ -2,6 +2,8 @@ import OCaml.IO
 
 %lib malfunction "lwt"
 %lib malfunction "cohttp"
+%lib malfunction "cohttp-lwt"
+%lib malfunction "uri"
 %lib malfunction "cohttp-lwt-unix"
 
 
@@ -21,8 +23,8 @@ Body = Ptr
 -- lwtUnit : OCaml_IO Ptr
 -- lwtUnit = ocamlCall "Lwt.return_unit" (OCaml_IO Ptr)
 
-lwtReturn : () -> OCaml_IO (Lwt Ptr)
-lwtReturn = ocamlCall "Lwt.return" (() -> OCaml_IO Ptr)
+lwtReturn : Ptr -> OCaml_IO (Lwt Ptr)
+lwtReturn = ocamlCall "Lwt.return" (Ptr -> OCaml_IO Ptr)
 
 -- lwtBind : Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)
 lwtBind : Ptr -> (Ptr -> OCaml_IO Ptr) -> OCaml_IO Ptr
@@ -77,28 +79,28 @@ OK : Int
 OK = 17692
 
 server_respond_string : Int -> Int -> Int -> 
-                        Ptr -> {-() -> -} 
-                        -- String -> {-() -> -} 
+                        Ptr -> () ->  
+--                         String -> () -> 
                         OCaml_IO Ptr
                         -- OCaml_IO (Response, Body)
-server_respond_string flush headers status body {-()-} =  
+server_respond_string flush headers status body () =  
   ocamlCall "Cohttp_lwt_unix.Server.respond_string"
         ( Int -> Int -> Int -> 
-          Ptr -> {-() -> -} 
-          -- String -> {-() -> -} 
+          Ptr -> () ->  
+        --   String -> () -> 
           OCaml_IO Ptr )
           -- OCaml_IO (Response, Body) 
-  flush headers status body {-()-}
+  flush headers status body ()
 
 callback : Ptr -> Request -> Body -> OCaml_IO (Lwt (Response, Body))
 -- callback : a -> Request -> Body -> OCaml_IO (Lwt Ptr)
 callback conn req body = do 
-  uri <- pure req >>= uri >>= uri_to_string
+  {-uri <- pure req >>= uri >>= uri_to_string
   meth <- pure req >>= meth >>= string_of_method
-  headers <- pure req >>= headers >>= header_to_string
+headers <- pure req >>= headers >>= header_to_string-}
   lwtb <- pure body >>= body_to_string_lwt
   lwtb `lwtBind` 
-    (\ b => server_respond_string 0 0 OK b {-()-})
+    (\ b => server_respond_string 0 0 OK b ())
 
 exports : FFI_Export FFI_OCaml "idriscohttp.mli" []
 exports = Fun callback "callback" End

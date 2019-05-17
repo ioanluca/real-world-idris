@@ -1,3 +1,0 @@
-(executable
- (name ocamlServer)
- (libraries cohttp cohttp-lwt-unix lwt))
