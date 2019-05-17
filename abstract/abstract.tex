@@ -50,21 +50,21 @@ alsoletter=\#
 \section{Introduction}
 
 Idris is a strict functional language with dependent types intended
-for practical use \cite{tdd}. Unfortunately, due to the
-relatively small size of the Idris user community, the ecosystem of
-available libraries for practical programming is limited. To remedy
-this, we have constructed a Foreign Function Interface (FFI) for Idris
-to call OCaml libraries. We have extended Dolan's backend
+for practical use \cite{tdd}. Unfortunately, due to the relatively
+small size of the Idris user community, the ecosystem of available
+libraries for practical programming is limited. To remedy this, we
+have constructed a Foreign Function Interface (FFI) for Idris to call
+OCaml libraries. We have extended Dolan's backend
 \cite{dolan2016malfunctional} for the Idris compiler that generates
-Malfunction (a concrete syntax for the OCaml compiler's `Lambda`
-intermediate language) with the ability to call arbitrary OCaml
-libraries. Using this facility, we have been able to call higher order
-functions in OCaml's \texttt{List} library, use the \texttt{Cohttp}
-library to make a web server with the callback function written in
-Idris using the \texttt{Lwt} library, and to construct a simple Mirage
-unikernel written in Idris. In the latter case, we needed to export an
-implementation of an OCaml functor from Idris to fit with Mirage's
-functorised design.
+Malfunction (a concrete syntax for the OCaml compiler's
+\texttt{Lambda} intermediate language) with the ability to call
+arbitrary OCaml libraries. Using this facility, we have been able to
+call higher order functions in OCaml's \texttt{List} library, use the
+\texttt{Cohttp} library to make a web server with the callback
+function written in Idris using the \texttt{Lwt} library, and to
+construct a simple Mirage unikernel written in Idris. In the latter
+case, we needed to export an implementation of an OCaml functor from
+Idris to fit with Mirage's functorised design.
 
 In the talk, we will report on and demo the modifications we have made
 to Dolan's Malfunction backend, and the progress we have made in
@@ -111,7 +111,7 @@ be able to refer to structure entries by name, and to generate these
 types directly from \texttt{cmi} files. We have also artificially
 monomorphised type of \texttt{start} in the Idris signature:
 representing polymorphic structure items is currently future work, and
-will rely on the precise details of how Idris's erasure features.
+will rely on the precise details of Idris's erasure features.
 
 Finally, we implement the unikernel in Idris. It prints to the console
 four times with a second's delay between each. The \texttt{sleep}
@@ -144,7 +144,7 @@ functions in the \texttt{Lwt} monad layered on top somewhat
 awkward. The functions \texttt{mkOcamlFn} and \texttt{unOCamlFn}
 translate between effectful Idris functions and OCaml functions,
 inserting the dummy ``world'' arguments that Idris uses to implement
-I/O in a pure language. As with the module primtitives, outside the
+I/O in a pure language. As with the module primitives, outside the
 internals of the FFI implementation, Idris's typing ensures that we
 insert these coercions in the right places.
 
@@ -156,7 +156,7 @@ modules, including functors. However, polymorphism, both at the core
 and module level are challenging. We can ``fake'' it in some cases by
 inserting ``\texttt{believe\_me}'' casts at the right places, but this
 is fragile. Representing OCaml's rich module language in Idris is also
-challenging. We conjecture that an the techniques used in the F-ing
+challenging. We conjecture that the techniques used in the F-ing
 modules encoding may help \cite{f-modules}. Another requirement is the
 wrapping of algebraic datatypes. We currently have hard coded
 wrappings of lists and the \texttt{Maybe}/\texttt{option} type. We
