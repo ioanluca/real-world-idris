@@ -90,7 +90,7 @@ server_respond_string flush headers status body {-()-} =
           -- OCaml_IO (Response, Body) 
   flush headers status body {-()-}
 
-callback : a -> Request -> Body -> OCaml_IO (Lwt (Response, Body))
+callback : Ptr -> Request -> Body -> OCaml_IO (Lwt (Response, Body))
 -- callback : a -> Request -> Body -> OCaml_IO (Lwt Ptr)
 callback conn req body = do 
   uri <- pure req >>= uri >>= uri_to_string
@@ -100,7 +100,7 @@ callback conn req body = do
   lwtb `lwtBind` 
     (\ b => server_respond_string 0 0 OK b {-()-})
 
-exports : FFI_Export FFI_OCaml "idrisCohttp.mli" []
+exports : FFI_Export FFI_OCaml "idriscohttp.mli" []
 exports = Fun callback "callback" End
 
 main : OCaml_IO ()
