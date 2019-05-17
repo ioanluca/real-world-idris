@@ -104,3 +104,19 @@ mkModule {tys = tys} vs {p = p} = unsafePerformIO (go vs p 0) where
      ocamlCall "Idrisobj.set_field" 
           (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
      pure m
+
+fixOCamlFn : OCaml_FnTypes a -> a -> a
+fixOCamlFn (OCaml_Fn s t)   f = \x => fixOCamlFn t (f x)
+fixOCamlFn (OCaml_FnIO t)   f = pure (believe_me f)
+fixOCamlFn (OCaml_FnBase t) f = f
+
+unOCamlFn : {auto p : OCaml_FnTypes a} -> OCamlFn a -> a
+unOCamlFn {p} (MkOCamlFn f) = fixOCamlFn p f
+
+unfixOCamlFn : OCaml_FnTypes a -> a -> a
+unfixOCamlFn (OCaml_Fn s t)   f = \x => unfixOCamlFn t (f x)
+unfixOCamlFn (OCaml_FnIO t)   f = believe_me (unsafePerformIO f)
+unfixOCamlFn (OCaml_FnBase t) f = f
+
+mkOCamlFn : {auto p : OCaml_FnTypes a} -> a -> OCamlFn a
+mkOCamlFn {p} f = MkOCamlFn (unfixOCamlFn p f)
