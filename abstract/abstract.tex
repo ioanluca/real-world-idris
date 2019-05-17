@@ -28,7 +28,7 @@ alsoletter=\#
 
 \title{An Idris Foreign Function Interface to OCaml}
 \author{Robert Atkey  $\langle$\texttt{robert.atkey@strath.ac.uk}$\rangle$ \\
-  Ioan Luca $\langle$\texttt{ioan.luca.2016@uni.strath.ac.uk}$\rangle$}
+  Ioan Luca $\langle$\texttt{ioan.luca7@gmail.com}$\rangle$}
 \date{}
 
 \begin{document}
@@ -285,6 +285,47 @@ data OCaml_Types : Type -> Type where
    OCaml_Str   : OCaml_Types String
    OCaml_Float : OCaml_Types Double
    OCaml_Bool  : OCaml_Types Bool
+\end{lstlisting}
+
+
+\begin{lstlisting}
+data Values : List Type -> Type where
+ Stop : Values []
+ Step : t -> Values tys -> Values (t :: tys)
+
+modGet :
+  (i : Nat) -> OCamlModule tys      ->
+  {auto ok : index' i tys = Just a} ->
+  {auto p : OCaml_Types a}          -> 
+  {auto q : OCamlTypeList tys}      ->
+  OCaml_IO a
+modGet {tys = tys} {a = a} i m = 
+ ocamlCall "Idrisobj.field" 
+  (OCamlModule tys -> Int -> OCaml_IO a) 
+  m (cast i)
+
+
+mkMod : 
+    Values tys                   -> 
+    {auto p : OCamlTypeList tys} ->
+    OCaml_IO (OCamlModule tys)
+mkMod {tys = tys} vs {p = p} = go vs p 0 
+  where
+  go : Values tys2        ->
+       OCamlTypeList tys2 ->
+       Int -> OCaml_IO (OCamlModule tys)
+  go {tys2 = []} Stop Done n =
+   ocamlCall "Idrisobj.new_block" 
+      (Int -> Int -> 
+       OCaml_IO (OCamlModule tys)) 
+      0 n
+  go {tys2 = ty :: tys2} 
+    (Step v vs) (Next x q) n = do
+     m <- go vs q (n + 1)
+     ocamlCall "Idrisobj.set_field" 
+       (OCamlModule tys -> Int 
+       -> ty -> OCaml_IO ()) m n v
+     pure m 
 \end{lstlisting}
 
 \paragraph{Primitive types}
