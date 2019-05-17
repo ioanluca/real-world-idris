@@ -298,6 +298,16 @@ data OCaml_Types : Type -> Type where
 \paragraph{Records}
 
 \paragraph{Modules}
+OCaml modules are a very powerful system for software modularisation. 
+It is interesting that they have a very simple runtime representation.
+Essentially,  modules are blocks of memory and functors are functions
+from blocks to blocks. The difference between modules(functors) and
+structs(functions) only exists at compile-time.
+
+In Idris, the following functions and data declarations are are used to 
+describe them in a very raw way.
+
+It is not yet possible to use module names.
 
 \section{Future Work}
 
