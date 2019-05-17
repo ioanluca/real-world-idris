@@ -7,7 +7,7 @@ import           Idris.ElabDecls
 import           Idris.Options
 
 import           IRTS.Compiler
-import           IRTS.NewCodegenMalfunction
+import           IRTS.CodegenMalfunction
 import           IRTS.CodegenCommon
 
 import           System.Environment

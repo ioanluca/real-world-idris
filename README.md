@@ -148,11 +148,22 @@ Tested on:
 
 
 ## Todo
-* [ ] Todo
-* [ ] Todo
-* [ ] Todo
-* [ ] Todo
-* [ ] Todo
+* [ ] unicode, cannot just show KStrs, ocaml 8bit, overflow safety?
+* [ ] implement all primitives
+* [ ] use ocaml gc optimizations through env vars
+* [ ] tail calls
+* [ ] squeeze multiple lets together? let x = let y = 3 in 
+* [ ] squeeze multiple lambdas together?
+* [ ] --interface flag?
+* [ ] dead code elimination (extra care with inlined definitions)
+* [ ] maybe get lang decls without liftings (if possible)
+* [ ] use state with a record for code generation monad?
+* [ ] use writerT and ReaderT instead of the Translate monad?
+* [ ] polymorphism (at the moment it is not possible to export polymorphic functions from Idris) 
+* [ ] ADTs (separate from Idris' ADTs?)
+* [ ] User friendly modules (no way to name definitions right now)
+* [ ] Generating Idris type definitions from `.cmi` files
+* [ ] this Todo list
 
 
 ## Contributing 
