@@ -72,14 +72,209 @@ What we've done:
 
 \section{Background}
 
-\paragraph{Idris}
+\paragraph{Idris} %\footnote{\url{https://www.idris-lang.org/}}
+is a pure functional,
+general purpose, dependently typed programming language.
+Idris programs use types as the main building block which allows it
+to encode complex invariants directly into source code.
+This means that the compiler checks programs for
+correctness before they run, enabling
+``lightweight verification''\footnote{specification is
+	defined early in the development phase as a language construct;
+	the implementing code is then guaranteed to work against it}.
+This has the potential to drastically reduce the costs
+of reliable software by integrating verification into development
+instead of considering it a separate concern.
+
+Despite being novel and popular amongst Programming Language research
+groups, Idris did not catch the attention of industrial developer
+communities.
+This is partly because the language lacks a high performance
+runtime system and partly because its library ecosystem has poor
+support for fast and reliable software.
 
 Idris \cite{idris} is a dependently typed language with a strict
 evaluation semantics. Idris's implementation has been written to allow
 pluggable backends. C and JavaScript backends are included with the
 main distribution, and
 
+\paragraph{The Idris compiler infrastructure}
+
+
+Idris is intended for general use. \cite{crosscompilers} argues
+that this raises the need for Idris to run in various, potentially
+very different environments.
+
+For example, it is possible to generate C to have Idris run
+natively or JavaScript to run in the browser.
+
+To address this concern, Idris provides a modular compiler
+infrastructure as a Haskell library in which different code
+generators can easily be plugged in.
+According to \cite{crosscompilers},
+the library exposes 4 different intermediate representations outside
+of Idris itself:
+\begin{enumerate}
+    \item TT --- a core language based on dependent type theory; fully
+          explicit types still exist at this stage, but the only top level
+          constructs are the data type declarations and function definitions
+          with pattern matching transformed into case expressions
+    \item IR\textsubscript{lift} --- essentially TT type checked; unused values
+          and types are erased;
+    \item IR\textsubscript{defunc} --- all functions are first-order
+          and fully applied after defunctionalisation is performed
+    \item IR\textsubscript{ANF} --- all are functions are in
+          \emph{Applicative Normal Form} where all arguments are trivial;
+          in practice that means they are either variables or constants;
+          Idris can even generate a form of bytecode for a simple
+          stack-based machine from this IR
+\end{enumerate}
+They all resemble the same information but at different levels
+of abstraction. This is because they assume certain sets of features
+in the target language such that choosing a rich IR
+for a low-level language would be a bad idea.
+\cite{ElliottIdrisErlang}.
+
+
+A code generator is a program that type checks and elaborates
+Idris programs using this library.
+It has to choose exactly one
+IR to generate code from.
+The process of creating a new code generator is well
+documented by \cite{ElliottIdrisErlang} which also does a great job
+at specifying the Idris IRs and the primitives.
+
+
 \paragraph{Malfunction}
+is a minimal, untyped program representation intended as a
+compilation target for functional languages.
+
+Malfunction is in fact a thin wrapper around the Lambda intermediate
+representation (IR) of OCaml meaning that compilers targeting it
+are compiled to native code by the OCaml compiler enjoying the
+\emph{flambda} optimisations and the garbage collector mentioned
+earlier \cite{dolan2016malfunctional}.
+
+Despite being a compilation target it is much more high-level:
+for instance, Malfunction has
+let bindings, recursive definitions, lambdas, very basic case
+expressions, higher order functions and arguments currying.
+
+As it us usually the case with low-level untyped languages, Malfunction
+has undefined behaviour.
+Its semantics is that of Lambda, namely an untyped Lambda Calculus but
+stricter in certain places which make it more robust to changes in the
+OCaml toolchain. \cite{dolan2016malfunctional}.
+
+Similarly, its syntax is based on s-expressions\footnote{
+    what Lisp looks like
+} which are easy to generate from many abstract syntax trees (ASTs).
+
+Recently, Malfunction received an upgrade.
+Now it also supports lazy evaluation and
+floating point numbers.
+
+
+\paragraph{OCaml} is a general purpose industrial-strength functional
+programming language with a high-performance runtime system
+
+According to \cite{rwocaml}, OCaml plays an important role in the
+world of programming language design because it provides a mix
+of expressiveness, efficiency and practicality.
+FIXME This mix, is in fact a collection of carefully chosen features
+that have been developed over the last 40 years.
+
+% TODO say that it doesn't have dependent types but still
+
+The OCaml compiler benefits from a simple
+compilation strategy that doesn't require heavy optimizations or
+complicated dynamic just-in-time (JIT) features to produce performant
+code. Moreover, OCaml is strictly evaluated just like Idris which
+makes it easy to predict performance.
+The language uses  a precise incremental garbage collection strategy
+that avoids spikes while the runtime is straightforward and highly
+portable.
+
+Normally, what also makes OCaml practical, is that it supports some
+imperative programming style constructs like mutable references,
+side effects and even objects.
+However, release 4.02 brought the \emph{flambda} optimisations to the
+native compiler. They are a series of tweaks
+that enable idiomatic functional programming characteristics like clojures,
+higher-order functions and immutability to be used at no extra
+performance cost.\cite{leroy2014ocaml}
+
+\paragraph{Idris-Malfunction}
+
+Originally, Stephen Dolan, the author of Malfunction created a
+version\footnote{hosted at
+    https://github.com/stedolan/idris-malfunction}
+of this backend \cite{dolan2016malfunctional}.
+Although incomplete, preliminary benchmarks showed that it was
+outperforming the default C backend by a factor between 3.2x and 14x
+which sounded promising.
+
+Besides missing a lot of functionality, the backend was generating
+inefficient code for Idris constructors which were always wrapped
+in a block of memory regardless whether they had any parameters.
+No parameters constructors can in fact map to integers directly.
+Moreover, the code was generated from IR\textsubscript{ANF}
+which did not seem optimal given that Malfunction has
+good support for higher-order functions.
+This is especially true now that laziness was added to Malfunction.
+
+Nevertheless, this version of the backend was a good place to start
+and build on.
+
+The current version of the backend which I built chooses
+to generate code from IR\textsubscript{lift} which seems to
+slightly improve the already good performance.
+
+The backend was tested with a range of benchmarks against the
+C backend:
+
+\paragraph{Benchmark results}
+The Unix ``time'' command was used as part of the binaries execution
+and all output was redirected to /dev/null.
+See tables \ref{tab:fibtab},
+\ref{tab:pythagtab} and
+\ref{tab:bintreetab}.
+
+\begin{table}
+    \centering
+    \caption{40th Fibonacci number --- naive}
+    \begin{tabular}{llll}\label{tab:fibtab}
+             & C      & OCaml  & \\
+        real & 5.050s & 3.851s & \\
+        user & 5.034s & 3.846s & \\
+        sys  & 0.01s  & 0.04s  &
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{Generate the first 500 Pythagorean triplets in a linked list}
+    \begin{tabular}{llll}\label{tab:pythagtab}
+             & C      & OCaml  & \\
+        real & 3.163s & 0.417s & \\
+        user & 3.131s & 0.416s & \\
+        sys  & 0.027s & 0.01s  &
+    \end{tabular}
+\end{table}
+
+
+\begin{table}
+    \centering
+    \caption{Allocation of a perfect binary tree to \emph{stretch} memory, which then is deallocated, followed by an allocation of a long-lived perfect binary tree which will live-on while other trees are allocated and deallocated}
+    \begin{tabular}{llll}\label{tab:bintreetab}
+             & C       & OCaml   & \\
+        real & 58.114s & 18.967s & \\
+        user & 44.036s & 18.540s & \\
+        sys  & 13.980s & 0.346s  &
+    \end{tabular}
+\end{table}
+
+
 
 
 
