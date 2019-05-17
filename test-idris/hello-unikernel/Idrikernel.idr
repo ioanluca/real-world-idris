@@ -9,13 +9,6 @@ Lwt _ = Ptr
 Int64 : Type
 Int64 = Ptr
 
-TimeSig : Type
-TimeSig = OCamlModule [ OCamlFn (Int64 -> {-OCaml_IO-} Ptr) ] -- 0: sleep_ns
-
-HelloFunctorSig : Type
-HelloFunctorSig = TimeSig ->
-                  OCamlModule [OCamlFn (Int -> Int), OCamlFn ({-Ptr ->-} OCaml_IO Ptr)]
-
 lwtUnit : OCaml_IO Ptr
 lwtUnit = ocamlCall "Lwt.return_unit" (OCaml_IO Ptr)
 
@@ -27,30 +20,65 @@ of_sec n =
     unsafePerformIO $ ocamlCall "Duration.of_sec" (Int -> OCaml_IO Int64) n
 
 -- lwtBind : Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)
-lwtBind : Ptr -> (Ptr -> {-OCaml_IO-} Ptr) -> OCaml_IO Ptr
+lwtBind : Ptr -> (Ptr -> OCaml_IO Ptr) -> OCaml_IO Ptr
 lwtBind p f =
-  ocamlCall "Lwt.bind" (Ptr -> OCamlFn (Ptr -> {-OCaml_IO-} Ptr) -> OCaml_IO Ptr) p (MkOCamlFn f)
+  ocamlCall "Lwt.bind" (Ptr -> OCamlFn (Ptr -> OCaml_IO Ptr) -> OCaml_IO Ptr) p (MkOCamlFn f)
 
+{-
 start : TimeSig -> OCaml_IO Ptr
-start timeMod {-t-} = loop 4
+start timeMod = loop 4
     where loop : Int -> OCaml_IO Ptr
           loop 0 = lwtUnit
           loop n = do
             putStrLn' "Idris Unikernel Hello!"
-            --lwtReturn ()
             (MkOCamlFn sleep) <- modGet 0 timeMod
             let lwtThread = sleep (of_sec 1)
-            lwtThread `lwtBind` (\ _ => unsafePerformIO (loop $ n - 1))
+            lwtThread `lwtBind` (\ _ => loop $ n - 1)
+-}
+
+fixOCamlFn : OCaml_FnTypes a -> a -> a
+fixOCamlFn (OCaml_Fn s t)   f = \x => fixOCamlFn t (f x)
+fixOCamlFn (OCaml_FnIO t)   f = pure (believe_me f)
+fixOCamlFn (OCaml_FnBase t) f = f
+
+ocamlFn : {auto p : OCaml_FnTypes a} -> OCamlFn a -> a
+ocamlFn {p} (MkOCamlFn f) = fixOCamlFn p f
+
+unfixOCamlFn : OCaml_FnTypes a -> a -> a
+unfixOCamlFn (OCaml_Fn s t)   f = \x => fixOCamlFn t (f x)
+unfixOCamlFn (OCaml_FnIO t)   f = believe_me (unsafePerformIO f)
+unfixOCamlFn (OCaml_FnBase t) f = f
+
+mkOCamlFn : {auto p : OCaml_FnTypes a} -> a -> OCamlFn a
+mkOCamlFn {p} f = MkOCamlFn (unfixOCamlFn p f)
 
 
+TimeSig : Type
+TimeSig = OCamlModule [ OCamlFn (Int64 -> OCaml_IO (Lwt ())) ] -- 0: sleep_ns
 
-HelloFunctor : HelloFunctorSig
-HelloFunctor time = let defs = Step (MkOCamlFn (\x => x + 101)) (Step (MkOCamlFn $ start time) Stop)
-       in unsafePerformIO $ mkMod defs
+HelloSig : Type
+HelloSig = TimeSig ->
+   OCamlModule [OCamlFn (Ptr -> OCaml_IO (Lwt ()))]
+
+Hello : HelloSig
+Hello time = mkModule (Step (mkOCamlFn start) Stop)
+  where
+     sleep : Int64 -> OCaml_IO (Lwt ())
+     sleep = ocamlFn $ modGet 0 time
+
+     loop : Int -> OCaml_IO Ptr
+     loop 0 = lwtUnit
+     loop n = do
+       putStrLn' "Idris Unikernel Hello!"
+       lwtThread <- sleep (of_sec 1)
+       lwtThread `lwtBind` (\ _ => loop $ n - 1)
+
+     start : Ptr -> OCaml_IO (Lwt ())
+     start _ = loop 4
 
 
 exports : FFI_Export FFI_OCaml "idrikernel.mli" []
-exports = Fun HelloFunctor "Hello" End
+exports = Fun Hello "Hello" End
 
 main : OCaml_IO ()
 main = pure ()

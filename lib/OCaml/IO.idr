@@ -14,7 +14,7 @@ data OCamlModule : List Type -> Type
 mutual
   data OCamlFn : Type -> Type where
        MkOCamlFn : (x : t) -> OCamlFn t
-  
+
   data OCaml_IntTypes  : Type -> Type where
        OCaml_IntChar   : OCaml_IntTypes Char
        OCaml_IntNative : OCaml_IntTypes Int
@@ -29,7 +29,7 @@ mutual
   data OCamlTypeList : List Type -> Type where
        Done : OCamlTypeList []
        Next : OCaml_Types a -> OCamlTypeList tys -> OCamlTypeList (a :: tys)
-  
+
   data OCaml_Types : Type -> Type where
        OCaml_Str   : OCaml_Types String
        OCaml_Float : OCaml_Types Double
@@ -43,8 +43,7 @@ mutual
        OCaml_Maybe : OCaml_Types a -> OCaml_Types (Maybe a)
        OCaml_IntT  : OCaml_IntTypes i -> OCaml_Types i
        OCaml_Mod   : OCamlTypeList tys -> OCaml_Types (OCamlModule tys)
-       
- 
+
 -- Tell erasure analysis not to erase the argument. Needs to be outside the
 -- mutual block, since directives are done on the first pass and in the first
 -- pass we only have 'OCamlFn' and not the constructor.
@@ -87,16 +86,15 @@ data Values : List Type -> Type where
 
 modGet : (i : Nat) -> OCamlModule tys ->
          {auto ok : index' i tys = Just a} ->
-         {auto p : OCaml_Types a} -> 
+         {auto p : OCaml_Types a} ->
          {auto q : OCamlTypeList tys} ->
-         OCaml_IO a
-modGet {tys = tys} {a = a} i m = 
+         a
+modGet {tys = tys} {a = a} i m = unsafePerformIO $
  ocamlCall "Idrisobj.field" (OCamlModule tys -> Int -> OCaml_IO a) m (cast i)
 
 
-mkMod : Values tys -> {auto p : OCamlTypeList tys} ->
-        OCaml_IO (OCamlModule tys)
-mkMod {tys = tys} vs {p = p} = go vs p 0 where
+mkModule : Values tys -> {auto p : OCamlTypeList tys} -> OCamlModule tys
+mkModule {tys = tys} vs {p = p} = unsafePerformIO (go vs p 0) where
   go : Values tys2 -> OCamlTypeList tys2 ->
        Int -> OCaml_IO (OCamlModule tys)
   go {tys2 = []} Stop Done n =
