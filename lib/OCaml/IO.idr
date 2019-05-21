@@ -127,6 +127,14 @@ putStr = putStr'
 getLine : OCaml_IO String
 getLine = getLine'
 
+-- Some specific functions from the Stdlib module
+
+print_endline : String -> OCaml_IO ()
+print_endline s =
+  ocamlCall "Stdlib.print_endline" (String -> OCaml_IO ()) s
+
+
+
 -- Modules
 
 data Values : List Type -> Type where

@@ -23,10 +23,6 @@ lwtBind : {auto ta : OCaml_Types a} ->
 lwtBind {a}{b} p f =
   ocamlCall "Lwt.bind" (Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)) p f
 
-print_endline : String -> OCaml_IO ()
-print_endline s =
-  ocamlCall "print_endline" (String -> OCaml_IO ()) s
-
 HelloSig : Type
 HelloSig =
   sig [Int64 -> OCaml_IO (Lwt ())] ->
