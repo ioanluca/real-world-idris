@@ -14,6 +14,8 @@ data OCamlModule : List Type -> Type
 sig : List Type -> Type
 sig = OCamlModule
 
+data Abstr1 : Type -> Type
+
 mutual
   data OCaml_IntTypes  : Type -> Type where
        OCaml_IntChar   : OCaml_IntTypes Char
@@ -34,6 +36,7 @@ mutual
        OCaml_Str   : OCaml_Types String
        OCaml_Float : OCaml_Types Double
        OCaml_Bool  : OCaml_Types Bool
+       OCaml_Abstr1: OCaml_Types (Abstr1 a)
        OCaml_Ptr   : OCaml_Types Ptr
        OCaml_Unit  : OCaml_Types ()
        OCaml_Any   : OCaml_Types (OCamlRaw a)
@@ -67,6 +70,7 @@ fromOCaml OCaml_Str        s = s
 fromOCaml OCaml_Float      f = f
 fromOCaml OCaml_Bool       b = b
 fromOCaml OCaml_Ptr        p = p
+fromOCaml OCaml_Abstr1     x = x
 fromOCaml OCaml_Unit       u = u
 fromOCaml OCaml_Any        a = a
 fromOCaml (OCaml_FnT t)    f = fromOCamlFn t f
@@ -89,6 +93,7 @@ toOCaml OCaml_Str        s = s
 toOCaml OCaml_Float      f = f
 toOCaml OCaml_Bool       b = b
 toOCaml OCaml_Ptr        p = p
+toOCaml OCaml_Abstr1     x = x
 toOCaml OCaml_Unit       u = u
 toOCaml OCaml_Any        a = a
 toOCaml (OCaml_FnT t)    f = toOCamlFn t f

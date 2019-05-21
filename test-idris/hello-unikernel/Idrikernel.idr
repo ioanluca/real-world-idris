@@ -4,13 +4,13 @@ import OCaml.IO
 %lib malfunction "lwt"
 
 Lwt : Type -> Type
-Lwt _ = Ptr
+Lwt = Abstr1
 
 Int64 : Type
 Int64 = Ptr
 
 lwtReturn : a -> OCaml_IO (Lwt a)
-lwtReturn x = ocamlCall "Lwt.return" (Ptr -> OCaml_IO Ptr) (believe_me x)
+lwtReturn {a} x = ocamlCall "Lwt.return" (Ptr -> OCaml_IO (Lwt a)) (believe_me x)
 
 of_sec : Int -> Int64
 of_sec n =
@@ -18,10 +18,10 @@ of_sec n =
 
 lwtBind : {auto ta : OCaml_Types a} ->
           Lwt a ->
-          (a -> OCaml_IO Ptr) ->
-          OCaml_IO Ptr
-lwtBind {a} p f =
-  ocamlCall "Lwt.bind" (Lwt a -> (a -> OCaml_IO Ptr) -> OCaml_IO Ptr) p f
+          (a -> OCaml_IO (Lwt b)) ->
+          OCaml_IO (Lwt b)
+lwtBind {a}{b} p f =
+  ocamlCall "Lwt.bind" (Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)) p f
 
 print_endline : String -> OCaml_IO ()
 print_endline s =
@@ -43,7 +43,7 @@ Hello time = struct [start]
      loop n = do
        print_endline "Idris Unikernel Hello!"
        lwtThread <- sleep (of_sec 1)
-       lwtThread `lwtBind` (\ _ => loop $ n - 1)
+       lwtThread `lwtBind` (\ () => loop $ n - 1)
 
      start : () -> OCaml_IO (Lwt ())
      start _ = loop 4
