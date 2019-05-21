@@ -7,7 +7,7 @@ f x = (x ++ x, Just (1.3 + 1.3))
 
 
 main : OCaml_IO ()
-main = do 
+main = do
      min_int <- ocamlCall "Pervasives.min_int" (OCaml_IO Int)
      printLn min_int
      ic <- ocamlCall "Pervasives.open_in" (String -> OCaml_IO Ptr) "Foo.idr"
@@ -17,24 +17,22 @@ main = do
      printLn l
      printLn ll
      printLn str
-     ys <- ocamlCall "List.map" ((OCamlFn (Int -> Int)) -> List Int -> OCaml_IO (List Int)) (MkOCamlFn (+1)) [1..10]
+     ys <- ocamlCall "List.map" ((Int -> Int) -> List Int -> OCaml_IO (List Int)) ((+1)) [1..10]
      printLn ys
-     zs <- ocamlCall "List.map" ((OCamlFn (String -> (String, Maybe Double))) -> List String -> OCaml_IO (List (String, Maybe Double))) (MkOCamlFn f) ["hello", "world"]
+     zs <- ocamlCall "List.map" ((String -> (String, Maybe Double)) -> List String -> OCaml_IO (List (String, Maybe Double))) f ["hello", "world"]
      printLn zs
-     ocamlCall "List.iter" 
-        ((OCamlFn (Double -> OCaml_IO ())) -> List Double -> OCaml_IO ())
-        (MkOCamlFn (printLn')) 
+     ocamlCall "List.iter" ((Double -> OCaml_IO ()) -> List Double -> OCaml_IO ())
+        printLn'
         [1.1,213.321]
-     ocamlCall "List.iter2" 
-        ((OCamlFn (Int -> Int -> OCaml_IO ())) -> List Int -> List Int -> OCaml_IO ())
-        (MkOCamlFn (\ a => (\b => printLn' (a + b)))) 
+     ocamlCall "List.iter2"
+        ((Int -> Int -> OCaml_IO ()) -> List Int -> List Int -> OCaml_IO ())
+        (\a => \b => printLn' (a + b))
         [1..10]
         [11..20]
-     ocamlCall "List.init" 
-       (Int -> OCamlFn (Int -> OCaml_IO ()) -> 
-         OCaml_IO (List ()))
+     ocamlCall "List.init"
+       (Int -> (Int -> OCaml_IO ()) -> OCaml_IO (List ()))
        4
-       (MkOCamlFn (\ x => printLn' x))
+       (\x => printLn' x)
      pure ()
-      
-   --   printLn is
+
+      --   printLn is

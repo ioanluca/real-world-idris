@@ -9,36 +9,39 @@ Lwt _ = Ptr
 Int64 : Type
 Int64 = Ptr
 
-lwtUnit : OCaml_IO Ptr
-lwtUnit = ocamlCall "Lwt.return_unit" (OCaml_IO Ptr)
-
-lwtReturn : () -> OCaml_IO Ptr
-lwtReturn = ocamlCall "Lwt.return" (() -> OCaml_IO Ptr)
+lwtReturn : a -> OCaml_IO (Lwt a)
+lwtReturn x = ocamlCall "Lwt.return" (Ptr -> OCaml_IO Ptr) (believe_me x)
 
 of_sec : Int -> Int64
 of_sec n =
-    unsafePerformIO $ ocamlCall "Duration.of_sec" (Int -> OCaml_IO Int64) n
+  unsafePerformIO $ ocamlCall "Duration.of_sec" (Int -> OCaml_IO Int64) n
 
--- lwtBind : Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)
-lwtBind : Ptr -> (Ptr -> OCaml_IO Ptr) -> OCaml_IO Ptr
-lwtBind p f =
-  ocamlCall "Lwt.bind" (Ptr -> OCamlFn (Ptr -> OCaml_IO Ptr) -> OCaml_IO Ptr) p (MkOCamlFn f)
+lwtBind : {auto ta : OCaml_Types a} ->
+          Lwt a ->
+          (a -> OCaml_IO Ptr) ->
+          OCaml_IO Ptr
+lwtBind {a} p f =
+  ocamlCall "Lwt.bind" (Lwt a -> (a -> OCaml_IO Ptr) -> OCaml_IO Ptr) p f
+
+print_endline : String -> OCaml_IO ()
+print_endline s =
+  ocamlCall "print_endline" (String -> OCaml_IO ()) s
 
 HelloSig : Type
 HelloSig =
-  OCamlModule [OCamlFn (Int64 -> OCaml_IO (Lwt ()))] ->
-  OCamlModule [OCamlFn (() -> OCaml_IO (Lwt ()))]
+  sig [Int64 -> OCaml_IO (Lwt ())] ->
+  sig [() -> OCaml_IO (Lwt ())]
 
 Hello : HelloSig
-Hello time = mkModule (Step (mkOCamlFn start) Stop)
+Hello time = struct [start]
   where
      sleep : Int64 -> OCaml_IO (Lwt ())
-     sleep = unOCamlFn $ modGet 0 time
+     sleep = modGet 0 time
 
-     loop : Int -> OCaml_IO Ptr
-     loop 0 = lwtUnit
+     loop : Int -> OCaml_IO (Lwt ())
+     loop 0 = lwtReturn ()
      loop n = do
-       putStrLn' "Idris Unikernel Hello!"
+       print_endline "Idris Unikernel Hello!"
        lwtThread <- sleep (of_sec 1)
        lwtThread `lwtBind` (\ _ => loop $ n - 1)
 
