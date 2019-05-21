@@ -9,8 +9,8 @@ Lwt = Abstr1
 Int64 : Type
 Int64 = Ptr
 
-lwtReturn : a -> OCaml_IO (Lwt a)
-lwtReturn {a} x = ocamlCall "Lwt.return" (Ptr -> OCaml_IO (Lwt a)) (believe_me x)
+lwtReturn : {auto ta : OCaml_Types a} -> a -> OCaml_IO (Lwt a)
+lwtReturn {a} x = ocamlCall "Lwt.return" (a -> OCaml_IO (Lwt a)) x
 
 of_sec : Int -> Int64
 of_sec n =
