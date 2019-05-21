@@ -55,53 +55,52 @@ FFI_OCaml = MkFFI OCaml_Types String String
 OCaml_IO : Type -> Type
 OCaml_IO = IO' FFI_OCaml
 
--- Translates an OCaml-conventions function to an Idris-conventions
--- one by inserting an additional dummy 'world' argument.
-%inline
-fromOCamlFn : OCaml_FnTypes a -> a -> a
-fromOCamlFn (OCaml_Fn s t)     f = \x => fromOCamlFn t (f x)
-fromOCamlFn (OCaml_FnIO s t)   f = \x => pure (believe_me (f x))
-fromOCamlFn (OCaml_FnBase s t) f = f
-  -- FIXME: call 'to' and 'from'OCaml mutually
+mutual
+  -- Translates an OCaml-conventions function to an Idris-conventions
+  -- one by inserting an additional dummy 'world' argument.
+  --%inline
+  fromOCamlFn : OCaml_FnTypes a -> a -> a
+  fromOCamlFn (OCaml_Fn s t)     f = \x => fromOCamlFn t (f (toOCaml s x))
+  fromOCamlFn (OCaml_FnIO s t)   f = \x => pure (fromOCaml t (believe_me (f (toOCaml s x))))
+  fromOCamlFn (OCaml_FnBase s t) f = \x => fromOCaml t (f (toOCaml s x))
 
-%inline
-fromOCaml : OCaml_Types a -> a -> a
-fromOCaml OCaml_Str        s = s
-fromOCaml OCaml_Float      f = f
-fromOCaml OCaml_Bool       b = b
-fromOCaml OCaml_Ptr        p = p
-fromOCaml OCaml_Abstr1     x = x
-fromOCaml OCaml_Unit       u = u
-fromOCaml OCaml_Any        a = a
-fromOCaml (OCaml_FnT t)    f = fromOCamlFn t f
-fromOCaml (OCaml_Pair s t) p = (fromOCaml s (fst p), fromOCaml t (snd p))
-fromOCaml (OCaml_List s)   l = map (fromOCaml s) l
-fromOCaml (OCaml_Maybe s)  m = map (fromOCaml s) m
-fromOCaml (OCaml_IntT _)   i = i
-fromOCaml (OCaml_Mod ts)   m = m -- FIXME
+  -- %inline
+  fromOCaml : OCaml_Types a -> a -> a
+  fromOCaml OCaml_Str        s = s
+  fromOCaml OCaml_Float      f = f
+  fromOCaml OCaml_Bool       b = b
+  fromOCaml OCaml_Ptr        p = p
+  fromOCaml OCaml_Abstr1     x = x
+  fromOCaml OCaml_Unit       u = u
+  fromOCaml OCaml_Any        a = a
+  fromOCaml (OCaml_FnT t)    f = fromOCamlFn t f
+  fromOCaml (OCaml_Pair s t) p = (fromOCaml s (fst p), fromOCaml t (snd p))
+  fromOCaml (OCaml_List s)   l = map (fromOCaml s) l
+  fromOCaml (OCaml_Maybe s)  m = map (fromOCaml s) m
+  fromOCaml (OCaml_IntT _)   i = i
+  fromOCaml (OCaml_Mod ts)   m = m
 
--- FIXME: call fromOCaml mutually
-%inline
-toOCamlFn : OCaml_FnTypes a -> a -> a
-toOCamlFn (OCaml_Fn s t)     f = \x => toOCamlFn t (f x)
-toOCamlFn (OCaml_FnIO s t)   f = \x => believe_me (unsafePerformIO (f x))
-toOCamlFn (OCaml_FnBase s t) f = \x => f x
+  --%inline
+  toOCamlFn : OCaml_FnTypes a -> a -> a
+  toOCamlFn (OCaml_Fn s t)     f = \x => toOCamlFn t (f (fromOCaml s x))
+  toOCamlFn (OCaml_FnIO s t)   f = \x => believe_me (toOCaml t (unsafePerformIO (f (fromOCaml s x))))
+  toOCamlFn (OCaml_FnBase s t) f = \x => toOCaml t (f (fromOCaml s x))
 
-%inline
-toOCaml : OCaml_Types a -> a -> a
-toOCaml OCaml_Str        s = s
-toOCaml OCaml_Float      f = f
-toOCaml OCaml_Bool       b = b
-toOCaml OCaml_Ptr        p = p
-toOCaml OCaml_Abstr1     x = x
-toOCaml OCaml_Unit       u = u
-toOCaml OCaml_Any        a = a
-toOCaml (OCaml_FnT t)    f = toOCamlFn t f
-toOCaml (OCaml_Pair s t) p = (toOCaml s (fst p), toOCaml t (snd p))
-toOCaml (OCaml_List s)   l = map (toOCaml s) l
-toOCaml (OCaml_Maybe s)  m = map (toOCaml s) m
-toOCaml (OCaml_IntT _)   i = i
-toOCaml (OCaml_Mod ts)   m = m -- FIXME
+  -- %inline
+  toOCaml : OCaml_Types a -> a -> a
+  toOCaml OCaml_Str        s = s
+  toOCaml OCaml_Float      f = f
+  toOCaml OCaml_Bool       b = b
+  toOCaml OCaml_Ptr        p = p
+  toOCaml OCaml_Abstr1     x = x
+  toOCaml OCaml_Unit       u = u
+  toOCaml OCaml_Any        a = a
+  toOCaml (OCaml_FnT t)    f = toOCamlFn t f
+  toOCaml (OCaml_Pair s t) p = (toOCaml s (fst p), toOCaml t (snd p))
+  toOCaml (OCaml_List s)   l = map (toOCaml s) l
+  toOCaml (OCaml_Maybe s)  m = map (toOCaml s) m
+  toOCaml (OCaml_IntT _)   i = i
+  toOCaml (OCaml_Mod ts)   m = m
 
 %inline
 fromOCamlFTy : FTy FFI_OCaml xs ty -> ty -> ty
