@@ -33,7 +33,7 @@ Hello time = struct
      loop 0 = lwtReturn ()
      loop n = do
        print_endline "Idris Unikernel Hello!"
-       lwtThread <- (time `dot` "sleep") (of_sec 1)
+       lwtThread <- (time#"sleep") (of_sec 1)
        lwtThread `lwtBind` (\ () => loop $ n - 1)
 
 exports : FFI_Export FFI_OCaml "idrikernel.mli" []

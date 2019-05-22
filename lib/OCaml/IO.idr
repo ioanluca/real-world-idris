@@ -40,7 +40,7 @@ mutual
        OCaml_Ptr   : OCaml_Types Ptr
        OCaml_Unit  : OCaml_Types ()
        OCaml_Any   : OCaml_Types (OCamlRaw a)
-       OCaml_FnT   : OCaml_FnTypes a -> OCaml_Types ({-OCamlFn-} a)
+       OCaml_FnT   : OCaml_FnTypes a -> OCaml_Types a
        OCaml_Pair  : OCaml_Types a -> OCaml_Types b -> OCaml_Types (a, b)
        OCaml_List  : OCaml_Types a -> OCaml_Types (List a)
        OCaml_Maybe : OCaml_Types a -> OCaml_Types (Maybe a)
@@ -104,7 +104,7 @@ mutual
 
 %inline
 fromOCamlFTy : FTy FFI_OCaml xs ty -> ty -> ty
-fromOCamlFTy (FRet t)   f = f -- pure (believe_me f)
+fromOCamlFTy (FRet t)   f = do x <- f; pure (fromOCaml t x)
 fromOCamlFTy (FFun s t) f = \x => fromOCamlFTy t (f (toOCaml s x))
 
 %inline
@@ -148,14 +148,16 @@ assocIdx : String -> Int -> List (String, Type) -> Maybe (Int, Type)
 assocIdx k i [] = Nothing
 assocIdx k i ((k',t)::tys) = if k == k' then Just (i,t) else assocIdx k (i+1) tys
 
+infixl 1 #
+
 -- FIXME: use an infix operator that looks like record lookup
 %inline
-dot : Module tys -> (nm : String) ->
+(#) : Module tys -> (nm : String) ->
       {auto ok : assocIdx nm 0 tys = Just (i, a)} ->
       {auto p : OCaml_Types a} ->
       {auto q : OCamlTypeList tys} ->
       a
-dot {tys = tys} {a = a} {i} m nm {p} = fromOCaml p $ unsafePerformIO $
+(#) {tys} {a} {i} m nm = unsafePerformIO $
  ocamlCall "Idrisobj.field" (Module tys -> Int -> OCaml_IO a) m i
 
 %inline
