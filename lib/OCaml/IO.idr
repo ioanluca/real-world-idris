@@ -162,13 +162,12 @@ infixl 1 #
 
 %inline
 struct : Values tys -> {auto p : OCamlTypeList tys} -> Module tys
-struct {tys = tys} vs {p = p} = unsafePerformIO (go vs p 0) where
+struct {tys} vs {p} = unsafePerformIO (go vs p 0) where
   %inline
   go : Values tys2 -> OCamlTypeList tys2 -> Int -> OCaml_IO (Module tys)
   go {tys2 = []} Nil Done n =
    ocamlCall "Idrisobj.new_block" (Int -> Int -> OCaml_IO (Module tys)) 0 n
   go {tys2 = (_, ty) :: tys2} (Let _ v :: vs) (Next t q) n = do
      m <- go vs q (n + 1)
-     ocamlCall "Idrisobj.set_field"
-          (Module tys -> Int -> ty -> OCaml_IO ()) m n v
+     ocamlCall "Idrisobj.set_field" (Module tys -> Int -> ty -> OCaml_IO ()) m n v
      pure m
