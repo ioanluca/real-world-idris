@@ -23,27 +23,18 @@ lwtBind : {auto ta : OCaml_Types a} ->
 lwtBind {a}{b} p f =
   ocamlCall "Lwt.bind" (Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)) p f
 
-HelloSig : Type
-HelloSig =
-  sig [Int64 -> OCaml_IO (Lwt ())] ->
-  sig [() -> OCaml_IO (Lwt ())]
-
-Hello : HelloSig
-Hello time = struct [start]
+Hello : Module [val "sleep" (Int64 -> OCaml_IO (Lwt ()))] ->
+        Module [val "start" (() -> OCaml_IO (Lwt ()))]
+Hello time = struct
+               [ Let "start" $ \() => loop 4
+               ]
   where
-     sleep : Int64 -> OCaml_IO (Lwt ())
-     sleep = modGet 0 time
-
      loop : Int -> OCaml_IO (Lwt ())
      loop 0 = lwtReturn ()
      loop n = do
        print_endline "Idris Unikernel Hello!"
-       lwtThread <- sleep (of_sec 1)
+       lwtThread <- (time `dot` "sleep") (of_sec 1)
        lwtThread `lwtBind` (\ () => loop $ n - 1)
-
-     start : () -> OCaml_IO (Lwt ())
-     start _ = loop 4
-
 
 exports : FFI_Export FFI_OCaml "idrikernel.mli" []
 exports = Fun Hello "Hello" End

@@ -9,10 +9,10 @@ data OCamlRaw : Type -> Type where
   MkOCamlRaw : (x:t) -> OCamlRaw t
 %used MkOCamlRaw x
 
-data OCamlModule : List Type -> Type
+data Module : List (String, Type) -> Type
 
-sig : List Type -> Type
-sig = OCamlModule
+val : String -> Type -> (String, Type)
+val s t = (s,t)
 
 data Abstr1 : Type -> Type
 
@@ -28,9 +28,9 @@ mutual
        OCaml_FnIO   : OCaml_Types s -> OCaml_Types t -> OCaml_FnTypes (s -> IO' l t)
        OCaml_FnBase : OCaml_Types s -> OCaml_Types t -> OCaml_FnTypes (s -> t)
 
-  data OCamlTypeList : List Type -> Type where
+  data OCamlTypeList : List (String, Type) -> Type where
        Done : OCamlTypeList []
-       Next : OCaml_Types a -> OCamlTypeList tys -> OCamlTypeList (a :: tys)
+       Next : OCaml_Types a -> OCamlTypeList tys -> OCamlTypeList ((l, a) :: tys)
 
   data OCaml_Types : Type -> Type where
        OCaml_Str   : OCaml_Types String
@@ -45,7 +45,7 @@ mutual
        OCaml_List  : OCaml_Types a -> OCaml_Types (List a)
        OCaml_Maybe : OCaml_Types a -> OCaml_Types (Maybe a)
        OCaml_IntT  : OCaml_IntTypes i -> OCaml_Types i
-       OCaml_Mod   : OCamlTypeList tys -> OCaml_Types (OCamlModule tys)
+       OCaml_Mod   : OCamlTypeList tys -> OCaml_Types (Module tys)
 
 %error_reverse
 FFI_OCaml : FFI
@@ -137,27 +137,36 @@ print_endline s =
 
 -- Modules
 
-data Values : List Type -> Type where
-  Nil  : Values []
-  (::) : t -> Values tys -> Values (t :: tys)
+data StrItem : String -> Type -> Type where
+  Let : (s : String) -> t -> StrItem s t
 
-modGet : (i : Nat) -> OCamlModule tys ->
-         {auto ok : index' i tys = Just a} ->
-         {auto p : OCaml_Types a} ->
-         {auto q : OCamlTypeList tys} ->
-         a
-modGet {tys = tys} {a = a} i m {p} = fromOCaml p $ unsafePerformIO $
- ocamlCall "Idrisobj.field" (OCamlModule tys -> Int -> OCaml_IO a) m (cast i)
+data Values : List (String, Type) -> Type where
+  Nil  : Values []
+  (::) : StrItem s t -> Values tys -> Values ((s, t) :: tys)
+
+assocIdx : String -> Int -> List (String, Type) -> Maybe (Int, Type)
+assocIdx k i [] = Nothing
+assocIdx k i ((k',t)::tys) = if k == k' then Just (i,t) else assocIdx k (i+1) tys
+
+-- FIXME: use an infix operator that looks like record lookup
+%inline
+dot : Module tys -> (nm : String) ->
+      {auto ok : assocIdx nm 0 tys = Just (i, a)} ->
+      {auto p : OCaml_Types a} ->
+      {auto q : OCamlTypeList tys} ->
+      a
+dot {tys = tys} {a = a} {i} m nm {p} = fromOCaml p $ unsafePerformIO $
+ ocamlCall "Idrisobj.field" (Module tys -> Int -> OCaml_IO a) m i
 
 %inline
-struct : Values tys -> {auto p : OCamlTypeList tys} -> OCamlModule tys
+struct : Values tys -> {auto p : OCamlTypeList tys} -> Module tys
 struct {tys = tys} vs {p = p} = unsafePerformIO (go vs p 0) where
   %inline
-  go : Values tys2 -> OCamlTypeList tys2 -> Int -> OCaml_IO (OCamlModule tys)
+  go : Values tys2 -> OCamlTypeList tys2 -> Int -> OCaml_IO (Module tys)
   go {tys2 = []} Nil Done n =
-   ocamlCall "Idrisobj.new_block" (Int -> Int -> OCaml_IO (OCamlModule tys)) 0 n
-  go {tys2 = ty :: tys2} (v :: vs) (Next t q) n = do
+   ocamlCall "Idrisobj.new_block" (Int -> Int -> OCaml_IO (Module tys)) 0 n
+  go {tys2 = (_, ty) :: tys2} (Let _ v :: vs) (Next t q) n = do
      m <- go vs q (n + 1)
      ocamlCall "Idrisobj.set_field"
-          (OCamlModule tys -> Int -> ty -> OCaml_IO ()) m n v
+          (Module tys -> Int -> ty -> OCaml_IO ()) m n v
      pure m
