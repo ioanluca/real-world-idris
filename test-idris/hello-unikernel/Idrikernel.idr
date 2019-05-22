@@ -1,27 +1,14 @@
 import OCaml.IO
+import OCaml.Lwt
 
 %lib malfunction "duration"
-%lib malfunction "lwt"
-
-Lwt : Type -> Type
-Lwt = Abstr1
 
 Int64 : Type
 Int64 = Ptr
 
-lwtReturn : {auto ta : OCaml_Types a} -> a -> OCaml_IO (Lwt a)
-lwtReturn {a} x = ocamlCall "Lwt.return" (a -> OCaml_IO (Lwt a)) x
-
 of_sec : Int -> Int64
 of_sec n =
   unsafePerformIO $ ocamlCall "Duration.of_sec" (Int -> OCaml_IO Int64) n
-
-lwtBind : {auto ta : OCaml_Types a} ->
-          Lwt a ->
-          (a -> OCaml_IO (Lwt b)) ->
-          OCaml_IO (Lwt b)
-lwtBind {a}{b} p f =
-  ocamlCall "Lwt.bind" (Lwt a -> (a -> OCaml_IO (Lwt b)) -> OCaml_IO (Lwt b)) p f
 
 Hello : Module [val "sleep" (Int64 -> OCaml_IO (Lwt ()))] ->
         Module [val "start" (() -> OCaml_IO (Lwt ()))]
