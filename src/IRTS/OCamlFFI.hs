@@ -16,7 +16,7 @@ pattern OCaml_FnIO t   <- FApp (UN "OCaml_FnIO") [_, _, t]
 makeForeignCall :: FDesc -> FDesc -> [FDesc] -> [MlfExp] -> MlfExp
 makeForeignCall ret (FStr fn) []  []   = stdLib (splitOn "." fn)
 makeForeignCall ret (FStr fn) fds args = stdLibCall splits
-  $ zipWith cgForeignArg fds args
+  $ args -- zipWith cgForeignArg fds args
   where splits = splitOn "." fn
 
 cgForeignArg :: FDesc -> MlfExp -> MlfExp

@@ -1,1 +1,0 @@
-val callback : 'a -> Cohttp.Request.t -> Cohttp_lwt.Body.t -> unit ->(Cohttp.Response.t * Cohttp_lwt.Body.t) Lwt.t
