@@ -1,0 +1,237 @@
+% -*- TeX-engine: xetex -*-
+
+\documentclass[xetex,serif,mathserif,aspectratio=169
+]{beamer}
+
+\usepackage{mathpartir}
+\usepackage{stmaryrd}
+\usepackage{attrib}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{mathpartir}
+\usepackage{tikz}
+\usepackage[all]{xy}
+\usepackage{cmll}
+
+\usepackage{libertine}
+\usepackage{newtxmath}
+\usepackage{zi4}
+
+%\usepackage{euler}
+% \usepackage[cm-default]{fontspec}
+% \usepackage{xunicode}
+% \usepackage{xltxtra}
+
+\newcommand{\TyBool}{\mathsf{Bool}}
+\newcommand{\TySet}{\mathsf{Set}}
+\newcommand{\TyEl}{\mathsf{El}}
+
+\newcommand{\Ty}{\mathrm{Ty}}
+\newcommand{\Tm}{\mathrm{Tm}}
+\newcommand{\RTm}{\mathrm{RTm}}
+\newcommand{\wk}{\mathsf{wk}}
+\newcommand{\proj}{\mathsf{p}}
+\newcommand{\vartm}{\mathsf{v}}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\cat}[1]{\mathcal{#1}}
+\newcommand{\id}{\mathrm{id}}
+
+\newcommand{\op}{\mathsf{op}}
+\newcommand{\Set}{\mathrm{Set}}
+\newcommand{\skw}[1]{\mathit{#1}}
+
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+
+\newcommand{\GL}[1]{\mathrm{GL}_#1}
+\newcommand{\SynGL}[1]{\mathsf{GL}_#1}
+\newcommand{\SE}[1]{\mathsf{SE}_#1}
+\newcommand{\SynSE}[1]{\mathsf{SE}_#1}
+\newcommand{\Orth}[1]{\mathrm{O}_#1}
+\newcommand{\SynOrth}[1]{\mathsf{O}_#1}
+\newcommand{\Transl}[1]{\mathrm{T}_#1}
+\newcommand{\SynTransl}[1]{\mathsf{T}_#1}
+\newcommand{\Scal}{\mathrm{Scal}}
+\newcommand{\SynScal}{\mathsf{Scal}}
+
+\newcommand{\tyPrim}[2]{\textup{\texttt{#1}}\langle #2 \rangle}
+
+\newcommand{\sechead}[1]{\textcolor{titlered}{\emph{#1}}}
+
+\newcommand{\typeOfCartSp}[1]{\lbag #1 \rbag}
+
+
+\def\greyuntil<#1>#2{{\temporal<#1>{\color{black!40}}{\color{black}}{\color{black}} #2}}
+\def\greyfrom<#1>#2{{\temporal<#1>{\color{black}}{\color{black!40}}{\color{black!40}} #2}}
+
+\newcommand{\superscript}[1]{\ensuremath{^{\textrm{#1}}}}
+\newcommand{\highlight}{\textbf}
+
+\newcommand{\atomprop}{\mathrm}
+\newcommand{\true}{\mathbf{T}}
+\newcommand{\false}{\mathbf{F}}
+
+\newcommand{\append}{\mathop{+\kern-3pt+}}
+
+\definecolor{titlered}{rgb}{0.8,0.0,0.0}
+
+\newcommand{\hlchange}[1]{\setlength{\fboxsep}{1pt}\colorbox{black!20}{$#1$}}
+\newcommand{\altdiff}[3]{\alt<-#1>{#2}{\hlchange{#3}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% from http://tex.stackexchange.com/questions/118410/highlight-terms-in-equation-mode
+\newlength{\overwritelength}
+\newlength{\minimumoverwritelength}
+\setlength{\minimumoverwritelength}{0.1cm}
+\def\overwrite<#1>#2#3{%
+  \settowidth{\overwritelength}{$#2$}%
+  \ifdim\overwritelength<\minimumoverwritelength%
+    \setlength{\overwritelength}{\minimumoverwritelength}\fi%
+  \temporal<#1>{#2}%
+    {\stackrel%
+      {\begin{minipage}{\overwritelength}%
+          \color{red}\centering\small #3\\%
+          \rule{1pt}{9pt}%
+        \end{minipage}}%
+      {\colorbox{red!50}{\color{black}$\displaystyle#2$}}}%
+    {\stackrel%
+      {\begin{minipage}{\overwritelength}%
+          \color{red}\centering\small #3\\%
+          \rule{1pt}{9pt}%
+        \end{minipage}}%
+      {\colorbox{red!50}{\color{black}$\displaystyle#2$}}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{listings}
+\lstdefinelanguage[OpenCL]{C}[ANSI]{C}
+{morekeywords={__kernel,kernel,__local,local,__global,global,%
+__constant,constant,__private,private,%
+char2,char3,char4,char8,char16,%
+uchar2,uchar3,uchar4,uchar8,uchar16,%
+short2,short3,short4,short8,short16,%
+ushort2,ushort3,ushort4,ushort8,ushort16,%
+int2,int3,int4,int8,int16,%
+uint2,uint3,uint4,uint8,uint16,%
+long2,long3,long4,long8,long16,%
+ulong2,ulong3,ulong4,ulong8,ulong16,%
+float2,float3,float4,float8,float16,%
+image2d_t,image3d_t,sampler_t,event_t,%
+bool2,bool3,bool4,bool8,bool16,%
+half2,half3,half4,half8,half16,%
+quad,quad2,quad3,quad4,quad8,quad16,%
+complex,imaginary}
+}
+
+\lstdefinelanguage{Lift}
+{morekeywords={split,join,reduce,map,zip,mapSeq,mapLocal,mapGlb,mapWorkgroup,toLocal,toGlobal,toPrivate,iterate,reduceSeq,gather}%
+}
+
+\lstdefinelanguage[pseudo]{C}[ANSI]{C}
+{morekeywords={parfor}
+}
+
+\lstset{%
+frame=single,
+% framesep=13pt,
+% framexleftmargin=7pt,
+xleftmargin=20pt,
+% fillcolor=\color{gray!10},
+backgroundcolor = \color{gray!5},
+rulecolor=\color{black!75},
+numberstyle=\sffamily\color{black!75},
+numbers = left,
+% breaklines = true,
+% showspaces = false,
+basicstyle = \ttfamily\footnotesize,
+tabsize = 2,
+captionpos=b,
+language=[pseudo]C,
+}
+
+
+\setmainfont{Linux Libertine O}
+\setmonofont{Ubuntu Mono}
+
+\setbeamertemplate{navigation symbols}{}
+\usecolortheme[rgb={0.8,0,0}]{structure}
+\usefonttheme{serif}
+\usefonttheme{structurebold}
+\setbeamercolor{description item}{fg=black}
+
+\title{An Idris Foreign Function Interface to OCaml}
+\author{Robert Atkey \qquad Ioan Luca\\
+  \ \\
+  University of Strathclyde, Glasgow, UK}
+\date{22nd August 2019}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\newcommand{\youtem}{\quad \textcolor{titlered!80}{---} \quad}
+
+\newcommand{\titlecard}[1]{\begin{frame}%
+  \begin{center}%
+    \Large \textcolor{titlered}{#1}%
+  \end{center}%
+\end{frame}}
+
+\begin{frame}
+  Overview...
+\end{frame}
+
+\titlecard{A New OCaml backend for Idris}
+
+\begin{frame}
+  TODO:
+  \begin{itemize}
+  \item Idris has pluggable backends (C, JavaScript, PHP, ...)
+  \item Sketch the pipeline (picture?)
+  \item OCaml is a sensible target
+  \item Dolan's malfunction backend is quite good
+  \item But it compiles code after defunctionalisation
+  \item We:
+    \begin{itemize}
+    \item Use OCaml's closures
+    \item Compile nullary constructors to integers
+    \end{itemize}
+  \item Challenges
+  \item Benchmark
+  \end{itemize}
+\end{frame}
+
+\titlecard{An FFI between Idris and OCaml}
+
+\begin{frame}
+  Goal : to seamlessly use OCaml libraries from OCaml
+\end{frame}
+
+\begin{frame}
+  How Idris's FFI works
+\end{frame}
+
+\begin{frame}
+  Challenge 1: IO monad vs pervasive effects
+\end{frame}
+
+\begin{frame}
+  Challenge 2: Modules
+\end{frame}
+
+\begin{frame}
+  Challenge 3: Wrapping libraries (Lwt)
+\end{frame}
+
+\titlecard{Demo}
+
+\begin{frame}
+  Future work:
+  \begin{itemize}
+  \item Generation of wrapper code from \texttt{.mli} files
+  \end{itemize}
+\end{frame}
+
+\end{document}
