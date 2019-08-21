@@ -1,4 +1,28 @@
-\documentclass[serif,mathserif,aspectratio=169]{beamer}
+\documentclass[aspectratio=169]{beamer}
+
+% 2   : Introduction (Introduce Idris, The Problem)
+% 1.5 : Background (Malfunction, works on the defunctionalised IR, but gets speed ups)
+% 1.5 : Compilation of functions (compile functions -> functions to make FFI easier)
+% 1   : Compilation of constructors (compile nullary constructors -> integers to make FFI easier)
+% 1   : Compilation of laziness (compile laziness -> laziness to make FFI easier) [possible due to Stephen]
+% 1   : Compilation of floats (compile floats at all) [possible due to Stephen]
+% 0.5 : How Idris does FFIs [1] (Define an FFI value, get a special IO monad)
+% 2   : How Idris does FFIs [2] (Define OCaml types and mapping to Idris types as an Idris datatype)
+% 2.5 : Functions and IO : Idris represents IO a as `unit -> a`: need to wrap and unwrap
+% 2.5 : Modules: records
+% 4   : "Demo"
+% 1   : Conclude + Future work
+
+% Problems:
+% 0. Optional and labelled arguments don't translate directly
+% 1. Idris's erasure leaves dummy arguments -- especially a problem for passing HO functions (in modules)
+% 2. Wrapping and unwrapping IO is (potentially) slow
+% 3. Objects?
+
+% Future work:
+% 0. Generation of wrappers from .mli (use type providers?)
+% 1. Writing more wrappers and writing more programs
+% 2. Proper benchmarking
 
 \usepackage{mathpartir}
 \usepackage{stmaryrd}
@@ -102,60 +126,11 @@
       {\colorbox{red!50}{\color{black}$\displaystyle#2$}}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage{listings}
-\lstdefinelanguage[OpenCL]{C}[ANSI]{C}
-{morekeywords={__kernel,kernel,__local,local,__global,global,%
-__constant,constant,__private,private,%
-char2,char3,char4,char8,char16,%
-uchar2,uchar3,uchar4,uchar8,uchar16,%
-short2,short3,short4,short8,short16,%
-ushort2,ushort3,ushort4,ushort8,ushort16,%
-int2,int3,int4,int8,int16,%
-uint2,uint3,uint4,uint8,uint16,%
-long2,long3,long4,long8,long16,%
-ulong2,ulong3,ulong4,ulong8,ulong16,%
-float2,float3,float4,float8,float16,%
-image2d_t,image3d_t,sampler_t,event_t,%
-bool2,bool3,bool4,bool8,bool16,%
-half2,half3,half4,half8,half16,%
-quad,quad2,quad3,quad4,quad8,quad16,%
-complex,imaginary}
-}
-
-\lstdefinelanguage{Lift}
-{morekeywords={split,join,reduce,map,zip,mapSeq,mapLocal,mapGlb,mapWorkgroup,toLocal,toGlobal,toPrivate,iterate,reduceSeq,gather}%
-}
-
-\lstdefinelanguage[pseudo]{C}[ANSI]{C}
-{morekeywords={parfor}
-}
-
-\lstset{%
-frame=single,
-% framesep=13pt,
-% framexleftmargin=7pt,
-xleftmargin=20pt,
-% fillcolor=\color{gray!10},
-backgroundcolor = \color{gray!5},
-rulecolor=\color{black!75},
-numberstyle=\sffamily\color{black!75},
-numbers = left,
-% breaklines = true,
-% showspaces = false,
-basicstyle = \ttfamily\footnotesize,
-tabsize = 2,
-captionpos=b,
-language=[pseudo]C,
-}
-
-
-%\setmainfont{Linux Libertine O}
-%\setmonofont{Ubuntu Mono}
 
 \setbeamertemplate{navigation symbols}{}
 \usecolortheme[rgb={0.8,0,0}]{structure}
 \usefonttheme{serif}
-\usefonttheme{structurebold}
+%\usefonttheme{structurebold}
 \setbeamercolor{description item}{fg=black}
 
 \title{An Idris Foreign Function Interface to OCaml}
@@ -186,18 +161,27 @@ language=[pseudo]C,
   TODO:
   \begin{itemize}
   \item Idris has pluggable backends (C, JavaScript, PHP, ...)
-  \item Sketch the pipeline (picture?)
-  \item OCaml is a sensible target
-  \item Dolan's malfunction backend is quite good
-  \item But it compiles code after defunctionalisation
-  \item We:
+  \item<2-> Sketch the pipeline (picture?)
+  \item<3-> OCaml is a sensible target
+  \item<4-> Dolan's malfunction backend is quite good
+  \item<5-> But it compiles code after defunctionalisation
+  \item<6-> We:
     \begin{itemize}
     \item Use OCaml's closures
     \item Compile nullary constructors to integers
     \end{itemize}
-  \item Challenges
-  \item Benchmark
+  \item<7-> Challenges
+  \item<8-> Benchmark
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{tikzpicture}
+    \path
+    ( 0,0) node [shape=rectangle,draw] {Idris Source}
+    ( 2.5,0) node [shape=rectangle,draw] {TT}
+    ( 5,0) node [shape=rectangle,draw] {\texttt{Lang}};
+  \end{tikzpicture}
 \end{frame}
 
 \titlecard{An FFI between Idris and OCaml}
