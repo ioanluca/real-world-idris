@@ -190,8 +190,22 @@
   Goal : to seamlessly use OCaml libraries from OCaml
 \end{frame}
 
-\begin{frame}
-  How Idris's FFI works
+\begin{frame}[t]
+  \frametitle{Representing OCaml types in Idris}
+
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \textbf{data}\;\mathrm{OCaml\_Type} : \mathrm{Type} \to \mathrm{Type}\;\textbf{where} \\
+      \quad
+      \begin{array}{@{}l@{\quad:\quad}l}
+        \mathsf{OCaml\_Str} & \mathrm{OCaml\_Types}\;\mathrm{String} \\
+        \mathsf{OCaml\_Float} & \mathrm{OCaml\_Types}\;\mathrm{Double} \\
+        \mathsf{OCaml\_Bool} & \mathrm{OCaml\_Types}\;\mathrm{Bool} \\
+        \mathsf{OCaml\_Unit} & \mathrm{OCaml\_Types}\;() \\
+      \end{array}
+    \end{array}
+  \end{displaymath}
+
 \end{frame}
 
 \begin{frame}
