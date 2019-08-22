@@ -297,3 +297,5 @@ idris-codegen-malfunction.cabal
 *.cmxa
 **/_build
 **/.merlin
+*.pdf
+*~

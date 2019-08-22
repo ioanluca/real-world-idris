@@ -12,9 +12,8 @@ of_sec n =
 
 Hello : Module [val "sleep" (Int64 -> OCaml_IO (Lwt ()))] ->
         Module [val "start" (() -> OCaml_IO (Lwt ()))]
-Hello time = struct
-               [ Let "start" $ \() => loop 4
-               ]
+Hello time =
+  struct [ Let "start" $ \() => loop 4 ]
   where
      loop : Int -> OCaml_IO (Lwt ())
      loop 0 = lwtReturn ()
