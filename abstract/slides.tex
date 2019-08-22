@@ -331,10 +331,74 @@
     sys  & 13.980s & 0.346s  &
   \end{tabular}
 \end{frame}
+
 \titlecard{An FFI between Idris and OCaml}
 
-\begin{frame}
-  Goal : to seamlessly use OCaml libraries from OCaml
+\begin{frame}[t]
+  \frametitle{Idris' Foreign Function Interface Interface}
+
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \textbf{record}\;\mathrm{FFI}\;\textbf{where} \\
+      \quad \textbf{constructor}\;\textsf{MkFFI} \\
+      \quad
+      \begin{array}{@{}lcl}
+        \mathrm{ffi\_types}&:&\textsf{Type} \to \textsf{Type} \\
+        \mathrm{ffi\_fn}&:&\textsf{Type} \\
+        \mathrm{ffi\_data}&:&\textsf{Type}
+      \end{array}
+    \end{array}
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \begin{displaymath}
+    \mathrm{foreign} : (f : \mathrm{FFI}) \to \mathrm{ffi\_fn}\,f \to (\mathit{ty} : \textsf{Type}) \to \{\textbf{auto}\;\mathrm{fty} : \mathrm{FTy}\;f\;[]\;\mathit{ty}\} \to \mathit{ty}
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \begin{displaymath}
+    \mathrm{foreign}\;\mathrm{C}\;\textrm{``sin"}\;(\textsf{Float} \to \textsf{IO'}\;\mathrm{C}\;\textsf{Float})
+  \end{displaymath}
+
+  \pause
+
+  \begin{displaymath}
+    \mathrm{foreign}\;\mathrm{OCaml}\;\textrm{``print\_endline"}\;(\textsf{String} \to \textsf{IO'}\;\mathrm{OCaml}\;())
+  \end{displaymath}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Evidence of Interoperability}
+
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \textbf{data}\;\mathrm{FTy} : \mathrm{FFI} \to \mathrm{List}\;\textsf{Type} \to \textsf{Type} \to \textsf{Type}\;\textbf{where} \\
+      \quad
+      \begin{array}{@{}lcl}
+        \textsf{FRet} &:& \textrm{ffi\_types}\;f\; t \to \mathrm{FTy}\;f\;\mathit{xs}\; (\textsf{IO'}\; f\; t) \\
+        \textsf{FFun} &:& \textrm{ffi\_types}\; f\; s \to \mathrm{FTy}\; f\; (s :: \mathit{xs})\; t \to \mathrm{FTy}\; f\; \mathrm{xs}\; (s \to t)
+      \end{array}
+    \end{array}
+  \end{displaymath}
+
+  \bigskip
+
+  \begin{displaymath}
+    \textsf{FFun}\;\textsf{OCaml\_String}\;(\textsf{FRet}\;\textsf{OCaml\_Unit}) : \mathrm{FTy}\;\mathrm{OCaml}\;[]\;(\textsf{String} \to \textsf{IO'}\;\mathrm{OCaml}\;())
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \begin{itemize}
+  \item Idris generates these witnesses automatically
+  \item Every exposed type ends in \textsf{IO'}
+  \item Need codes for all OCaml types \ldots
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[t]
@@ -342,21 +406,62 @@
 
   \begin{displaymath}
     \begin{array}{@{}l}
-      \textbf{data}\;\mathrm{OCaml\_Type} : \mathrm{Type} \to \mathrm{Type}\;\textbf{where} \\
+      \textbf{data}\;\mathrm{OCaml\_Type} : \textsf{Type} \to \textsf{Type}\;\textbf{where} \\
       \quad
       \begin{array}{@{}l@{\quad:\quad}l}
-        \mathsf{OCaml\_Str}   & \mathrm{OCaml\_Types}\;\mathrm{String} \\
-        \mathsf{OCaml\_Float} & \mathrm{OCaml\_Types}\;\mathrm{Double} \\
-        \mathsf{OCaml\_Bool}  & \mathrm{OCaml\_Types}\;\mathrm{Bool}   \\
-        \mathsf{OCaml\_Unit}  & \mathrm{OCaml\_Types}\;()              \\
+        \textsf{OCaml\_Str}   & \mathrm{OCaml\_Types}\;\mathrm{String} \\
+        \textsf{OCaml\_Int}   & \mathrm{OCaml\_Types}\;\mathrm{Int} \\
+        \textsf{OCaml\_Float} & \mathrm{OCaml\_Types}\;\mathrm{Double} \\
+        \textsf{OCaml\_Bool}  & \mathrm{OCaml\_Types}\;\mathrm{Bool}   \\
+        \textsf{OCaml\_Unit}  & \mathrm{OCaml\_Types}\;()              \\
+        \textsf{OCaml\_Pair}  & \mathrm{OCaml\_Types}\;a \to \mathrm{OCaml\_Types}\;b \to \mathrm{OCaml\_Types}\;(a,b) \\
+        \textsf{OCaml\_List}  & \mathrm{OCaml\_Types}\;a \to \mathrm{OCaml\_Types}\;(\mathrm{List}\;a) \\
+        \textsf{OCaml\_Option} & \mathrm{OCaml\_Types}\;a \to \mathrm{OCaml\_Types}\;(\mathrm{Maybe}\;a)\\
+        \dots & \dots
       \end{array}
     \end{array}
   \end{displaymath}
 
 \end{frame}
 
-\begin{frame}
-  Challenge 1: IO monad vs pervasive effects
+\begin{frame}[t]
+  \frametitle{IO Monad vs Pervasive effects}
+
+  In Idris:
+  \begin{displaymath}
+    \textsf{IO'}\;\mathit{ffi}\;\mathit{ty} \quad \sim \quad \textsf{World} \to \mathit{ty}
+  \end{displaymath}
+  The \textit{data} associated with the \textsf{World} argument is ``erased''. \\
+  But the argument slot still exists...
+
+  \bigskip
+
+  Causes problems when passing functions across the FFI.
+
+  \pause
+  \bigskip
+
+  In OCaml:
+  \begin{displaymath}
+    \mathrm{List.map} : (a \to b) \to a\;\mathrm{list} \to b\;\mathrm{list}
+  \end{displaymath}
+
+  Idris type:
+  \begin{displaymath}
+    (a \to \textsf{IO'}\;\mathrm{OCaml}\;b) \to \mathrm{List}\;a \to \textsf{IO'}\;\mathrm{OCaml}\;(\mathrm{List}\;b)
+  \end{displaymath}
+  \pause
+  Which is effectively:
+  \begin{displaymath}
+    (a \to \textsf{World} \to b) \to \mathrm{List}\;a \to \textsf{World} \to \mathrm{List}\;b
+  \end{displaymath}
+
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Translating functions on the fly}
+
+  
 \end{frame}
 
 \begin{frame}
