@@ -140,7 +140,7 @@
 \author{Robert Atkey \qquad Ioan Luca\\
   \ \\
   University of Strathclyde, Glasgow, UK}
-\date{23rd August 2019}
+\date{22nd August 2019}
 
 \begin{document}
 
@@ -464,7 +464,7 @@
   \pause
   \bigskip
 
-  In OCaml:
+  OCaml type:
   \begin{displaymath}
     \mathrm{List.map} : (a \to b) \to a\;\mathrm{list} \to b\;\mathrm{list}
   \end{displaymath}
@@ -482,25 +482,115 @@
 \end{frame}
 
 \begin{frame}[t]
-  \frametitle{Translating functions on the fly}
+  \frametitle{Translating Functions}
 
-  
+  \begin{itemize}
+  \item If we stuck to first order, it would be easy \\
+    \qquad \textit{(insert an extra ``\textsf{World}'' argument at the end)} \\
+    \vspace{1em}
+  \item If we knew all the types at compile time, we could statically insert translation code\\
+    \qquad \textit{(Idris provides the type information when compiling ``foreign'')} \\
+    \vspace{1em}
+  \item Want to be able to generate types on the fly when building modules
+  \end{itemize}
+
 \end{frame}
 
-\begin{frame}
-  Challenge 2: Modules
+\begin{frame}[t]
+  \frametitle{Translation}
+
+  Translation functions:
+  \begin{displaymath}
+    \begin{array}{@{}lcl}
+      \textrm{fromOCaml} &:& \textrm{OCaml\_Types}\; a \to a \to a \\
+      \textrm{toOCaml} &:& \textrm{OCaml\_Types}\; a \to a \to a
+    \end{array}
+  \end{displaymath}
+
+  \pause
+  \bigskip
+
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \mathrm{ocamlCall} : (\mathit{fname} : \mathrm{String}) \to (\mathit{ty} : \textsf{Type}) \to
+      \{\textbf{auto}\;\textit{fty} : \textrm{FTy}\;\textrm{OCaml}\; []\; \mathit{ty}\} \to \mathit{ty}\\
+      \textrm{ocamlCall}\; \mathit{fname}\; \mathit{ty}\; \{\mathit{fty}\} = \mathrm{fromOCamlFTy}\; \mathit{fty}\; (\mathrm{foreign}\; \mathrm{OCaml}\; \mathit{fname}\; \mathit{ty})
+    \end{array}
+  \end{displaymath}
+
+  \bigskip
+  \pause
+
+  \begin{displaymath}
+    \begin{array}{@{}l}
+      \textrm{fromOCamlFn}\; (\textsf{OCaml\_FnIO}\; s\; t)\;   f = \\
+      \qquad \lambda x \Rightarrow \mathrm{pure}\; (\mathrm{fromOCaml}\; t\; (\mathrm{believe\_me}\; (f\; (\mathrm{toOCaml}\; s\; x)))) \\
+      \ \\
+      \textrm{toOCamlFn}\; (\textrm{OCaml\_FnIO}\; s\; t)\;   f = \\
+      \qquad \lambda x \Rightarrow \textrm{believe\_me}\; (\textrm{toOCaml}\; t\; (\textrm{unsafePerformIO}\; (f\; (\textrm{fromOCaml}\; s\; x))))
+    \end{array}
+  \end{displaymath}
 \end{frame}
 
-\begin{frame}
-  Challenge 3: Wrapping libraries (Lwt)
+\begin{frame}[t]
+  \frametitle{Modules}
+
+  {\bf Signatures} 
+  \begin{displaymath}
+    \textrm{Module}\;[\mathrm{val}\;\textrm{``sleep"}\;(\mathrm{Int64} \to \textsf{IO'}\;\mathrm{OCaml}\;(\mathrm{Lwt}\;()))]
+  \end{displaymath}
+  \begin{itemize}
+  \item A type-level list of string - type pairs
+  \end{itemize}
+
+  \bigskip
+  \pause
+
+  {\bf Structures}
+  \begin{displaymath}
+    \textrm{struct}\;[\,\textsf{Let}\,\textrm{``start"} \; \$ \; \lambda () \Rightarrow \mathrm{loop}~4 ]
+  \end{displaymath}
+  \begin{itemize}
+  \item Allocates a block and writes the fields, directed by the type
+  \end{itemize}
+
+  \bigskip
+  \pause
+
+  {\bf Structure access}
+  \begin{displaymath}
+    (\textrm{time}\#\textrm{``sleep"})\; (\mathrm{of\_sec}\; 1)
+  \end{displaymath}
+  \begin{itemize}
+  \item Type directed discovery of the index
+  \end{itemize}
 \end{frame}
 
 \titlecard{Demo}
 
-\begin{frame}
-  Future work:
+\begin{frame}[t]
+  \frametitle{An Idris / OCaml Foreign Function Interface}
+
   \begin{itemize}
-    \item Generation of wrapper code from \texttt{.mli} files
+  \item Improved compilation of Idris via the OCaml backend
+  \item An FFI that allows:
+    \begin{itemize}
+    \item Higher order functions
+    \item Simple modules
+    \item Some polymorphism
+    \end{itemize}
+  \end{itemize}
+
+  \bigskip
+  \pause
+
+  Limitations / future work:
+  \begin{itemize}
+  \item Polymorphic signature and structure items
+  \item Systematic translation of modules with type members
+  \item Better treatment of optional and labelled arguments
+  \item Objects?
+  \item Generation of wrapper code from \texttt{.mli} files
   \end{itemize}
 \end{frame}
 
