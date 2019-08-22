@@ -39,6 +39,8 @@
 \usepackage{newtxmath}
 \usepackage{zi4}
 
+\usepackage{smartdiagram}
+
 %\usepackage{euler}
 % \usepackage[cm-default]{fontspec}
 % \usepackage{xunicode}
@@ -213,11 +215,49 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Idris compilation}
+  % \begin{tikzpicture}
+  %   \path
+  %   ( 0,0) node [shape=rectangle,draw] {Idris Source}
+  %   ( 2.5,0) node [shape=rectangle,draw] {TT}
+  %   ( 5,0) node [shape=rectangle,draw] {\texttt{Lang}};
+  % \end{tikzpicture}
+
+  % \usesmartdiagramlibrary{additions}
+
+  \centering
+  \smartdiagramset{
+    % uniform color list=gray!60!black for 3 items,
+    back arrow disabled=true,
+    % additions={
+    % additional item offset=0.85cm,
+    % additional item border color=red,
+    % additional arrow color=red,
+    % additional arrow tip=stealth,
+    % additional arrow line width=1pt,
+    % additional arrow style=]-latex’,
+    % }
+  }
+  \smartdiagram[flow diagram:horizontal]{Idris Source,
+    TT core, Lang,  Defunc, Native}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Idris compilation}
+  \centering
+  \smartdiagramset{
+    back arrow disabled=true,
+  }
+  \smartdiagram[flow diagram:horizontal]{Idris Source,
+    TT core, Lang,  Malfunction}
+\end{frame}
+
 \begin{frame}[t]
   \frametitle{Idris-Malfunction}
   \begin{itemize}
     \item firstly addressed by Stephen
-    \item but generated code from a defunctionalised Idris IR
+    \item but generates code from a defunctionalised Idris IR
     \item We:
           \begin{itemize}
             \item<2-> compile Idris functions to OCaml functions
@@ -236,32 +276,24 @@
 \end{frame}
 
 
-\begin{frame}
-  TODO:
-  \begin{itemize}
-    \item Idris has pluggable backends (C, JavaScript, PHP, ...)
-    \item<2-> Sketch the pipeline (picture?)
-    \item<3-> OCaml is a sensible target
-    \item<4-> Dolan's malfunction backend is quite good
-    \item<5-> But it compiles code after defunctionalisation
-    \item<6-> We:
-          \begin{itemize}
-            \item Use OCaml's closures
-            \item Compile nullary constructors to integers
-          \end{itemize}
-    \item<7-> Challenges
-    \item<8-> Benchmark
-  \end{itemize}
-\end{frame}
+% \begin{frame}
+%   TODO:
+%   \begin{itemize}
+%     \item Idris has pluggable backends (C, JavaScript, PHP, ...)
+%     \item<2-> Sketch the pipeline (picture?)
+%     \item<3-> OCaml is a sensible target
+%     \item<4-> Dolan's malfunction backend is quite good
+%     \item<5-> But it compiles code after defunctionalisation
+%     \item<6-> We:
+%           \begin{itemize}
+%             \item Use OCaml's closures
+%             \item Compile nullary constructors to integers
+%           \end{itemize}
+%     \item<7-> Challenges
+%     \item<8-> Benchmark
+%   \end{itemize}
+% \end{frame}
 
-\begin{frame}
-  \begin{tikzpicture}
-    \path
-    ( 0,0) node [shape=rectangle,draw] {Idris Source}
-    ( 2.5,0) node [shape=rectangle,draw] {TT}
-    ( 5,0) node [shape=rectangle,draw] {\texttt{Lang}};
-  \end{tikzpicture}
-\end{frame}
 
 \begin{frame}
   \frametitle{Fibonacci --- naive implementation}
