@@ -160,10 +160,10 @@
     \column{.5\textwidth}
     \begin{block}{What is Idris?}
       \begin{itemize}
-        \item general purpose, \textbf{pure} functional language
-        \item has \textbf{dependent types} and a \textbf{strict} semantics
-        \item compiles natively through C, but the runtime is slow
-        \item small community and only about 10 years old,
+        \item General purpose, \textbf{pure} functional language
+        \item Has \textbf{dependent types} and a \textbf{strict} semantics
+        \item Compiles natively through C, but the runtime is slow
+        \item Small community and only about 10 years old,
               so poor library ecosystem
       \end{itemize}
     \end{block}
@@ -179,10 +179,14 @@
     \column{.04\textwidth}
     \column{.5\textwidth}
     \begin{itemize}
-      \item compile Idris to OCaml
-      \item build an \textbf{FFI} between the 2
-      \item enjoy a high-performance runtime
-      \item get access to a rich ecosystem
+      \item Compile Idris to OCaml
+      \item Build an \textbf{FFI} between the 2
+      \item Enjoy a high-performance runtime
+      \item Get access to a rich ecosystem
+    \end{itemize}
+    \begin{itemize}
+      \item The goal is to make it easier to program in 
+      Idris and not to verify OCaml code
     \end{itemize}
     \column{.1\textwidth}
     \column{.8\textwidth}
@@ -201,12 +205,12 @@
     \column{.5\textwidth}
     \begin{block}{Malfunction}
       \begin{itemize}
-        \item presented by Stephen Dolan at the ML workshop '16
-        \item untyped program representation
-        \item thin wrapper on top of OCaml's Lambda
-        \item s-expressions, so easy to generate
-        \item compiled natively by the OCaml compiler
-        \item programs enjoy \textbf{flambda} optimisations
+        \item Presented by Stephen Dolan at the ML workshop '16
+        \item Untyped program representation
+        \item Thin wrapper on top of OCaml's Lambda
+        \item S-expressions, so easy to generate
+        \item Compiled natively by the OCaml compiler
+        \item Programs enjoy \textbf{flambda} optimisations
       \end{itemize}
     \end{block}
     \column{.1\textwidth}
@@ -256,22 +260,24 @@
 \begin{frame}[t]
   \frametitle{Idris-Malfunction}
   \begin{itemize}
-    \item firstly addressed by Stephen
-    \item but generates code from a defunctionalised Idris IR
+    \item Firstly addressed by Stephen
+    \item But generates code from a defunctionalised Idris IR
     \item We:
           \begin{itemize}
-            \item<2-> compile Idris functions to OCaml functions
-            \item<3-> compile nullary constructors to integers, instead of
+            \item<2-> Compile Idris functions to OCaml functions
+            \item<3-> Compile nullary constructors to integers, instead of
                   boxed integers
                   % \item fixme (what if people ask about the tags limit)
                   % \item implemented a naive lazy evaluation mechanism 
-            \item<4-> implemented some extra primitives
-            \item<5-> compiled Idris laziness to OCaml laziness
-            \item<6-> added support for floats
+            \item<4-> Implemented some extra primitives
+            \item<5-> Compiled Idris laziness to OCaml laziness
+            \item<6-> Added support for floats
                   \\ (last 2 possible because of an update to Malfunction)
           \end{itemize}
-    \item<7-> having the same runtime representation for Idris and OCaml
+    \item<7-> Having the same runtime representation for Idris and OCaml
           values, functions and laziness helps with the FFI
+    \item<8-> We used a fork of Malfunction that allows access to OCaml
+    modules outside the standard library
   \end{itemize}
 \end{frame}
 
