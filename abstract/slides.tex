@@ -40,6 +40,7 @@
 \usepackage{zi4}
 
 \usepackage{smartdiagram}
+\usesmartdiagramlibrary{additions}
 
 %\usepackage{euler}
 % \usepackage[cm-default]{fontspec}
@@ -180,13 +181,14 @@
     \column{.5\textwidth}
     \begin{itemize}
       \item Compile Idris to OCaml
-      \item Build an \textbf{FFI} between the 2
+      \item Build an \textbf{FFI} between the two
       \item Enjoy a high-performance runtime
       \item Get access to a rich ecosystem
     \end{itemize}
+    \bigskip
     \begin{itemize}
-      \item The goal is to make it easier to program in 
-      Idris and not to verify OCaml code
+      \item Goal: make it easier to program in Idris
+      \item Non-goal: verify OCaml code
     \end{itemize}
     \column{.1\textwidth}
     \column{.8\textwidth}
@@ -219,42 +221,57 @@
   \end{columns}
 \end{frame}
 
+% \begin{frame}
+%   \frametitle{Idris compilation}
+%   \begin{center}
+%   \smartdiagramset{
+%     back arrow disabled=true,
+%     additions={
+%     additional connections disabled=false,
+%     additional item offset=0.85cm,
+%     additional item border color=black,
+%     additional arrow color=red,
+%     additional arrow tip=stealth,
+%     additional arrow line width=1pt,
+%     additional arrow style=]-latex’,
+%     }
+%   }
+%   \smartdiagramadd[flow diagram:horizontal]{%
+%     Idris Source, TT core, Lang, Defunc, Native%
+%   }{%
+%     above of module1/Low Level, below of module3/High level%
+%   }
+%   \end{center}
+% \end{frame}
+
 \begin{frame}
-  \frametitle{Idris compilation}
-  % \begin{tikzpicture}
-  %   \path
-  %   ( 0,0) node [shape=rectangle,draw] {Idris Source}
-  %   ( 2.5,0) node [shape=rectangle,draw] {TT}
-  %   ( 5,0) node [shape=rectangle,draw] {\texttt{Lang}};
-  % \end{tikzpicture}
-
-  % \usesmartdiagramlibrary{additions}
-
+  \frametitle{Idris compilation via C}
   \centering
   \smartdiagramset{
-    % uniform color list=gray!60!black for 3 items,
     back arrow disabled=true,
-    % additions={
-    % additional item offset=0.85cm,
-    % additional item border color=red,
-    % additional arrow color=red,
-    % additional arrow tip=stealth,
-    % additional arrow line width=1pt,
-    % additional arrow style=]-latex’,
-    % }
   }
   \smartdiagram[flow diagram:horizontal]{Idris Source,
-    TT core, Lang,  Defunc, Native}
+    TT core, Lang,  Defunc, Native Code via C}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Idris compilation}
+  \frametitle{Idris compilation via Malfunction after defunctionalisation}
   \centering
   \smartdiagramset{
     back arrow disabled=true,
   }
   \smartdiagram[flow diagram:horizontal]{Idris Source,
-    TT core, Lang,  Malfunction}
+    TT core, Lang,  Defunc, Malfunction, Native Code via OCaml}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Idris compilation via Malfunction before defunctionalisation}
+  \centering
+  \smartdiagramset{
+    back arrow disabled=true,
+  }
+  \smartdiagram[flow diagram:horizontal]{Idris Source,
+    TT core, Lang, Malfunction, Native Code via OCaml}
 \end{frame}
 
 \begin{frame}[t]
@@ -277,7 +294,7 @@
     \item<7-> Having the same runtime representation for Idris and OCaml
           values, functions and laziness helps with the FFI
     \item<8-> We used a fork of Malfunction that allows access to OCaml
-    modules outside the standard library
+          modules outside the standard library
   \end{itemize}
 \end{frame}
 
@@ -305,7 +322,7 @@
   \frametitle{Fibonacci --- naive implementation}
   \begin{table}
     \centering
-    \begin{tabular}{llll}\label{tab:fibtab}
+    \begin{tabular}{llll}
            & C      & OCaml  & \\
       real & 5.050s & 3.851s & \\
       user & 5.034s & 3.846s & \\
@@ -318,7 +335,7 @@
   \frametitle{Generate the first 500 Pythagorean triplets in a linked list}
   \begin{table}
     \centering
-    \begin{tabular}{llll}\label{tab:pythagtab}
+    \begin{tabular}{llll}
            & C      & OCaml  & \\
       real & 3.163s & 0.417s & \\
       user & 3.131s & 0.416s & \\
@@ -330,7 +347,7 @@
 \begin{frame}
   \frametitle{Balanced binary trees allocation and deallocation}
   \centering
-  \begin{tabular}{llll}\label{tab:bintreetab}
+  \begin{tabular}{llll}
          & C       & OCaml   & \\
     real & 58.114s & 18.967s & \\
     user & 44.036s & 18.540s & \\
