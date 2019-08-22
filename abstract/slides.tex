@@ -10,7 +10,7 @@
 % 2   : How Idris does FFIs [2] (Define OCaml types and mapping to Idris types as an Idris datatype)
 % 2.5 : Functions and IO : Idris represents IO a as `unit -> a`: need to wrap and unwrap
 % 2.5 : Modules: records
-% 4   : "Demo"
+% 4   : "Demo"git 
 % 1   : Conclude + Future work
 
 % Problems:
@@ -137,7 +137,7 @@
 \author{Robert Atkey \qquad Ioan Luca\\
   \ \\
   University of Strathclyde, Glasgow, UK}
-\date{22nd August 2019}
+\date{23rd August 2019}
 
 \begin{document}
 
@@ -146,13 +146,70 @@
 \newcommand{\youtem}{\quad \textcolor{titlered!80}{---} \quad}
 
 \newcommand{\titlecard}[1]{\begin{frame}%
-  \begin{center}%
-    \Large \textcolor{titlered}{#1}%
-  \end{center}%
-\end{frame}}
+    \begin{center}%
+      \Large \textcolor{titlered}{#1}%
+    \end{center}%
+  \end{frame}}
 
-\begin{frame}
-  Overview...
+\begin{frame}[t]
+  \frametitle{Overview}
+  \begin{columns}[c]
+    \column{.04\textwidth}
+    \column{.5\textwidth}
+    \begin{block}{What is Idris?}
+      \begin{itemize}
+        \item general purpose, \textbf{pure} functional language
+        \item has \textbf{dependent types} and a \textbf{strict} semantics
+        \item compiles natively through C, but the runtime is slow
+        \item small community and only about 10 years old,
+              so poor library ecosystem
+      \end{itemize}
+    \end{block}
+    \column{.1\textwidth}
+    \column{.8\textwidth}
+    \includegraphics[width=.5\textwidth]{logo.png}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Idea}
+  \begin{columns}[c]
+    \column{.04\textwidth}
+    \column{.5\textwidth}
+    \begin{itemize}
+      \item compile Idris to OCaml
+      \item build an \textbf{FFI} between the 2
+      \item enjoy a high-performance runtime
+      \item get access to a rich ecosystem
+    \end{itemize}
+    \column{.1\textwidth}
+    \column{.8\textwidth}
+    \includegraphics[width=.5\textwidth]{logo.png}\\~\\
+    \includegraphics[width=.5\textwidth]{ocamllogo.png}
+  \end{columns}
+\end{frame}
+
+
+
+\begin{frame}[t]
+  \frametitle{Background}
+  \begin{columns}[c]
+    \column{.04\textwidth}
+    \column{.5\textwidth}
+    \begin{block}{Malfunction}
+    \begin{itemize}
+      \item presented by Stephen Dolan at the ML workshop '16
+      \item untyped program representation
+      \item thin wrapper on top of OCaml's Lambda
+      \item s-expressions, so easy to generate
+      \item compiled natively by the OCaml compiler
+      \item programs enjoy \textbf{flambda} optimisations
+    \end{itemize}
+    \end{block}
+    \column{.1\textwidth}
+    \column{.8\textwidth}
+    \includegraphics[width=.5\textwidth]{mlfpaper.png}
+  \end{columns}
 \end{frame}
 
 \titlecard{A New OCaml backend for Idris}
@@ -160,18 +217,18 @@
 \begin{frame}
   TODO:
   \begin{itemize}
-  \item Idris has pluggable backends (C, JavaScript, PHP, ...)
-  \item<2-> Sketch the pipeline (picture?)
-  \item<3-> OCaml is a sensible target
-  \item<4-> Dolan's malfunction backend is quite good
-  \item<5-> But it compiles code after defunctionalisation
-  \item<6-> We:
-    \begin{itemize}
-    \item Use OCaml's closures
-    \item Compile nullary constructors to integers
-    \end{itemize}
-  \item<7-> Challenges
-  \item<8-> Benchmark
+    \item Idris has pluggable backends (C, JavaScript, PHP, ...)
+    \item<2-> Sketch the pipeline (picture?)
+    \item<3-> OCaml is a sensible target
+    \item<4-> Dolan's malfunction backend is quite good
+    \item<5-> But it compiles code after defunctionalisation
+    \item<6-> We:
+          \begin{itemize}
+            \item Use OCaml's closures
+            \item Compile nullary constructors to integers
+          \end{itemize}
+    \item<7-> Challenges
+    \item<8-> Benchmark
   \end{itemize}
 \end{frame}
 
@@ -198,10 +255,10 @@
       \textbf{data}\;\mathrm{OCaml\_Type} : \mathrm{Type} \to \mathrm{Type}\;\textbf{where} \\
       \quad
       \begin{array}{@{}l@{\quad:\quad}l}
-        \mathsf{OCaml\_Str} & \mathrm{OCaml\_Types}\;\mathrm{String} \\
+        \mathsf{OCaml\_Str}   & \mathrm{OCaml\_Types}\;\mathrm{String} \\
         \mathsf{OCaml\_Float} & \mathrm{OCaml\_Types}\;\mathrm{Double} \\
-        \mathsf{OCaml\_Bool} & \mathrm{OCaml\_Types}\;\mathrm{Bool} \\
-        \mathsf{OCaml\_Unit} & \mathrm{OCaml\_Types}\;() \\
+        \mathsf{OCaml\_Bool}  & \mathrm{OCaml\_Types}\;\mathrm{Bool}   \\
+        \mathsf{OCaml\_Unit}  & \mathrm{OCaml\_Types}\;()              \\
       \end{array}
     \end{array}
   \end{displaymath}
@@ -225,7 +282,7 @@
 \begin{frame}
   Future work:
   \begin{itemize}
-  \item Generation of wrapper code from \texttt{.mli} files
+    \item Generation of wrapper code from \texttt{.mli} files
   \end{itemize}
 \end{frame}
 
