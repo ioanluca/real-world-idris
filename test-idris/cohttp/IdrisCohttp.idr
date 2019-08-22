@@ -119,10 +119,12 @@ callback conn req body = do
   lwtb <- body_to_string_lwt body
   lwtb `lwtBind`
     (\ body_str =>
-        let response = unlines [ "Uri: " ++ uri
-                               , "Method: " ++ meth
-                               , "Headers: " ++ headers
-                               , "Body: " ++ body_str
+        let response = unlines [ "<h1>Idris says \"Hello ML Workshop!\"</h1>"
+                               , "<br/>"
+                               , "<strong>Uri</strong>: " ++ uri ++ "<br/>"
+                               , "<strong>Method</strong>: " ++ meth ++ "<br/>"
+                               , "<strong>Headers</strong>: " ++ headers ++ "<br/>"
+                               , "<strong>Body</strong>: <pre>" ++ body_str ++ "</pre>"
                                ]
         in
         server_respond_string Nothing Nothing OK response ())
