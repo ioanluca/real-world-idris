@@ -248,6 +248,7 @@
   \centering
   \smartdiagramset{
     back arrow disabled=true,
+    module x sep=2.5,
   }
   \smartdiagram[flow diagram:horizontal]{Idris Source,
     TT core, Lang,  Defunc, Native Code via C}
@@ -258,6 +259,7 @@
   \centering
   \smartdiagramset{
     back arrow disabled=true,
+    module x sep=2.5,
   }
   \smartdiagram[flow diagram:horizontal]{Idris Source,
     TT core, Lang,  Defunc, Malfunction, Native Code via OCaml}
@@ -268,6 +270,7 @@
   \centering
   \smartdiagramset{
     back arrow disabled=true,
+    module x sep=2.5,
   }
   \smartdiagram[flow diagram:horizontal]{Idris Source,
     TT core, Lang, Malfunction, Native Code via OCaml}
@@ -276,24 +279,30 @@
 \begin{frame}[t]
   \frametitle{Idris-Malfunction}
   \begin{itemize}
-    \item Firstly addressed by Stephen
-    \item But generates code from a defunctionalised Idris IR
-    \item We:
-          \begin{itemize}
-            \item<2-> Compile Idris functions to OCaml functions
-            \item<3-> Compile nullary constructors to integers, instead of
-                  boxed integers
-                  % \item fixme (what if people ask about the tags limit)
-                  % \item implemented a naive lazy evaluation mechanism 
-            \item<4-> Implemented some extra primitives
-            \item<5-> Compiled Idris laziness to OCaml laziness
-            \item<6-> Added support for floats
-                  \\ (last 2 possible because of an update to Malfunction)
-          \end{itemize}
-    \item<7-> Having the same runtime representation for Idris and OCaml
-          values, functions and laziness helps with the FFI
-    \item<8-> We used a fork of Malfunction that allows access to OCaml
-          modules outside the standard library
+  \item Original Idris-Malfunction backend by Dolan
+    \begin{itemize}
+    \item Generates code from a defunctionalised Idris IR
+    \end{itemize}
+  \end{itemize}
+
+  Our modifications:
+  \begin{itemize}
+  \item<2-> Compile Idris functions to OCaml functions
+  \item<3-> Compile nullary constructors to integers, instead of
+    boxed integers
+    % \item fixme (what if people ask about the tags limit)
+    % \item implemented a naive lazy evaluation mechanism 
+  \item<4-> Implemented some extra primitives
+  \item<5-> Compiled Idris laziness to OCaml laziness
+  \item<6-> Added support for floats
+    \\ (last 2 possible because of an update to Malfunction)
+  \end{itemize}
+
+  \only<7->{Benefits:}
+  \begin{itemize}
+  \item<7-> Having the same runtime representation for Idris and OCaml
+    values, functions and laziness helps with the FFI
+  \item<8-> Made a fork of Malfunction that can access Findlib packages
   \end{itemize}
 \end{frame}
 
@@ -321,8 +330,9 @@
   \frametitle{Fibonacci --- naive implementation}
   \begin{table}
     \centering
-    \begin{tabular}{llll}
-           & C      & OCaml  & \\
+    \begin{tabular}{l|lll}
+      Backend: & C      & OCaml  & \\
+      \hline
       real & 5.050s & 3.851s & \\
       user & 5.034s & 3.846s & \\
       sys  & 0.01s  & 0.04s  &
@@ -334,8 +344,9 @@
   \frametitle{Generate the first 500 Pythagorean triplets in a linked list}
   \begin{table}
     \centering
-    \begin{tabular}{llll}
-           & C      & OCaml  & \\
+    \begin{tabular}{l|lll}
+      Backend: & C      & OCaml  & \\
+      \hline
       real & 3.163s & 0.417s & \\
       user & 3.131s & 0.416s & \\
       sys  & 0.027s & 0.01s  &
@@ -346,8 +357,9 @@
 \begin{frame}
   \frametitle{Balanced binary trees allocation and deallocation}
   \centering
-  \begin{tabular}{llll}
-         & C       & OCaml   & \\
+  \begin{tabular}{l|lll}
+    Backend: & C       & OCaml   & \\
+    \hline
     real & 58.114s & 18.967s & \\
     user & 44.036s & 18.540s & \\
     sys  & 13.980s & 0.346s  &
@@ -393,35 +405,35 @@
   \end{displaymath}
 \end{frame}
 
-\begin{frame}[t]
-  \frametitle{Evidence of Interoperability}
+% \begin{frame}[t]
+%   \frametitle{Evidence of Interoperability}
 
-  \begin{displaymath}
-    \begin{array}{@{}l}
-      \textbf{data}\;\mathrm{FTy} : \mathrm{FFI} \to \mathrm{List}\;\textsf{Type} \to \textsf{Type} \to \textsf{Type}\;\textbf{where} \\
-      \quad
-      \begin{array}{@{}lcl}
-        \textsf{FRet} &:& \textrm{ffi\_types}\;f\; t \to \mathrm{FTy}\;f\;\mathit{xs}\; (\textsf{IO'}\; f\; t) \\
-        \textsf{FFun} &:& \textrm{ffi\_types}\; f\; s \to \mathrm{FTy}\; f\; (s :: \mathit{xs})\; t \to \mathrm{FTy}\; f\; \mathrm{xs}\; (s \to t)
-      \end{array}
-    \end{array}
-  \end{displaymath}
+%   \begin{displaymath}
+%     \begin{array}{@{}l}
+%       \textbf{data}\;\mathrm{FTy} : \mathrm{FFI} \to \mathrm{List}\;\textsf{Type} \to \textsf{Type} \to \textsf{Type}\;\textbf{where} \\
+%       \quad
+%       \begin{array}{@{}lcl}
+%         \textsf{FRet} &:& \textrm{ffi\_types}\;f\; t \to \mathrm{FTy}\;f\;\mathit{xs}\; (\textsf{IO'}\; f\; t) \\
+%         \textsf{FFun} &:& \textrm{ffi\_types}\; f\; s \to \mathrm{FTy}\; f\; (s :: \mathit{xs})\; t \to \mathrm{FTy}\; f\; \mathrm{xs}\; (s \to t)
+%       \end{array}
+%     \end{array}
+%   \end{displaymath}
 
-  \bigskip
+%   \bigskip
 
-  \begin{displaymath}
-    \textsf{FFun}\;\textsf{OCaml\_String}\;(\textsf{FRet}\;\textsf{OCaml\_Unit}) : \mathrm{FTy}\;\mathrm{OCaml}\;[]\;(\textsf{String} \to \textsf{IO'}\;\mathrm{OCaml}\;())
-  \end{displaymath}
+%   \begin{displaymath}
+%     \textsf{FFun}\;\textsf{OCaml\_String}\;(\textsf{FRet}\;\textsf{OCaml\_Unit}) : \mathrm{FTy}\;\mathrm{OCaml}\;[]\;(\textsf{String} \to \textsf{IO'}\;\mathrm{OCaml}\;())
+%   \end{displaymath}
 
-  \bigskip
-  \pause
+%   \bigskip
+%   \pause
 
-  \begin{itemize}
-  \item Idris generates these witnesses automatically
-  \item Every exposed type ends in \textsf{IO'}
-  \item Need codes for all OCaml types \ldots
-  \end{itemize}
-\end{frame}
+%   \begin{itemize}
+%   \item Idris generates these witnesses automatically
+%   \item Every exposed type ends in \textsf{IO'}
+%   \item Need codes for all OCaml types \ldots
+%   \end{itemize}
+% \end{frame}
 
 \begin{frame}[t]
   \frametitle{Representing OCaml types in Idris}
@@ -588,7 +600,8 @@
   \item Polymorphic signature and structure items
   \item Systematic translation of modules with type members
   \item Better treatment of optional and labelled arguments
-  \item Objects?
+  \item Generic universe of inductive types?
+  \item Objects? Polymorphic variants? Generativity? Co-/Contra-variance?
   \item Generation of wrapper code from \texttt{.mli} files
   \end{itemize}
 \end{frame}

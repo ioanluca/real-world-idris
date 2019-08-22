@@ -150,7 +150,6 @@ assocIdx k i ((k',t)::tys) = if k == k' then Just (i,t) else assocIdx k (i+1) ty
 
 infixl 1 #
 
--- FIXME: use an infix operator that looks like record lookup
 %inline
 (#) : Module tys -> (nm : String) ->
       {auto ok : assocIdx nm 0 tys = Just (i, a)} ->
